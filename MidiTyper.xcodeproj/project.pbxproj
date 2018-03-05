@@ -7,22 +7,46 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		92191BEB2046F19F0045C473 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92191BE72046F19E0045C473 /* Player.swift */; };
+		92191BEC2046F19F0045C473 /* objCMIDIBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 92191BE92046F19F0045C473 /* objCMIDIBridge.m */; };
+		922E2B2F204D87C4003E3507 /* rewindIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 922E2B2B204D87C4003E3507 /* rewindIcon.png */; };
+		922E2B30204D87C4003E3507 /* pauseIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 922E2B2C204D87C4003E3507 /* pauseIcon.png */; };
+		922E2B31204D87C4003E3507 /* playicon.png in Resources */ = {isa = PBXBuildFile; fileRef = 922E2B2D204D87C4003E3507 /* playicon.png */; };
+		922E2B32204D87C4003E3507 /* stopIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 922E2B2E204D87C4003E3507 /* stopIcon.png */; };
+		922E2B35204D8E4A003E3507 /* playAltIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 922E2B34204D8E4A003E3507 /* playAltIcon.png */; };
 		926C63D5203C57BB008AD54F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926C63D4203C57BB008AD54F /* AppDelegate.swift */; };
 		926C63D7203C57BB008AD54F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926C63D6203C57BB008AD54F /* ViewController.swift */; };
-		926C63D9203C57BB008AD54F /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926C63D8203C57BB008AD54F /* Document.swift */; };
+		926C63D9203C57BB008AD54F /* MidiData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926C63D8203C57BB008AD54F /* MidiData.swift */; };
 		926C63DB203C57BB008AD54F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 926C63DA203C57BB008AD54F /* Assets.xcassets */; };
 		926C63DE203C57BB008AD54F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 926C63DC203C57BB008AD54F /* Main.storyboard */; };
+		926C63E7203C5C75008AD54F /* if_ic_queue_music_48px_352081.icns in Resources */ = {isa = PBXBuildFile; fileRef = 926C63E6203C5C75008AD54F /* if_ic_queue_music_48px_352081.icns */; };
+		92C43E3B204834BD00B1B075 /* SMF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C43E3A204834BD00B1B075 /* SMF.swift */; };
+		92D682CD204B6E5D004AFA9A /* MIDIInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D682CC204B6E5D004AFA9A /* MIDIInterface.swift */; };
+		92D682D0204B7EDF004AFA9A /* LocationControlWC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D682CF204B7EDF004AFA9A /* LocationControlWC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		92191BE72046F19E0045C473 /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		92191BE82046F19E0045C473 /* MidiTyper-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MidiTyper-Bridging-Header.h"; sourceTree = "<group>"; };
+		92191BE92046F19F0045C473 /* objCMIDIBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = objCMIDIBridge.m; sourceTree = "<group>"; };
+		92191BEA2046F19F0045C473 /* objCMIDIBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objCMIDIBridge.h; sourceTree = "<group>"; };
+		922E2B2B204D87C4003E3507 /* rewindIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rewindIcon.png; sourceTree = "<group>"; };
+		922E2B2C204D87C4003E3507 /* pauseIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pauseIcon.png; sourceTree = "<group>"; };
+		922E2B2D204D87C4003E3507 /* playicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playicon.png; sourceTree = "<group>"; };
+		922E2B2E204D87C4003E3507 /* stopIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stopIcon.png; sourceTree = "<group>"; };
+		922E2B34204D8E4A003E3507 /* playAltIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playAltIcon.png; sourceTree = "<group>"; };
 		926C63D1203C57BB008AD54F /* MidiTyper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MidiTyper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		926C63D4203C57BB008AD54F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		926C63D6203C57BB008AD54F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		926C63D8203C57BB008AD54F /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		926C63D8203C57BB008AD54F /* MidiData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MidiData.swift; sourceTree = "<group>"; };
 		926C63DA203C57BB008AD54F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		926C63DD203C57BB008AD54F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		926C63DF203C57BB008AD54F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		926C63E0203C57BB008AD54F /* MidiTyper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MidiTyper.entitlements; sourceTree = "<group>"; };
+		926C63E6203C5C75008AD54F /* if_ic_queue_music_48px_352081.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = if_ic_queue_music_48px_352081.icns; sourceTree = "<group>"; };
+		92C43E3A204834BD00B1B075 /* SMF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMF.swift; sourceTree = "<group>"; };
+		92D682CC204B6E5D004AFA9A /* MIDIInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIInterface.swift; sourceTree = "<group>"; };
+		92D682CF204B7EDF004AFA9A /* LocationControlWC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationControlWC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,11 +60,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		922E2B33204D87E9003E3507 /* Icons */ = {
+			isa = PBXGroup;
+			children = (
+				922E2B2C204D87C4003E3507 /* pauseIcon.png */,
+				922E2B2D204D87C4003E3507 /* playicon.png */,
+				922E2B2B204D87C4003E3507 /* rewindIcon.png */,
+				922E2B2E204D87C4003E3507 /* stopIcon.png */,
+				922E2B34204D8E4A003E3507 /* playAltIcon.png */,
+			);
+			path = Icons;
+			sourceTree = "<group>";
+		};
 		926C63C8203C57BB008AD54F = {
 			isa = PBXGroup;
 			children = (
 				926C63D3203C57BB008AD54F /* MidiTyper */,
 				926C63D2203C57BB008AD54F /* Products */,
+				922E2B33204D87E9003E3507 /* Icons */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,13 +94,37 @@
 			children = (
 				926C63D4203C57BB008AD54F /* AppDelegate.swift */,
 				926C63D6203C57BB008AD54F /* ViewController.swift */,
-				926C63D8203C57BB008AD54F /* Document.swift */,
+				92D682CE204B7E5B004AFA9A /* CommonControl */,
+				92D682CB204B6E0D004AFA9A /* MidiInterface */,
+				926C63D8203C57BB008AD54F /* MidiData.swift */,
+				92C43E3A204834BD00B1B075 /* SMF.swift */,
+				92191BE82046F19E0045C473 /* MidiTyper-Bridging-Header.h */,
+				92191BEA2046F19F0045C473 /* objCMIDIBridge.h */,
+				92191BE92046F19F0045C473 /* objCMIDIBridge.m */,
+				92191BE72046F19E0045C473 /* Player.swift */,
 				926C63DA203C57BB008AD54F /* Assets.xcassets */,
 				926C63DC203C57BB008AD54F /* Main.storyboard */,
 				926C63DF203C57BB008AD54F /* Info.plist */,
 				926C63E0203C57BB008AD54F /* MidiTyper.entitlements */,
+				926C63E6203C5C75008AD54F /* if_ic_queue_music_48px_352081.icns */,
 			);
 			path = MidiTyper;
+			sourceTree = "<group>";
+		};
+		92D682CB204B6E0D004AFA9A /* MidiInterface */ = {
+			isa = PBXGroup;
+			children = (
+				92D682CC204B6E5D004AFA9A /* MIDIInterface.swift */,
+			);
+			path = MidiInterface;
+			sourceTree = "<group>";
+		};
+		92D682CE204B7E5B004AFA9A /* CommonControl */ = {
+			isa = PBXGroup;
+			children = (
+				92D682CF204B7EDF004AFA9A /* LocationControlWC.swift */,
+			);
+			path = CommonControl;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -98,6 +159,7 @@
 				TargetAttributes = {
 					926C63D0203C57BB008AD54F = {
 						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 0920;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -127,6 +189,12 @@
 			files = (
 				926C63DB203C57BB008AD54F /* Assets.xcassets in Resources */,
 				926C63DE203C57BB008AD54F /* Main.storyboard in Resources */,
+				922E2B35204D8E4A003E3507 /* playAltIcon.png in Resources */,
+				926C63E7203C5C75008AD54F /* if_ic_queue_music_48px_352081.icns in Resources */,
+				922E2B30204D87C4003E3507 /* pauseIcon.png in Resources */,
+				922E2B31204D87C4003E3507 /* playicon.png in Resources */,
+				922E2B32204D87C4003E3507 /* stopIcon.png in Resources */,
+				922E2B2F204D87C4003E3507 /* rewindIcon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,9 +205,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92C43E3B204834BD00B1B075 /* SMF.swift in Sources */,
+				92191BEB2046F19F0045C473 /* Player.swift in Sources */,
 				926C63D7203C57BB008AD54F /* ViewController.swift in Sources */,
+				92D682CD204B6E5D004AFA9A /* MIDIInterface.swift in Sources */,
+				92D682D0204B7EDF004AFA9A /* LocationControlWC.swift in Sources */,
 				926C63D5203C57BB008AD54F /* AppDelegate.swift in Sources */,
-				926C63D9203C57BB008AD54F /* Document.swift in Sources */,
+				92191BEC2046F19F0045C473 /* objCMIDIBridge.m in Sources */,
+				926C63D9203C57BB008AD54F /* MidiData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,6 +340,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MidiTyper/MidiTyper.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -274,6 +348,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ysawada.MidiTyper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "MidiTyper/MidiTyper-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -282,6 +358,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MidiTyper/MidiTyper.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -289,6 +366,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ysawada.MidiTyper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "MidiTyper/MidiTyper-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
