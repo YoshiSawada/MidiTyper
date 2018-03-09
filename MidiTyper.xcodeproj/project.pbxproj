@@ -14,6 +14,7 @@
 		922E2B31204D87C4003E3507 /* playicon.png in Resources */ = {isa = PBXBuildFile; fileRef = 922E2B2D204D87C4003E3507 /* playicon.png */; };
 		922E2B32204D87C4003E3507 /* stopIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 922E2B2E204D87C4003E3507 /* stopIcon.png */; };
 		922E2B35204D8E4A003E3507 /* playAltIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 922E2B34204D8E4A003E3507 /* playAltIcon.png */; };
+		9263F1EA204EC66300F52242 /* LocatorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9263F1E9204EC66300F52242 /* LocatorViewController.swift */; };
 		926C63D5203C57BB008AD54F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926C63D4203C57BB008AD54F /* AppDelegate.swift */; };
 		926C63D7203C57BB008AD54F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926C63D6203C57BB008AD54F /* ViewController.swift */; };
 		926C63D9203C57BB008AD54F /* MidiData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926C63D8203C57BB008AD54F /* MidiData.swift */; };
@@ -21,6 +22,7 @@
 		926C63DE203C57BB008AD54F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 926C63DC203C57BB008AD54F /* Main.storyboard */; };
 		926C63E7203C5C75008AD54F /* if_ic_queue_music_48px_352081.icns in Resources */ = {isa = PBXBuildFile; fileRef = 926C63E6203C5C75008AD54F /* if_ic_queue_music_48px_352081.icns */; };
 		92C43E3B204834BD00B1B075 /* SMF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C43E3A204834BD00B1B075 /* SMF.swift */; };
+		92C499DE20527B7D006211C4 /* DocumentWC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C499DD20527B7D006211C4 /* DocumentWC.swift */; };
 		92D682CD204B6E5D004AFA9A /* MIDIInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D682CC204B6E5D004AFA9A /* MIDIInterface.swift */; };
 		92D682D0204B7EDF004AFA9A /* LocationControlWC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D682CF204B7EDF004AFA9A /* LocationControlWC.swift */; };
 /* End PBXBuildFile section */
@@ -35,6 +37,7 @@
 		922E2B2D204D87C4003E3507 /* playicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playicon.png; sourceTree = "<group>"; };
 		922E2B2E204D87C4003E3507 /* stopIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stopIcon.png; sourceTree = "<group>"; };
 		922E2B34204D8E4A003E3507 /* playAltIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playAltIcon.png; sourceTree = "<group>"; };
+		9263F1E9204EC66300F52242 /* LocatorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocatorViewController.swift; sourceTree = "<group>"; };
 		926C63D1203C57BB008AD54F /* MidiTyper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MidiTyper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		926C63D4203C57BB008AD54F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		926C63D6203C57BB008AD54F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -45,6 +48,7 @@
 		926C63E0203C57BB008AD54F /* MidiTyper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MidiTyper.entitlements; sourceTree = "<group>"; };
 		926C63E6203C5C75008AD54F /* if_ic_queue_music_48px_352081.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = if_ic_queue_music_48px_352081.icns; sourceTree = "<group>"; };
 		92C43E3A204834BD00B1B075 /* SMF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMF.swift; sourceTree = "<group>"; };
+		92C499DD20527B7D006211C4 /* DocumentWC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentWC.swift; sourceTree = "<group>"; };
 		92D682CC204B6E5D004AFA9A /* MIDIInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIInterface.swift; sourceTree = "<group>"; };
 		92D682CF204B7EDF004AFA9A /* LocationControlWC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationControlWC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -93,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				926C63D4203C57BB008AD54F /* AppDelegate.swift */,
+				92C499DD20527B7D006211C4 /* DocumentWC.swift */,
 				926C63D6203C57BB008AD54F /* ViewController.swift */,
 				92D682CE204B7E5B004AFA9A /* CommonControl */,
 				92D682CB204B6E0D004AFA9A /* MidiInterface */,
@@ -123,6 +128,7 @@
 			isa = PBXGroup;
 			children = (
 				92D682CF204B7EDF004AFA9A /* LocationControlWC.swift */,
+				9263F1E9204EC66300F52242 /* LocatorViewController.swift */,
 			);
 			path = CommonControl;
 			sourceTree = "<group>";
@@ -205,7 +211,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9263F1EA204EC66300F52242 /* LocatorViewController.swift in Sources */,
 				92C43E3B204834BD00B1B075 /* SMF.swift in Sources */,
+				92C499DE20527B7D006211C4 /* DocumentWC.swift in Sources */,
 				92191BEB2046F19F0045C473 /* Player.swift in Sources */,
 				926C63D7203C57BB008AD54F /* ViewController.swift in Sources */,
 				92D682CD204B6E5D004AFA9A /* MIDIInterface.swift in Sources */,

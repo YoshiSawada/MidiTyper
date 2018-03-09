@@ -436,6 +436,7 @@ class MidiData: NSDocument {
         let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
         let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as! NSWindowController
         self.addWindowController(windowController)
+        windowController.window?.makeKeyAndOrderFront(self)
     }
 
     override func data(ofType typeName: String) throws -> Data {
@@ -461,6 +462,12 @@ class MidiData: NSDocument {
         case "mid":
             do {
                 try openSMF(owner: self, from: url)
+                // debug
+                makeWindowControllers()
+                showWindows()
+                
+                let nc = NotificationCenter.default
+                nc.post(name: ntDocumentOpened, object: self)
             } catch {
                 let t = type(of: error)
                 if t == ysError.self {
@@ -473,6 +480,42 @@ class MidiData: NSDocument {
         }
         Swift.print("Succeed to read SMF")
     }
+    
+    func play(_ sender: Any)  {
+        if monitor == nil { return }
+        if monitor?.beforePlayback(midiIF:del.objMidi, barseqtemp:barSeqTemplate, tracks:tracks!) == false {
+            del.displayAlert("failed to start the sequence")
+            return
+        }
+        // monitor!.isPlayable must be called after .beforePlayback
+        // because some data must be set up beforehand
+        if monitor!.isPlayable == false { return }
+        
+        // reset playPtrIndex in all tracks
+        // this loop of code may not be necessary as long as time window
+        // to retrieve array of midiRawEvents without overlapped.
+        monitor?.playEntry()
+        nc.post(name: ntPlaying, object: self)
+    }
+    
+    func toggle(_ sender: Any) {
+        if monitor?.playing == true {
+            monitor?.stop()
+            nc.post(name: ntStopped, object: self)
+            return
+        }
+        // song play reached the end. Start it oever again
+        if monitor?.didReachEnd == true && monitor?.isPlayable == true {
+            play(sender)
+            return
+        }
+        // song stopped somewhere in it. continue play
+        if monitor?.didStop == true && monitor?.isPlayable == true {
+            monitor?.playingThread()
+            nc.post(name: ntPlaying, object: self)
+        }
+    }
+    
     
     override open class var readableTypes: [String] {
         return ["com.ysawada.MidiTyper", "mid", "MIDI audio"]

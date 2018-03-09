@@ -18,6 +18,7 @@ let ntStopped = Notification.Name(rawValue: "Stopped")
 let ntEndReached = Notification.Name(rawValue: "Reached the End")
 let ntKeyAssignTableLoaded = Notification.Name(rawValue: "Key Assign Table is Loaded")
 let ntAppLaunched = Notification.Name(rawValue: "Application Launched")
+let ntDocumentOpened = Notification.Name(rawValue: "Document is opened")
 
 struct ysError: Error {
     
@@ -127,6 +128,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         do {
             let doc = try docCon?.makeDocument(withContentsOf: url, ofType: "mid")
             docCon?.addDocument(doc!)
+            
         } catch {
             // debug; add more in catching errors
             print(error)
