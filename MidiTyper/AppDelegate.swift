@@ -45,6 +45,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let objMidi:objCMIDIBridge = objCMIDIBridge()
     let storyboard: NSStoryboard?
 
+    var midiInterface: MidiInterface?
+
 
     override init() {
         docCon = nil
@@ -68,6 +70,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dc.addObserver(forName: ntPlaying, object: nil, queue: nil, using: appObserver)
         dc.addObserver(forName: ntStopped, object: nil, queue: nil, using: appObserver)
         dc.addObserver(forName: ntEndReached, object: nil, queue: nil, using: appObserver)
+        
+        // scan Midi Interface
+        midiInterface = MidiInterface()
+        
+        do {
+            try midiInterface?.prepareContent()
+        } catch {
+            print(error)
+            exit(1)
+        }
 
         let wc = storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "LocationControlWC")) as? LocationControlWC
         wc?.showWindow(self)

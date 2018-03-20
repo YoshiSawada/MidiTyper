@@ -21,6 +21,11 @@ class MidiEvent: NSObject, NSCoding {
         super.init()
     }
     
+    override func copy() -> Any {
+        let clone = MidiEvent(tick: eventTick, midiStatus: eventStatus, note: note, vel:vel, gateTime: gateTime)
+        return clone
+    }
+    
     init(tick t:Int32, midiStatus ms:UInt8, note n:UInt8, vel v:UInt8, gateTime gt: Int32) {
         super.init()
         self.eventTick = t
@@ -59,15 +64,33 @@ class MidiEvent: NSObject, NSCoding {
     }
 }
 
-class intermedSeqWithChannel {
-    let isPrefixCh:Bool
-    let channel: UInt8
-    let eventSequence:Array<MidiEvent>
+class intermedSeqWithChannel: NSObject {
+    var isPrefixCh:Bool
+    var channel: UInt8
+    var eventSequence:Array<MidiEvent>
+    
+    override init() {
+        isPrefixCh = false
+        channel = 0
+        eventSequence = Array<MidiEvent>()
+    }
     
     init(isPrefixCh isCh:Bool, channel ch:UInt8, eventSequence seq:Array<MidiEvent> ) {
         channel = ch
         eventSequence = seq
         isPrefixCh = isCh
+    }
+    
+    override func copy() -> Any {
+        let clone = intermedSeqWithChannel()
+        clone.isPrefixCh = isPrefixCh
+        clone.channel = channel
+        
+        for ev in eventSequence {
+            clone.eventSequence.append(ev.copy() as! MidiEvent)
+        }
+        
+        return clone
     }
 }
 
@@ -89,6 +112,11 @@ class MetaEvent: NSObject, NSCoding {
         self.eventTick = eventTick
         self.data = data
         super.init()
+    }
+    
+    override func copy() -> Any {
+        let clone = MetaEvent(metaTag: metaTag, eventTick: eventTick, data: data)
+        return clone
     }
     
     required convenience init?(coder aDecoder: NSCoder) {
@@ -174,6 +202,24 @@ class Bar: NSObject, NSCoding {
         aCoder.encode(metaEvents, forKey: "metaEvents")
     }
     
+    //func copy(with zone: NSZone? = nil) -> Any {
+    override func copy() -> Any {
+        let clone = Bar()
+        clone.measNum = measNum
+        clone.startTick = startTick
+        clone.timeSig = timeSig
+        clone.barLen = barLen
+        clone.nextBarTick = nextBarTick
+        for me in events {
+            clone.events.append(me.copy() as! MidiEvent)
+        }
+        for metaev in metaEvents {
+            clone.metaEvents.append(metaev.copy() as! MetaEvent)
+        }
+        
+        return clone
+    }
+    
     func canIGetIn(elapsedTick et:Int) -> String {
         if et >= startTick && et < nextBarTick {
             return "in"
@@ -228,6 +274,7 @@ class Track: NSObject, NSCoding {
         lhIndexPtr = 0
         rhIndexPtr = 0
         playChannel = 0
+        super.init()
     }
     
     init(pc: UInt8, barsArray: [Bar] ) {
@@ -252,6 +299,24 @@ class Track: NSObject, NSCoding {
     func encode(with aCoder: NSCoder) {
         aCoder.encode(bars, forKey: "bars")
         aCoder.encode(playChannel, forKey: "playChannel")
+    }
+    
+    override func copy() -> Any {
+        let clone = Track()
+        clone.curPos = curPos
+        clone.play = play
+        clone.dirty = dirty
+        clone.lhIndexPtr = lhIndexPtr
+        clone.rhIndexPtr = rhIndexPtr
+        clone.playChannel = playChannel
+        
+        if bars != nil {
+            for bar in bars! {
+                clone.bars?.append(bar.copy() as! Bar)
+            }
+        }
+
+        return clone
     }
     
     func sort () {
@@ -383,7 +448,7 @@ class MidiData: NSDocument {
     var headerLength: Int?
     var formatType: UInt16?
     var numOfTracks: Int
-    var ticksPerQuarter: UInt16?
+    var ticksPerQuarter: UInt16?    // essential information only given by original file at given time.
     var trackStartPtr: Int?
     
     
@@ -416,13 +481,14 @@ class MidiData: NSDocument {
     }
     
     
-    let del = NSApplication.shared.delegate as! AppDelegate
+    let del: AppDelegate?
     let nc = NotificationCenter.default
 
     override init() {
         curElapsedTick = 0
         nextMeasNum = 0
         numOfTracks = 0
+        del = NSApplication.shared.delegate as? AppDelegate
         super.init()
         // Add your subclass-specific initialization here.
     }
@@ -483,13 +549,13 @@ class MidiData: NSDocument {
     
     func play(_ sender: Any)  {
         if monitor == nil { return }
-        if monitor?.beforePlayback(midiIF:del.objMidi, barseqtemp:barSeqTemplate, tracks:tracks!) == false {
-            del.displayAlert("failed to start the sequence")
+        if monitor!.isPlayable == false { return }
+        if monitor?.beforePlayback(midiIF:(del?.objMidi)!, barseqtemp:barSeqTemplate, tracks:tracks!) == false {
+            del?.displayAlert("failed to start the sequence")
             return
         }
         // monitor!.isPlayable must be called after .beforePlayback
         // because some data must be set up beforehand
-        if monitor!.isPlayable == false { return }
         
         // reset playPtrIndex in all tracks
         // this loop of code may not be necessary as long as time window

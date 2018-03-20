@@ -81,31 +81,30 @@ class MidiInterface: NSObject {
 
     override func awakeFromNib(){
         //var startTime: UInt64
-        var er: OSStatus?
+    }
 
+    
+    func prepareContent() throws {
+
+        var midiDevRef:MIDIDeviceRef?
+        var er: OSStatus?
+        var err = ysError(source: "MidiInterface", line: 91, type: ysError.errorID.midiInterface)
+        
         if scanned == false {
             del = NSApp.delegate as? AppDelegate
             objMidi = del?.objMidi
             if objMidi == nil {
-                del?.displayAlert("Cannot get reference to objMidi")
+                err.line = 97
+                throw err
             }
-
+            
             objMidi!.ysCreateClient()
             er = objMidi!.ysCreateOutputPort()
             if er != noErr {
                 print("Cannot create output port for myself")
             }
-            
-            self.prepareContent()            
         }
-    }
 
-    
-    func prepareContent() {
-
-        var midiDevRef:MIDIDeviceRef?
-        // let objc : objCBridge = objCBridge()
-        
         // Explore MIDI device and port.
         
         let deviceCount = MIDIGetNumberOfDevices()
@@ -125,7 +124,8 @@ class MidiInterface: NSObject {
             midiDevRef = MIDIGetDevice(i)
             if midiDevRef == nil {
                 del?.displayAlert("midiDevRef is nill while the Midi dev count is valid")
-                return
+                err.line = 127
+                throw err
             }
             
             // add midiDevRef to array var
@@ -133,7 +133,6 @@ class MidiInterface: NSObject {
             // getName finally worked on 2017/5/10. Yhey
             
             var name:String = objMidi!.getName(midiDevRef!)
-
 
             // check if it's online
             MIDIObjectGetIntegerProperty(midiDevRef!, kMIDIPropertyOffline, &isOffline)

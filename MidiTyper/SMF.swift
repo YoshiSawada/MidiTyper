@@ -109,7 +109,7 @@ func openSMF(owner: MidiData, from url: URL) throws {
     let tq:Int = Int(owner.ticksPerQuarter!)
 
     if owner.monitor == nil {
-        owner.monitor = MonitorCenter(ticksPerQuarter: tq, nanoRatio: owner.del.objMidi.getNanoRatio())
+        owner.monitor = MonitorCenter(ticksPerQuarter: tq, nanoRatio: (owner.del?.objMidi.getNanoRatio())!)
         if owner.monitor == nil {
             err.line = 110; err.type = ysError.errorID.midiInterface
             throw err
@@ -142,7 +142,8 @@ func openSMF(owner: MidiData, from url: URL) throws {
 
     // loop to read tracks to the end
     
-    // debug. I need to know what track i have the error
+    var seqWithCh:intermedSeqWithChannel?
+
     for _ in 0..<Int(smfNumOfTrack) {
         let (seq, entireTracklen, prefixCh) = readTrack(trackPtr: buf)
         if seq == nil {
@@ -150,7 +151,7 @@ func openSMF(owner: MidiData, from url: URL) throws {
             throw err
         }
         
-        let seqWithCh:intermedSeqWithChannel?
+        seqWithCh = nil
         if seq!.count > 0 {
             if prefixCh != nil {
                 seqWithCh = intermedSeqWithChannel.init(isPrefixCh:true, channel:prefixCh!, eventSequence: seq!)
@@ -158,21 +159,17 @@ func openSMF(owner: MidiData, from url: URL) throws {
                 seqWithCh = intermedSeqWithChannel.init(isPrefixCh: false, channel: 0, eventSequence: seq!)
             }
             
-            owner.eventSeqs.append(seqWithCh!)
+            owner.eventSeqs.append(seqWithCh!.copy() as! intermedSeqWithChannel)
         }
         buf = buf.advanced(by: entireTracklen!)
     }
 
     // Putting Midi events in intermediate tracks(seqs) to bars
     for i in 0..<owner.eventSeqs.count {
-        // Swift.print("seq track # = \(i)")
         owner.track = Track()
         let seq = owner.eventSeqs[i].eventSequence
         
         for j in 0..<seq.count { // loop number of event times
-            // need fix. Check to see if bar the event should belong to exist.
-            // If not, make it. If yes, pull it to access
-            // add the event in the bar
             let ev:MidiEvent? = seq[j]
             let meas:Int? = owner.barSeqTemplate.findBar(tick: Int(ev!.eventTick), Expandable: true)
             if owner.track == nil || meas == nil {
@@ -185,7 +182,7 @@ func openSMF(owner: MidiData, from url: URL) throws {
             var ix:Int? // index
             
             if ev != nil {
-                // check if bar to that the event should belong exist or not
+                // check if bar to which the event should belong exist or not
                 // if no bar exist
                 if owner.track == nil {
                     err.line = 187
@@ -193,9 +190,9 @@ func openSMF(owner: MidiData, from url: URL) throws {
                 }
                 if owner.track!.bars == nil {
                     bar = owner.barSeqTemplate.bars![meas!]
-                    owner.track!.bars!.append(bar!)
+                    owner.track!.bars!.append(bar!.copy() as! Bar)
                     ix = 0   // I know index for the bar of interest is zero
-                } else {    // bar exit(s). Then is any of them the bar the event should belong to?
+                } else {    // bar exit(s). Then, is any of them the bar the event should belong to?
                     ix = owner.track!.index(forMeas: meas!)
                     // if false, make bar. If yes, get access the existing bar in the track
                     if ix == nil {
@@ -205,7 +202,7 @@ func openSMF(owner: MidiData, from url: URL) throws {
                             err.line = 201
                             throw err
                         }
-                        owner.track!.bars!.append(bar!)
+                        owner.track!.bars!.append(bar!.copy() as! Bar)
                         ix = owner.track!.index(forMeas: meas!)
                         if ix == nil {
                             Swift.print("failed to get index for meas = \(meas!) in track")
@@ -214,7 +211,7 @@ func openSMF(owner: MidiData, from url: URL) throws {
                         }
                     }
                 }
-                let t = owner.track!.bars![ix!].add(event: ev!, abs2rel: true)
+                let t = owner.track!.bars![ix!].add(event: ev!.copy() as! MidiEvent, abs2rel: true)
                 if t == nil {
                     Swift.print("relative tick is converted to out of range = \(String(describing: t))")
                     err.line = 216
@@ -229,10 +226,16 @@ func openSMF(owner: MidiData, from url: URL) throws {
             } else {
                 owner.track!.playChannel = nil
             }
-            owner.tracks!.append(owner.track!)
+            // debug.
+            // trying to do this in addressing bug that I have duplicated track sequency over different tracks.
+            // When verified, I don't have to use trcopied.
+            // I can directly give copy() of Track in the param to append
+            // let trcopied: Track = owner.track!.copy() as! Track
+            owner.tracks!.append(owner.track!.copy() as! Track)
         }
     }
 
+    // debug at this point I have wrong data. 2018/3/18
     if owner.tracks != nil {
         owner.numOfTracks = owner.tracks!.count
     } else {
@@ -253,7 +256,6 @@ func openSMF(owner: MidiData, from url: URL) throws {
     owner.nc.post(name: ntPlayable, object: owner)
     
     // congratulations. Success in reading SMF, I hope...
-
 }
 
 
@@ -594,10 +596,7 @@ internal func readTrack(trackPtr tr:UnsafeRawPointer) -> (seq:Array<MidiEvent>?,
             readLen += UInt32(3)
             
         case 0xc0...0xcf:
-//            midiEvt.eventStatus = buf[0]
-//            midiEvt.eventTick = elapsedTick
-//            midiEvt.note = buf[1]
-//            midiEvt.gateTime = 0
+            // program change
             midiEvt = MidiEvent(tick: elapsedTick, midiStatus: buf[0], note: buf[1], vel: 0, gateTime: 0)
             if midiEvt == nil { return (nil, nil, nil) }
             track?.append(midiEvt!)

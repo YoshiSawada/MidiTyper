@@ -91,7 +91,7 @@ class MonitorCenter {
     
     private var curIndexInTempoMap:Int = 0
     
-    //  Monitor Center Functions   ------------------------------------
+    //MARK:  Monitor Center Functions
     init (ticksPerQuarter tq: Int, nanoRatio nr: Double) {
         ticksPerQuarter = tq
         nanoRatio = nr
@@ -101,12 +101,15 @@ class MonitorCenter {
         noteOffQueue.reserveCapacity(64)
     }
     
+    // MARK: Locator control
     // To play, call functions in the order of, beforePlayback and playEntry()
-    // start() will be called from play()
+    // playEntry calls setAndGo() and then call playingThread.
     // repeat calling queue2Play.
     // In calling queue2Play repeatedly, set lhmt to the value of nanoNextTime
     // to make sure no event will be missed to play
     
+    // beforePlayback configures pointers and prepare to play. This function doesn't setup any
+    // realtime timer. Timers and counters are set in setAndGo that is called from playEntry
     func beforePlayback(midiIF:objCMIDIBridge, barseqtemp:Track, tracks:Array<Track>) -> Bool {
         // error checks should be done here instead of doing so every time in
         // queue2play or playingthread
@@ -119,7 +122,8 @@ class MonitorCenter {
 
         objMidi = midiIF
         barSeqTemplate = barseqtemp
-        tracksForPlay = tracks
+        // line below is duplicated
+        // tracksForPlay = tracks
         noteOffQueue.removeAll(keepingCapacity: true)
         midiEventQueue.removeAll(keepingCapacity: true)
         lhBar = 0
@@ -130,23 +134,6 @@ class MonitorCenter {
             tracksForPlay![i].rhIndexPtr = 0
         }
         return true
-    }
-    
-    // this function is supposed to be called from play()
-    //  Setting up nanoAtStart, nanoNextTime
-    //  Checking tracksForPlay and trackTable
-    private func setAndGo() -> Array<midiRawEvent>? {
-        if self.isPlayable == false {
-            print("isPlayable == false")
-            return nil
-        }
-        nanoAtStart = mach_absolute_time() + DeferNanoTime
-        nanoNextTime = nanoAtStart
-        
-        let eventqueue = self.queue2Play()
-
-        didReachEnd = false
-        return eventqueue
     }
     
     func playEntry() {
@@ -168,7 +155,52 @@ class MonitorCenter {
         //  Maybe I should put some adaptive playback algorithm to synchronize is time
         playingThread()
     }
+
+    func stop() {
+        // flush out note off event right now
+        
+        self.playing = false
+        self.didStop = true
+        
+        if noteOffQueue.count == 0 {
+            return
+        }
+        
+        let i64 = nanoNextTime + 10000000   // send note offs 10ms later than
+        // the last event on queue
+        let d:Double = Double(i64) * nanoRatio
+        let miditime:__uint64_t = __uint64_t(d)
+        
+        _ = self.objMidi?.midiPacketInit()
+        for event in noteOffQueue {
+            var ev = event
+            // debug: check to see if the byte order is correct in &ev.data
+            
+            _ = objMidi?.setEvent(Int32(event.size), data: &ev.data, eventTime: miditime)
+        }
+        objMidi?.send()
+        
+    } // end of stop function
+
     
+    // MARK: Private functions and thread
+    
+    // this function is supposed to be called from play()
+    //  Setting up nanoAtStart, nanoNextTime
+    //  Checking tracksForPlay and trackTable
+    private func setAndGo() -> Array<midiRawEvent>? {
+        if self.isPlayable == false {
+            print("isPlayable == false")
+            return nil
+        }
+        nanoAtStart = mach_absolute_time() + DeferNanoTime
+        nanoNextTime = nanoAtStart
+        
+        let eventqueue = self.queue2Play()
+        
+        didReachEnd = false
+        return eventqueue
+    }
     
     // Machtime should be given in absolute base. That way we can share the time window in synch.
     //
@@ -312,6 +344,14 @@ class MonitorCenter {
         // sort midi event queue and make final midi raw event queue
         let playbackqueue = midiEventQueue.sorted(by: {$0.machtime < $1.machtime})
         
+        // debug
+        // print("lhbar:\(String(describing: lhbar)) rhbar:\(String(describing: rhbar))")
+        
+//        for midiEv in playbackqueue {
+//
+//            print(String(format: "st:%2x note:%2x vel:%2x", midiEv.data[0], midiEv.data[1], midiEv.data[2]))
+//        }
+        
         return playbackqueue
     }   // end of queue2Play
     
@@ -339,6 +379,8 @@ class MonitorCenter {
                         _ = self.objMidi?.midiPacketInit()
                         if evQueue!.count > 0 {
                             for ev in evQueue! {
+                                // debug
+                                // print(String(format: "in thread, %2x, %2x, %2x", ev.data[0],ev.data[1],ev.data[2]))
                                 var vev = ev
                                 _ = self.objMidi?.setEvent(Int32(ev.size), data: &vev.data, eventTime: ev.machtime)
                             }
@@ -371,34 +413,9 @@ class MonitorCenter {
         
 
     }   // end of playingThread
-    
-    func stop() {
-        // flush out note off event right now
-        
-        self.playing = false
-        self.didStop = true
-        
-        if noteOffQueue.count == 0 {
-            return
-        }
-        
-        let i64 = nanoNextTime + 10000000   // send note offs 10ms later than
-                                        // the last event on queue
-        let d:Double = Double(i64) * nanoRatio
-        let miditime:__uint64_t = __uint64_t(d)
-        
-        _ = self.objMidi?.midiPacketInit()
-        for event in noteOffQueue {
-            var ev = event
-            // debug: check to see if the byte order is correct in &ev.data
-            
-            _ = objMidi?.setEvent(Int32(event.size), data: &ev.data, eventTime: miditime)
-        }
-        objMidi?.send()
 
-    } // end of stop function
-
-    
+    //MARK: Sub functions
+    //
     func getTick(byMachtime mt:__uint64_t) -> Int? {
         if tempoMapSeq.count == 0 {
             return nil
