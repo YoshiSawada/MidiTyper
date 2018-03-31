@@ -106,12 +106,12 @@ func openSMF(owner: MidiData, from url: URL) throws {
     // start reading the track(s)
     //
     // As we've got ticksPerQuarter, initialize monitor center
-    let tq:Int = Int(owner.ticksPerQuarter!)
+    //let tq:Int = Int(owner.ticksPerQuarter!)
 
     if owner.monitor == nil {
-        owner.monitor = MonitorCenter(ticksPerQuarter: tq, nanoRatio: (owner.del?.objMidi.getNanoRatio())!)
+        owner.monitor = MonitorCenter(midiIF: owner.del!.objMidi)
         if owner.monitor == nil {
-            err.line = 110; err.type = ysError.errorID.midiInterface
+            err.line = 114; err.type = ysError.errorID.midiInterface
             throw err
         }
     }
@@ -451,7 +451,7 @@ private func readMetaEvent (MidiData owner:MidiData, offset ofs:Int, eventTick e
         
         var nanoPerTick: __uint64_t = owner.metaTempoToNanoPerQuarter (metaEvent: metaEvt)!
         
-        nanoPerTick = nanoPerTick / __uint64_t(owner.monitor!.ticksPerQuarter)
+        nanoPerTick = nanoPerTick / __uint64_t(owner.ticksPerQuarter!)
         
         owner.monitor!.addTempoMapElement(eventTick: metaEvt.eventTick, nanoPerTick: nanoPerTick)
         owner.monitor!.isTempoInitialized = true

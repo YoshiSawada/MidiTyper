@@ -78,15 +78,10 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         keyAssign(position: 25, action: "enter", keyLabel: "enter", code: 76)
     ]
     
-//    @IBOutlet weak var keyAssignTableView: NSTableView!
     @IBOutlet weak var keyAssignTableView: NSTableView!
     @IBOutlet weak var restore2defaultButton: NSButton!
     @IBOutlet weak var editShortcutKeyButton: NSButton!
     @IBOutlet weak var compareButton: NSButton!
-    //    @IBOutlet weak var restore2defaultButton: NSButton!
-//    @IBOutlet weak var editShortcutKeyButton: NSButton!
-//    @IBOutlet weak var compareButton: NSButton!
-//    @IBOutlet var containingView: NSView!
     
     var del:AppDelegate?
     var keyAssignTable = Array<keyAssign>()
@@ -139,9 +134,6 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         // prepare to get double click event
         //keyAssignTableView.target = self
         //keyAssignTableView.doubleAction = #selector(tableViewDoubleClick(_:))
-
-        
-        //keyAssignTableView.window?.delegate = self as NSWindowDelegate
     }
     
     func tvObserver(notice: Notification) -> Void {

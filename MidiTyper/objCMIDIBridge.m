@@ -58,7 +58,6 @@ const UInt32 kDelta3byteLimit = 0x1fffff;
     if (pktBuffer) {
         free(pktBuffer);
     }
-
 }
 
 -(NSString *)getName : (MIDIObjectRef)midiObj {

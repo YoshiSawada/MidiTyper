@@ -229,7 +229,7 @@ class Bar: NSObject, NSCoding {
         return "after"
     }
     
-    func rel2abs(indexOfEvent i: Int) -> Int {
+    func rel2abstick(indexOfEvent i: Int) -> Int {
         if (events.count) < i - 1 {
             return 0
         }
@@ -496,6 +496,10 @@ class MidiData: NSDocument {
     override class var autosavesInPlace: Bool {
         return false
     }
+    
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(ticksPerQuarter, forKey: "ticksPerQuarter")
+    }
 
     override func makeWindowControllers() {
         // Returns the Storyboard that contains your Document window.
@@ -525,9 +529,12 @@ class MidiData: NSDocument {
     
     override func read(from url: URL, ofType typeName: String) throws {
         switch typeName {
-        case "mid":
+        case "mid", "MIDI audio":
             do {
                 try openSMF(owner: self, from: url)
+                if monitor?.prepare2Play(barseqtemp: barSeqTemplate, tracks: tracks!) == false {
+                    del?.displayAlert("prepare2Play failed")
+                }
                 // debug
                 makeWindowControllers()
                 showWindows()
@@ -547,41 +554,46 @@ class MidiData: NSDocument {
         Swift.print("Succeed to read SMF")
     }
     
-    func play(_ sender: Any)  {
+    func start(_ sender: Any)  {
         if monitor == nil { return }
-        if monitor!.isPlayable == false { return }
-        if monitor?.beforePlayback(midiIF:(del?.objMidi)!, barseqtemp:barSeqTemplate, tracks:tracks!) == false {
-            del?.displayAlert("failed to start the sequence")
-            return
-        }
-        // monitor!.isPlayable must be called after .beforePlayback
+// Block below moved to read(..) in MidiData
+        //        if monitor?.prepare2Play(barseqtemp:barSeqTemplate, tracks:tracks!) == false {
+//            del?.displayAlert("failed to start the sequence")
+//            return
+//        }
+        // monitor!.isPlayable must be called after .prepare2Play
         // because some data must be set up beforehand
+        if monitor!.isPlayable == false { return }
         
-        // reset playPtrIndex in all tracks
-        // this loop of code may not be necessary as long as time window
-        // to retrieve array of midiRawEvents without overlapped.
-        monitor?.playEntry()
-        nc.post(name: ntPlaying, object: self)
+        monitor?.startEntry()
+    }
+    
+    func stop() {
+        monitor?.stop()
+    }
+    
+    func rewind() {
+        monitor?.rewind()
     }
     
     func toggle(_ sender: Any) {
-        if monitor?.playing == true {
-            monitor?.stop()
-            nc.post(name: ntStopped, object: self)
-            return
-        }
-        // song play reached the end. Start it oever again
-        if monitor?.didReachEnd == true && monitor?.isPlayable == true {
-            play(sender)
-            return
-        }
-        // song stopped somewhere in it. continue play
-        if monitor?.didStop == true && monitor?.isPlayable == true {
-            monitor?.playingThread()
-            nc.post(name: ntPlaying, object: self)
-        }
+        monitor?.toggle(self)
     }
     
+    func locate(bar: Int, beat: Int, clock: Int) -> Void {
+        if monitor == nil {
+            let nc = NotificationCenter.default
+            let str = String("Midi Interface doesn't seem to be valid")
+            nc.post(name: ntInvalidLocation, object: str)
+        }
+
+        let result = monitor?.locate(byBar: bar, beat: beat, clock: clock)
+        
+        if result == nil {
+            let nc = NotificationCenter.default
+            nc.post(name: ntInvalidLocation, object: String("Specified location is not valid"))
+        }
+    }
     
     override open class var readableTypes: [String] {
         return ["com.ysawada.MidiTyper", "mid", "MIDI audio"]

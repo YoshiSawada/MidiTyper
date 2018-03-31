@@ -7,10 +7,20 @@
 //
 
 import Foundation
+import Cocoa
 
 var trackTable: Array<TrackMap>?
 let DeferNanoTime:__uint64_t = 50000000 // 50msec
-let PlayTimeWindow:__uint64_t = 500000000   // 500msec
+let PlayTimeWindow:__uint64_t = 100000000   // 100msec
+let PlayingThreadInterval: TimeInterval = 0.025 // double in sec, 25ms
+
+enum PlayEngineStatus {
+    case NotReady
+    case ReadyToPlay
+    case Playing
+    case Pause
+    case Finished
+}
 
 class TrackMap {
     var trackIndex:Int = 0
@@ -42,7 +52,7 @@ class MonitorCenter {
     var curTimeSig: Dictionary<String, Int> = ["num":4, "denom":2]
     var isOrderOfBarDirty: Bool = false
     let nanoRatio: Double
-    let ticksPerQuarter: Int
+    // let ticksPerQuarter: Int
     var tempoMapSeq:Array<TempoMap> = Array<TempoMap>()
     var isTempoMapDirty = false
     var midiEventQueue:Array<midiRawEvent> = Array<midiRawEvent>()
@@ -50,8 +60,9 @@ class MonitorCenter {
     var barSeqTemplate: Track = Track()
     var isBarSeqTemplateInitialized = false
     var lhBar, rhBar: Int
-    var nanoAtStart:__uint64_t = 0
-    var nanoNextTime:__uint64_t = 0
+    var nanoAtStart: __uint64_t = 0
+    var nanoNextTime: __uint64_t = 0
+    var nanoPlayhead: __uint64_t = 0
     var isPlayable: Bool {
         get {
             if tracksForPlay == nil { return false }
@@ -67,12 +78,16 @@ class MonitorCenter {
             return true
         }
     }
+    // status monitor
     var playing: Bool = false
     var didStop: Bool = false
     var didReachEnd: Bool = false
+    var status: PlayEngineStatus
+    
+    // main data to play
     var tracksForPlay:Array<Track>?
     
-    
+    // midi data with machtime
     struct midiRawEvent {
         let size:Int
         var data:[UInt8] = [0, 0, 0, 0]
@@ -92,25 +107,45 @@ class MonitorCenter {
     private var curIndexInTempoMap:Int = 0
     
     //MARK:  Monitor Center Functions
-    init (ticksPerQuarter tq: Int, nanoRatio nr: Double) {
-        ticksPerQuarter = tq
-        nanoRatio = nr
+    //init (ticksPerQuarter tq: Int, nanoRatio nr: Double) {
+    init(midiIF:objCMIDIBridge) {
+        objMidi = midiIF
+        //ticksPerQuarter = tq
+        nanoRatio = objMidi!.getNanoRatio()
         lhBar = 0
         rhBar = 0
+        status = PlayEngineStatus.NotReady
         midiEventQueue.reserveCapacity(64)
         noteOffQueue.reserveCapacity(64)
     }
     
     // MARK: Locator control
-    // To play, call functions in the order of, beforePlayback and playEntry()
-    // playEntry calls setAndGo() and then call playingThread.
-    // repeat calling queue2Play.
+
+    func toggle(_ sender: Any) {
+        switch status {
+        case PlayEngineStatus.ReadyToPlay:
+            startEntry()
+        case PlayEngineStatus.Playing:
+            stop()
+        case PlayEngineStatus.Pause:
+            contPlay()
+        case PlayEngineStatus.Finished:
+            rewind()
+            playingThread()
+        default:
+            return
+        }
+    }
+    
+    // To play, call functions in the order of, prepare2Play and startEntry()
+    // startEntry calls setAndGo() and then call playingThread.
+    // Then it repeats calling queue2Play.
     // In calling queue2Play repeatedly, set lhmt to the value of nanoNextTime
     // to make sure no event will be missed to play
     
     // beforePlayback configures pointers and prepare to play. This function doesn't setup any
     // realtime timer. Timers and counters are set in setAndGo that is called from playEntry
-    func beforePlayback(midiIF:objCMIDIBridge, barseqtemp:Track, tracks:Array<Track>) -> Bool {
+    func prepare2Play(barseqtemp:Track, tracks:Array<Track>) -> Bool {
         // error checks should be done here instead of doing so every time in
         // queue2play or playingthread
         barSeqTemplate = barseqtemp
@@ -120,23 +155,14 @@ class MonitorCenter {
             return false
         }
 
-        objMidi = midiIF
+        // objMidi = midiIF
         barSeqTemplate = barseqtemp
-        // line below is duplicated
-        // tracksForPlay = tracks
-        noteOffQueue.removeAll(keepingCapacity: true)
-        midiEventQueue.removeAll(keepingCapacity: true)
-        lhBar = 0
-        rhBar = 0
         isBarSeqTemplateInitialized = true
-        for i in 0..<tracksForPlay!.count {
-            tracksForPlay![i].lhIndexPtr = 0
-            tracksForPlay![i].rhIndexPtr = 0
-        }
+        rewind()
         return true
     }
     
-    func playEntry() {
+    func startEntry() {
         _ = objMidi?.midiPacketInit()
         let eventqueue = self.setAndGo()
         if eventqueue == nil {
@@ -150,37 +176,167 @@ class MonitorCenter {
             _ = objMidi?.setEvent(Int32(event.size), data: &ev.data, eventTime: event.machtime)
         }
         objMidi?.send()
-        
-        // call playing thread and continue to play
-        //  Maybe I should put some adaptive playback algorithm to synchronize is time
+
         playingThread()
     }
 
     func stop() {
         // flush out note off event right now
         
-        self.playing = false
-        self.didStop = true
-        
-        if noteOffQueue.count == 0 {
+        switch status {
+        case PlayEngineStatus.Playing:
+            self.playing = false
+            self.didStop = true
+            status = PlayEngineStatus.Pause
+            nc.post(name: ntStopped, object: self)
+
+            if noteOffQueue.count == 0 {
+                return
+            }
+            
+            let i64 = nanoNextTime + 10000000   // send note offs 10ms later than
+            // the last event on queue
+            let d:Double = Double(i64) * nanoRatio
+            let miditime:__uint64_t = __uint64_t(d)
+            
+            _ = self.objMidi?.midiPacketInit()
+            for event in noteOffQueue {
+                var ev = event
+                // debug: check to see if the byte order is correct in &ev.data
+                
+                _ = objMidi?.setEvent(Int32(event.size), data: &ev.data, eventTime: miditime)
+            }
+            objMidi?.send()
+            
+            // store playhead point
+            nanoPlayhead = nanoNextTime - nanoAtStart
+            
+        default:
             return
         }
-        
-        let i64 = nanoNextTime + 10000000   // send note offs 10ms later than
-        // the last event on queue
-        let d:Double = Double(i64) * nanoRatio
-        let miditime:__uint64_t = __uint64_t(d)
-        
-        _ = self.objMidi?.midiPacketInit()
-        for event in noteOffQueue {
-            var ev = event
-            // debug: check to see if the byte order is correct in &ev.data
-            
-            _ = objMidi?.setEvent(Int32(event.size), data: &ev.data, eventTime: miditime)
-        }
-        objMidi?.send()
-        
     } // end of stop function
+    
+    func rewind() {
+        switch status {
+        case PlayEngineStatus.Playing:
+            stop()
+//            lhBar = 0
+//            rhBar = 0
+//            for tr in tracksForPlay! {
+//                tr.lhIndexPtr = 0
+//                tr.rhIndexPtr = 0
+//            }
+            status = PlayEngineStatus.ReadyToPlay
+            nanoPlayhead = 0
+        case PlayEngineStatus.Pause, PlayEngineStatus.Finished:
+//            lhBar = 0
+//            rhBar = 0
+//            for tr in tracksForPlay! {
+//                tr.lhIndexPtr = 0
+//                tr.rhIndexPtr = 0
+//            }
+            status = PlayEngineStatus.ReadyToPlay
+            nanoPlayhead = 0
+        default:    // if not ready
+            return
+        }
+    }
+    
+    func contPlay() -> Void {
+        nanoNextTime = mach_absolute_time() + DeferNanoTime
+        nanoAtStart = nanoNextTime - nanoPlayhead
+        playingThread()
+    }
+    
+    // take song position pointer value, set the location,
+    //  and return elapsed tick from the start
+    func locate(byF2H songPointer: Int) -> (meas: Int?, beat: Int?, tick: Int?) {
+        let elapsedMidiClock = songPointer * 6
+        
+        guard let ticksPerQuater: Int = getTicksPerQuarter() else {
+            return (nil, nil, nil)
+        }
+        
+        let ticksPerMidiclock = ticksPerQuater / 24
+        if ticksPerMidiclock < 1 {
+            print("The song has too coarse ticks per quarter to locate by song position pointer")
+            return (nil, nil, nil)
+        }
+        
+        let elapsedTicks = elapsedMidiClock * ticksPerMidiclock
+        
+        // locate to elapsedTicks
+        guard let aMachtime = machTime(byTick: elapsedTicks) else {
+            return (nil, nil, nil)
+        }
+        
+        // find what bar, beat and clock
+        guard let measnum = barSeqTemplate.findBar(tick: elapsedTicks, Expandable: false) else {
+            return (nil, nil, nil)
+        }
+        
+        guard let barindex = barSeqTemplate.index(forMeas: measnum) else {
+            return (nil, nil, nil)
+        }
+        let bar = barSeqTemplate.bars![barindex]
+        
+        let tickStartOfBar = bar.startTick
+        var offsetTicksInBar = elapsedTicks - tickStartOfBar
+        if offsetTicksInBar == 0 {
+            // it's sharp begininng of the bar
+            return (meas: measnum, beat: 0, tick: 0)
+        }
+        let denom = 2 << bar.timeSig["denom"]!
+        let beat = offsetTicksInBar / (getTicksPerQuarter()! * 4 / denom)
+        offsetTicksInBar = offsetTicksInBar % (getTicksPerQuarter()! * 4 / denom)
+        
+        // for now, I don't limit doing this when it's in play.
+        nanoPlayhead = aMachtime
+        nanoNextTime = mach_absolute_time() + DeferNanoTime
+        nanoAtStart = nanoAtStart - nanoPlayhead
+
+        return (meas: measnum, beat: beat, tick: offsetTicksInBar)
+    }
+    
+    
+    // Take bar number and beat number and locate to it. Return elapsedTick value
+    func locate(byBar: Int, beat: Int, clock: Int) -> Int? {
+        
+        var elapsedTick: Int
+        let nc = NotificationCenter.default
+        
+        if byBar == 0 || beat == 0 || clock == 0 {
+            nc.post(name: ntInvalidLocation, object: String("bar or beat or clock is = 0"))
+            return nil
+        }
+        
+        guard let bar = barSeqTemplate.bars?[byBar] else {
+            return nil
+        }
+        elapsedTick = bar.startTick
+        
+        guard let beatTick = getTicksPerQuarter() else {
+            return nil
+        }
+        
+        var factor: Double
+        factor = Double(1 << bar.timeSig["denom"]!)
+        factor = 4 / factor
+
+        elapsedTick += beatTick * beat * Int(factor)
+        elapsedTick += clock
+        
+        guard let machtime = machTime(byTick: elapsedTick) else {
+            return nil
+        }
+        
+        // for now, I don't limit doing this when it's in play.
+        nanoPlayhead = machtime
+        nanoNextTime = mach_absolute_time() + DeferNanoTime
+        nanoAtStart = nanoNextTime - nanoPlayhead
+
+        return elapsedTick
+    }
 
     
     // MARK: Private functions and thread
@@ -237,6 +393,7 @@ class MonitorCenter {
         
         if lhbar == nil && rhbar == nil {
             self.playing = false
+            status = PlayEngineStatus.Finished
             return nil  // considered no more data
         }
         if rhbar == nil {
@@ -259,7 +416,7 @@ class MonitorCenter {
                 
                 for k in 0..<tracksForPlay![i].bars![ix].events.count {
                     let ev = tracksForPlay![i].bars![ix].events[k]
-                    let tick = tracksForPlay![i].bars![ix].rel2abs(indexOfEvent: k)
+                    let tick = tracksForPlay![i].bars![ix].rel2abstick(indexOfEvent: k)
                     if (tick >= lhTick!) && (tick < rhTick!) {
                         // push the event to midi playback stack
                         
@@ -345,12 +502,12 @@ class MonitorCenter {
         let playbackqueue = midiEventQueue.sorted(by: {$0.machtime < $1.machtime})
         
         // debug
-        // print("lhbar:\(String(describing: lhbar)) rhbar:\(String(describing: rhbar))")
+         print("lhbar:\(String(describing: lhbar)) rhbar:\(String(describing: rhbar))")
         
-//        for midiEv in playbackqueue {
-//
-//            print(String(format: "st:%2x note:%2x vel:%2x", midiEv.data[0], midiEv.data[1], midiEv.data[2]))
-//        }
+        // for midiEv in playbackqueue {
+        //
+        //  print(String(format: "st:%2x note:%2x vel:%2x", midiEv.data[0], midiEv.data[1], midiEv.data[2]))
+        // }
         
         return playbackqueue
     }   // end of queue2Play
@@ -359,6 +516,9 @@ class MonitorCenter {
         // spawn thread
         playing = true
         didStop = false
+
+        status = PlayEngineStatus.Playing
+        nc.post(name: ntPlaying, object: self)
 
         DispatchQueue.global(qos: .userInitiated).async {
             var i:Int = 0   // debug
@@ -396,7 +556,7 @@ class MonitorCenter {
                     i = 0
                 }   // debug end
                 
-                Thread.sleep(forTimeInterval: 0.025)
+                Thread.sleep(forTimeInterval: PlayingThreadInterval)
             } while self.playing == true
 
             DispatchQueue.main.async {
@@ -465,6 +625,26 @@ class MonitorCenter {
         tempoMapSeq = map
     }
     
+    func getTicksPerQuarter() -> Int? {
+        // Get ticksPerQuarter from barSeqTemplate
+        if barSeqTemplate.bars == nil { return nil }
+        if barSeqTemplate.bars!.count == 0 { return nil }
+        
+        let bar = barSeqTemplate.bars![0]
+        let barlen = bar.barLen
+        var factor: Double
+        factor = Double(1
+            << bar.timeSig["denom"]!)
+        factor = factor / 4
+        
+        let d = Double(barlen / bar.timeSig["num"]!) * factor
+        let ticksPerQuarter = Int(d)
+        
+        return ticksPerQuarter
+    }
+    
+    // Take elapsed tick value
+    // and return offset machtime from the start of the song
     func machTime(byTick tick: Int) -> __uint64_t? {
         if tempoMapSeq.count == 0 {
             return nil
@@ -511,6 +691,7 @@ class MonitorCenter {
 
 }   // end of class MonitorCenter
 
+// MARK: -- functions not in a class
 
 func makeTrackTable(MidiData md:MidiData) -> Bool {
     if trackTable != nil {

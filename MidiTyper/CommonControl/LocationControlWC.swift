@@ -19,5 +19,10 @@ class LocationControlWC: NSWindowController {
     
         // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
     }
+    
+    override func keyDown(with event: NSEvent) {
+        let str = String(format: "Locator WinCon receives keydown %2x", event.keyCode)
+        print(str)
+    }
 
 }

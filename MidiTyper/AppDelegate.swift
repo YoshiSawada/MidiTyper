@@ -19,6 +19,7 @@ let ntEndReached = Notification.Name(rawValue: "Reached the End")
 let ntKeyAssignTableLoaded = Notification.Name(rawValue: "Key Assign Table is Loaded")
 let ntAppLaunched = Notification.Name(rawValue: "Application Launched")
 let ntDocumentOpened = Notification.Name(rawValue: "Document is opened")
+let ntInvalidLocation = Notification.Name(rawValue: "Invalid locator value")
 
 struct ysError: Error {
     
@@ -82,9 +83,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let wc = storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "LocationControlWC")) as? LocationControlWC
-        wc?.showWindow(self)
-
+        wc?.showWindow(self)        
     }
+
 
     func appObserver(notf: Notification) -> Void {
         switch notf.name {
@@ -157,5 +158,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         al.runModal()
     }
     
+    func saveDocumentAs(sender: Any) {
+        print("save as is called")
+    }
 }
 
