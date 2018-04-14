@@ -580,14 +580,14 @@ class MidiData: NSDocument {
         monitor?.toggle(self)
     }
     
-    func locate(bar: Int, beat: Int, clock: Int) -> Void {
+    func locate(bar: Int, beat: Int, clock: Int) throws {
         if monitor == nil {
             let nc = NotificationCenter.default
             let str = String("Midi Interface doesn't seem to be valid")
             nc.post(name: ntInvalidLocation, object: str)
         }
 
-        let result = monitor?.locate(byBar: bar, beat: beat, clock: clock)
+        let result = try monitor?.locate(byBar: bar, beat: beat, clock: clock)
         
         if result == nil {
             let nc = NotificationCenter.default

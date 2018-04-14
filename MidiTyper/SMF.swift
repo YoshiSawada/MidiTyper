@@ -34,7 +34,7 @@ func openSMF(owner: MidiData, from url: URL) throws {
     fseek(fpin, 0, SEEK_END)
     let length = ftell(fpin)
     fseek(fpin, 0, SEEK_SET)
-    owner.SMF = UnsafeMutableRawPointer.allocate(bytes: length, alignedTo: 4)
+    owner.SMF = UnsafeMutableRawPointer.allocate(byteCount: length, alignment: 4)
     if owner.SMF == nil {
         err.line = 37; err.type = ysError.errorID.readFile
         throw err
@@ -244,7 +244,10 @@ func openSMF(owner: MidiData, from url: URL) throws {
     
     owner.eventSeqs.removeAll()     // delete eventSeqs buffer
 
-    owner.SMF!.deallocate(bytes: length, alignedTo: 1)    // don't know if alignedTo: 1 is OK
+    // debug: according to complier warning, I changed from
+    // deallocate(bytes: ....) to deallocate()
+    //owner.SMF!.deallocate(bytes: length, alignedTo: 1)    // don't know if alignedTo: 1 is OK
+    owner.SMF!.deallocate()
 
     // Prepare track map (matrix) to play
     if makeTrackTable(MidiData: owner) == false {
@@ -636,7 +639,7 @@ internal func readTrack(trackPtr tr:UnsafeRawPointer) -> (seq:Array<MidiEvent>?,
                 }
             }
             
-            piece.deallocate(bytes: Int(tracklen - readLen), alignedTo: 1)
+            //piece.deallocate(bytes: Int(tracklen - readLen), alignedTo: 1)
             
         case 0xff: // meta event
             // interpret MIDI channel prefix at least

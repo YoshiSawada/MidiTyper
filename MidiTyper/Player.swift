@@ -104,6 +104,7 @@ class MonitorCenter {
         }
     }
     
+    var isPlayingTimeLocked: Bool
     private var curIndexInTempoMap:Int = 0
     
     //MARK:  Monitor Center Functions
@@ -117,6 +118,7 @@ class MonitorCenter {
         status = PlayEngineStatus.NotReady
         midiEventQueue.reserveCapacity(64)
         noteOffQueue.reserveCapacity(64)
+        isPlayingTimeLocked = false
     }
     
     // MARK: Locator control
@@ -300,17 +302,27 @@ class MonitorCenter {
     
     
     // Take bar number and beat number and locate to it. Return elapsedTick value
-    func locate(byBar: Int, beat: Int, clock: Int) -> Int? {
+    func locate(byBar: Int, beat: Int, clock: Int) throws -> Int? {
         
         var elapsedTick: Int
         let nc = NotificationCenter.default
         
-        if byBar == 0 || beat == 0 || clock == 0 {
+        if byBar == 0 || beat == 0 {
             nc.post(name: ntInvalidLocation, object: String("bar or beat or clock is = 0"))
             return nil
         }
         
-        guard let bar = barSeqTemplate.bars?[byBar] else {
+        if barSeqTemplate.bars == nil {
+            return nil
+        }
+        
+        if (barSeqTemplate.bars?.count)! < byBar {
+            // debug
+            print("specified bar is out of range")
+            return nil
+        }
+        
+        guard let bar = barSeqTemplate.bars?[byBar - 1] else {
             return nil
         }
         elapsedTick = bar.startTick
@@ -323,8 +335,22 @@ class MonitorCenter {
         factor = Double(1 << bar.timeSig["denom"]!)
         factor = 4 / factor
 
-        elapsedTick += beatTick * beat * Int(factor)
+        elapsedTick += beatTick * (beat-1) * Int(factor)
         elapsedTick += clock
+        
+        var waitcounter: Int = 0
+        
+        while isPlayingTimeLocked == true {
+            // debug
+            print("locator waits \(waitcounter) times")
+            
+            Thread.sleep(forTimeInterval: PlayingThreadInterval / 2)
+            waitcounter += 1
+            if waitcounter > 4 {
+                let err = ysError.init(source: "Player", line: 337, type: ysError.errorID.timeoutForSemaphor)
+                throw err
+            }
+        }
         
         guard let machtime = machTime(byTick: elapsedTick) else {
             return nil
@@ -525,6 +551,8 @@ class MonitorCenter {
             var j:Int = 0   // debug
             
             repeat {
+                self.isPlayingTimeLocked = true
+                
                 let now = mach_absolute_time()
                 if self.nanoNextTime < now {
                     // this point may be the entry of contine play
@@ -556,7 +584,9 @@ class MonitorCenter {
                     i = 0
                 }   // debug end
                 
+                self.isPlayingTimeLocked = false
                 Thread.sleep(forTimeInterval: PlayingThreadInterval)
+                
             } while self.playing == true
 
             DispatchQueue.main.async {

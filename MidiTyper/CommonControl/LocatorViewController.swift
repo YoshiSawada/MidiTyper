@@ -10,14 +10,26 @@ import Cocoa
 
 class LocatorViewController: NSViewController, NSTextFieldDelegate, NSWindowDelegate {
 
+    enum FieldID {
+        case BarField
+        case BeatField
+        case ClockField
+        case Nobody
+    }
+
     override var acceptsFirstResponder: Bool { return true }
+    var curFocus: FieldID = .Nobody
     var docCon: NSDocumentController?
     var currentDoc: MidiData?
+    var parentWC: LocationControlWC?
+    let del: AppDelegate? = NSApplication.shared.delegate as? AppDelegate
+
     
-    @IBOutlet weak var messageTextField: NSTextField!
-    @IBOutlet weak var barNumberField: NSTextField!
-    @IBOutlet weak var beatNumberField: NSTextField!
-    @IBOutlet weak var clockNumberField: NSTextField!
+    @IBOutlet weak var messageTextField: LocatorTextField!
+    @IBOutlet weak var barNumberField: LocatorTextField!
+    @IBOutlet weak var beatNumberField: LocatorTextField!
+    @IBOutlet weak var clockNumberField: LocatorTextField!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,7 +39,24 @@ class LocatorViewController: NSViewController, NSTextFieldDelegate, NSWindowDele
         dc.addObserver(forName:ntDocumentOpened, object:nil, queue:nil, using:locatorObserver)
         dc.addObserver(forName: ntInvalidLocation, object: nil, queue: nil, using: locatorObserver)
         // Do view setup here.
-        barNumberField.delegate = self as NSTextFieldDelegate
+        // debug: try masking itself from being delegate. See if it makes any difference
+//        barNumberField.delegate = self as NSTextFieldDelegate
+//        beatNumberField.delegate = self as NSTextFieldDelegate
+//        clockNumberField.delegate = self as NSTextFieldDelegate
+        
+        barNumberField.doubleValue = 1
+        barNumberField.nextKeyView = beatNumberField
+        
+        beatNumberField.doubleValue = 1
+        beatNumberField.nextKeyView = clockNumberField
+        clockNumberField.doubleValue = 0
+        clockNumberField.nextKeyView = barNumberField
+        
+        // make bar field FirstResponder
+        // But window is not available at the point of viewDidLoad. Defer this process later.
+        // view.window?.makeFirstResponder(barNumberField)
+
+        dc.post(name: ntDidLoadLocationTextField, object: self)
     }
 
     func locatorObserver(notf: Notification) -> Void {
@@ -46,13 +75,58 @@ class LocatorViewController: NSViewController, NSTextFieldDelegate, NSWindowDele
     }
     
     override func keyDown(with event: NSEvent) {
+        
+        var curField: LocatorTextField?
+        
+        switch parentWC?.window?.firstResponder {
+        case barNumberField:
+            curFocus = .BarField
+            curField = barNumberField
+        case beatNumberField:
+            curFocus = .BeatField
+            curField = beatNumberField
+        case clockNumberField:
+            curFocus = .ClockField
+            curField = clockNumberField
+        default:
+            curFocus = .Nobody
+            curField = nil
+        }
+        
+        // debug
+        print("In field: \(curFocus) with key: \(event.keyCode)")
+
         switch event.keyCode {
+        case 48:    // tabkey
+            if curFocus == .BarField {
+                parentWC?.window?.makeFirstResponder(beatNumberField)
+            }
+            if curFocus == .BeatField {
+                parentWC?.window?.makeFirstResponder(clockNumberField)
+            }
+            if curFocus == .ClockField {
+                parentWC?.window?.makeFirstResponder(barNumberField)
+            }
+            if curFocus == .Nobody {
+                parentWC?.window?.makeFirstResponder(barNumberField)
+            }
         case 49:    // space bar
             toggleAction(self)
+        case 82...92: // 0 to 9
+            curField?.stringValue.append(event.characters!)
+        case 65:    // period
+            return
+        case 51: // delete key
+            if curField != nil {
+                curField!.stringValue = String(curField!.stringValue.dropLast())
+            }
+        case 71: // clear
+            curField?.stringValue.removeAll()
         case 76, 36: // enter key. get the values in location fields
             locate()
         default:
-            super.keyDown(with: event)
+            // super.keyDown(with: event)
+            return
             // rewind, start and pause will be handled by key equivalent set in Storyboard.
         }
     }
@@ -95,21 +169,31 @@ class LocatorViewController: NSViewController, NSTextFieldDelegate, NSWindowDele
     func locate() -> Void {
         var bar, beat, clock: Int
         
+        // debug
+        print("locate is called in LocatorViewController")
+        
         let dbar = barNumberField.doubleValue
         let dbeat = beatNumberField.doubleValue
         let dclock = clockNumberField.doubleValue
         
-        if dbar == 0 || dbeat == 0 || dclock == 0 {
-            messageTextField.stringValue = "Location number cannot be 0. They should be 1 base"
-            return
+        if dbar == 0 {
+            barNumberField.doubleValue = 1
+        }
+        
+        if dbeat == 0 {
+            beatNumberField.doubleValue = 1
         }
 
         bar = Int(dbar)
         beat = Int(dbeat)
         clock = Int(dclock)
         
-        currentDoc?.locate(bar: bar, beat: beat, clock: clock)
-    }
+        do {
+            try currentDoc?.locate(bar: bar, beat: beat, clock: clock)
+        } catch {
+            del?.displayAlert("Could not find time slot in semaphor in locator function")
+        }
+    } // end of locate function
     
     func keyWindow() -> MidiData? {
         for doc in (docCon?.documents)! {
@@ -140,17 +224,17 @@ class LocatorViewController: NSViewController, NSTextFieldDelegate, NSWindowDele
     // But the function set any invalid field to 1 now.
     private func validateLocatorFields() -> Bool {
         let nc = NotificationCenter.default
-        let mes = String("some value(s) is smaller than 1. Type in 1-based value")
+        let mes = String("some value(s) is invalid")
 
         if barNumberField.doubleValue < 1 {
             nc.post(name: ntInvalidLocation, object: mes)
             return false
         }
-        if beatNumberField.doubleValue == 1 {
+        if beatNumberField.doubleValue < 1 {
             nc.post(name: ntInvalidLocation, object: mes)
             return false
         }
-        if clockNumberField.doubleValue == 1 {
+        if clockNumberField.doubleValue < 0 {
             nc.post(name: ntInvalidLocation, object: mes)
             return false
         }

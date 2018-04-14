@@ -20,6 +20,7 @@ let ntKeyAssignTableLoaded = Notification.Name(rawValue: "Key Assign Table is Lo
 let ntAppLaunched = Notification.Name(rawValue: "Application Launched")
 let ntDocumentOpened = Notification.Name(rawValue: "Document is opened")
 let ntInvalidLocation = Notification.Name(rawValue: "Invalid locator value")
+let ntDidLoadLocationTextField = Notification.Name(rawValue: "Locator Field is opened")
 
 struct ysError: Error {
     
@@ -33,6 +34,7 @@ struct ysError: Error {
         case notSupportedFormat
         case midiInterface
         case SMFParse
+        case timeoutForSemaphor
     }
     var source: String  // source file name
     var line: Int   // line of code
@@ -83,7 +85,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let wc = storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "LocationControlWC")) as? LocationControlWC
-        wc?.showWindow(self)        
+        wc?.showWindow(self)
+        if wc != nil {
+            // Make barNumberFieled focused
+            let barNumberField = (wc!.contentViewController as! LocatorViewController).barNumberField
+            wc!.window?.makeFirstResponder(barNumberField)
+            
+            // make reference of LocationControlWC in LocatorViewController
+            (wc!.contentViewController as! LocatorViewController).parentWC = wc!
+        }
+        
+        
+        // hook keydown in app delegete, distribute it to the front win
+        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { (aEvent) -> NSEvent? in
+            self.keyDown(with: aEvent)
+            return aEvent
+        }
+
     }
 
 
@@ -119,6 +137,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    func keyDown(with event: NSEvent) {
+//        let aWin = NSApplication.shared.keyWindow
+//        let vc =  aWin?.contentViewController as? LocatorViewController
+//        if vc != nil {
+//            // Locator window is key window
+//            print("Locator view is in key window")
+//            vc?.keyDown(with: event)
+//        }
+        // debug
+        print("keyDown in AppDelegate: \(event.keyCode)")
+        if (event.modifierFlags.rawValue & NSEvent.ModifierFlags.shift.rawValue) != 0 { print("shift is pressed down") }
+        
+        return  // do nothing for now
+    }
     
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
