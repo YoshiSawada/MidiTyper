@@ -18,6 +18,9 @@ class DocumentWC: NSWindowController {
         super.windowDidLoad()
     
         // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
+        
+        // debug
+        let nib = windowNibName?.rawValue
+        print("window nib name: \(nib ?? "not available")")
     }
-
 }

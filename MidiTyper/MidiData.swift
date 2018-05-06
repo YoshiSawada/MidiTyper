@@ -569,11 +569,17 @@ class MidiData: NSDocument {
     }
     
     func stop() {
-        monitor?.stop()
+        do {
+            try monitor?.stop()
+        } catch {
+            del?.errorHandle(err: error as! ysError)
+        }
     }
     
     func rewind() {
-        monitor?.rewind()
+        do {
+            try monitor?.rewind()
+        } catch { del?.errorHandle(err: error as! ysError) }
     }
     
     func toggle(_ sender: Any) {

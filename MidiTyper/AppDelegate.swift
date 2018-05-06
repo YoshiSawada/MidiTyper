@@ -193,5 +193,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func saveDocumentAs(sender: Any) {
         print("save as is called")
     }
+    
+    func errorHandle(err: ysError) {
+        let message = String(format: "error in %s, line %d, type \(err.type)", err.source, err.line)
+        print(message)
+    }
 }
 

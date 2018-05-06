@@ -43,6 +43,18 @@ class TrackMap {
     }
 }
 
+struct PlayHead {
+    var relMach: __uint64_t
+    var absMach: __uint64_t
+    var nextTick: Int?
+    
+    init() {
+        relMach = 0
+        absMach = 0
+        nextTick = 0
+    }
+}
+
 class MonitorCenter {
     // declarations
     let nc = NotificationCenter.default
@@ -60,9 +72,9 @@ class MonitorCenter {
     var barSeqTemplate: Track = Track()
     var isBarSeqTemplateInitialized = false
     var lhBar, rhBar: Int
-    var nanoAtStart: __uint64_t = 0
-    var nanoNextTime: __uint64_t = 0
-    var nanoPlayhead: __uint64_t = 0
+//    var nanoAtStart: __uint64_t = 0
+//    var nanoNextTime: __uint64_t = 0
+//    var nanoPlayhead: __uint64_t = 0
     var isPlayable: Bool {
         get {
             if tracksForPlay == nil { return false }
@@ -104,7 +116,10 @@ class MonitorCenter {
         }
     }
     
+    var playhead: PlayHead
+    
     var isPlayingTimeLocked: Bool
+    let del: AppDelegate?
     private var curIndexInTempoMap:Int = 0
     
     //MARK:  Monitor Center Functions
@@ -119,6 +134,8 @@ class MonitorCenter {
         midiEventQueue.reserveCapacity(64)
         noteOffQueue.reserveCapacity(64)
         isPlayingTimeLocked = false
+        del = NSApplication.shared.delegate as? AppDelegate
+        playhead = PlayHead()
     }
     
     // MARK: Locator control
@@ -128,11 +145,18 @@ class MonitorCenter {
         case PlayEngineStatus.ReadyToPlay:
             startEntry()
         case PlayEngineStatus.Playing:
-            stop()
+            do {
+                try stop()
+            } catch {
+                del?.errorHandle(err: error as! ysError)
+            }
         case PlayEngineStatus.Pause:
             contPlay()
         case PlayEngineStatus.Finished:
-            rewind()
+            do {
+                try rewind()
+            } catch { del?.errorHandle(err: error as! ysError) }
+            
             playingThread()
         default:
             return
@@ -160,7 +184,10 @@ class MonitorCenter {
         // objMidi = midiIF
         barSeqTemplate = barseqtemp
         isBarSeqTemplateInitialized = true
-        rewind()
+        playhead.absMach = 0
+        playhead.relMach = 0
+        playhead.nextTick = 0
+        // rewind()
         return true
     }
     
@@ -182,46 +209,29 @@ class MonitorCenter {
         playingThread()
     }
 
-    func stop() {
+    func stop() throws {
         // flush out note off event right now
+        
         
         switch status {
         case PlayEngineStatus.Playing:
+            if noteOffQueue.count == 0 {
+                return
+            }
+            try flushNoteOff()
             self.playing = false
             self.didStop = true
             status = PlayEngineStatus.Pause
             nc.post(name: ntStopped, object: self)
-
-            if noteOffQueue.count == 0 {
-                return
-            }
-            
-            let i64 = nanoNextTime + 10000000   // send note offs 10ms later than
-            // the last event on queue
-            let d:Double = Double(i64) * nanoRatio
-            let miditime:__uint64_t = __uint64_t(d)
-            
-            _ = self.objMidi?.midiPacketInit()
-            for event in noteOffQueue {
-                var ev = event
-                // debug: check to see if the byte order is correct in &ev.data
-                
-                _ = objMidi?.setEvent(Int32(event.size), data: &ev.data, eventTime: miditime)
-            }
-            objMidi?.send()
-            
-            // store playhead point
-            nanoPlayhead = nanoNextTime - nanoAtStart
-            
         default:
             return
         }
     } // end of stop function
     
-    func rewind() {
+    func rewind() throws {
         switch status {
         case PlayEngineStatus.Playing:
-            stop()
+              try stop()
 //            lhBar = 0
 //            rhBar = 0
 //            for tr in tracksForPlay! {
@@ -229,7 +239,11 @@ class MonitorCenter {
 //                tr.rhIndexPtr = 0
 //            }
             status = PlayEngineStatus.ReadyToPlay
-            nanoPlayhead = 0
+            playhead.relMach = 0
+            playhead.absMach = 0
+            playhead.nextTick = 0
+            // debug 4/14 no need
+            //nanoPlayhead = 0
         case PlayEngineStatus.Pause, PlayEngineStatus.Finished:
 //            lhBar = 0
 //            rhBar = 0
@@ -238,21 +252,26 @@ class MonitorCenter {
 //                tr.rhIndexPtr = 0
 //            }
             status = PlayEngineStatus.ReadyToPlay
-            nanoPlayhead = 0
+            playhead.relMach = 0
+            playhead.absMach = 0
+            playhead.nextTick = 0
+            // debug 4/14 no need
+            //nanoPlayhead = 0
         default:    // if not ready
             return
         }
     }
     
     func contPlay() -> Void {
-        nanoNextTime = mach_absolute_time() + DeferNanoTime
-        nanoAtStart = nanoNextTime - nanoPlayhead
+        playhead.absMach = mach_absolute_time() + DeferNanoTime
+        // debug 4/14 no need
+        //nanoAtStart = nanoNextTime - nanoPlayhead
         playingThread()
     }
     
     // take song position pointer value, set the location,
     //  and return elapsed tick from the start
-    func locate(byF2H songPointer: Int) -> (meas: Int?, beat: Int?, tick: Int?) {
+    func locate(byF2H songPointer: Int) throws -> (meas: Int?, beat: Int?, tick: Int?) {
         let elapsedMidiClock = songPointer * 6
         
         guard let ticksPerQuater: Int = getTicksPerQuarter() else {
@@ -268,7 +287,7 @@ class MonitorCenter {
         let elapsedTicks = elapsedMidiClock * ticksPerMidiclock
         
         // locate to elapsedTicks
-        guard let aMachtime = machTime(byTick: elapsedTicks) else {
+        guard let aMachtime = machTime(byTick: elapsedTicks, min: nil) else {
             return (nil, nil, nil)
         }
         
@@ -292,10 +311,13 @@ class MonitorCenter {
         let beat = offsetTicksInBar / (getTicksPerQuarter()! * 4 / denom)
         offsetTicksInBar = offsetTicksInBar % (getTicksPerQuarter()! * 4 / denom)
         
-        // for now, I don't limit doing this when it's in play.
-        nanoPlayhead = aMachtime
-        nanoNextTime = mach_absolute_time() + DeferNanoTime
-        nanoAtStart = nanoAtStart - nanoPlayhead
+        try flushNoteOff()
+        
+        playhead.relMach = aMachtime
+        playhead.absMach = mach_absolute_time() + DeferNanoTime
+        playhead.nextTick = getTick(byMachtime: aMachtime)!
+        // debug 4/14 no need
+        // nanoAtStart = nanoAtStart - nanoPlayhead
 
         return (meas: measnum, beat: beat, tick: offsetTicksInBar)
     }
@@ -308,7 +330,7 @@ class MonitorCenter {
         let nc = NotificationCenter.default
         
         if byBar == 0 || beat == 0 {
-            nc.post(name: ntInvalidLocation, object: String("bar or beat or clock is = 0"))
+            nc.post(name: ntInvalidLocation, object: String("bar or beat is = 0"))
             return nil
         }
         
@@ -338,28 +360,14 @@ class MonitorCenter {
         elapsedTick += beatTick * (beat-1) * Int(factor)
         elapsedTick += clock
         
-        var waitcounter: Int = 0
-        
-        while isPlayingTimeLocked == true {
-            // debug
-            print("locator waits \(waitcounter) times")
-            
-            Thread.sleep(forTimeInterval: PlayingThreadInterval / 2)
-            waitcounter += 1
-            if waitcounter > 4 {
-                let err = ysError.init(source: "Player", line: 337, type: ysError.errorID.timeoutForSemaphor)
-                throw err
-            }
-        }
-        
-        guard let machtime = machTime(byTick: elapsedTick) else {
+        guard let machtime = machTime(byTick: elapsedTick, min: nil) else {
             return nil
         }
         
-        // for now, I don't limit doing this when it's in play.
-        nanoPlayhead = machtime
-        nanoNextTime = mach_absolute_time() + DeferNanoTime
-        nanoAtStart = nanoNextTime - nanoPlayhead
+        try flushNoteOff()
+        playhead.relMach = machtime
+        playhead.absMach = mach_absolute_time() + DeferNanoTime
+        playhead.nextTick = getTick(byMachtime: machtime)!
 
         return elapsedTick
     }
@@ -375,8 +383,11 @@ class MonitorCenter {
             print("isPlayable == false")
             return nil
         }
-        nanoAtStart = mach_absolute_time() + DeferNanoTime
-        nanoNextTime = nanoAtStart
+        playhead.absMach = mach_absolute_time() + DeferNanoTime
+        playhead.relMach = 0
+        playhead.nextTick = 0
+        // debug 4/14 no need
+        //nanoNextTime = nanoAtStart
         
         let eventqueue = self.queue2Play()
         
@@ -388,27 +399,29 @@ class MonitorCenter {
     //
     private func queue2Play() -> Array<midiRawEvent>? {   // return events array
 
-        // lhMachtime and rhMachtime must be converted to relative time to the start of song in this function
+        guard playhead.nextTick != nil else {
+            return nil
+        }
+        
         let now = mach_absolute_time()
-        if nanoNextTime > now {
-            if nanoNextTime - now > 750000000 { // if we are too fast, skip one time slot
+        if playhead.absMach > now {
+            if playhead.absMach - now > PlayTimeWindow { // if we are too fast, 100ms ahead,skip one time slot
                 return nil
             }
         }
-        let lhmach = nanoNextTime - nanoAtStart
-        var rhmach:__uint64_t
+        let lhRelmach = playhead.relMach
+        var rhRelmach:__uint64_t
         
-        if now > nanoNextTime { // behind the time, catch up..
-            rhmach = lhmach + PlayTimeWindow + (now - nanoNextTime)
-        } else if nanoNextTime - now > 1000000000 { // or if we're running a bit ahead
-            rhmach = lhmach + 250000000 // Narrower the time window down to 0.25ms
+        if now > playhead.absMach { // behind the time, catch up..
+            rhRelmach = lhRelmach + PlayTimeWindow + (now - playhead.absMach)
+        } else if playhead.absMach - now > PlayTimeWindow { // or if we're running a bit ahead
+            rhRelmach = lhRelmach + PlayTimeWindow/2 // Narrower the time window down to half the time window
         } else {
-            rhmach = lhmach + PlayTimeWindow
+            rhRelmach = lhRelmach + PlayTimeWindow
         }
-        nanoNextTime = rhmach + nanoAtStart // convert it to abslute time
         
-        let lhTick = getTick(byMachtime: lhmach)
-        let rhTick = getTick(byMachtime: rhmach)
+        let lhTick = playhead.nextTick!
+        let rhTick = getTick(byMachtime: rhRelmach)
         
         midiEventQueue.removeAll(keepingCapacity: true)
         // find lhbar and rhbar
@@ -443,14 +456,15 @@ class MonitorCenter {
                 for k in 0..<tracksForPlay![i].bars![ix].events.count {
                     let ev = tracksForPlay![i].bars![ix].events[k]
                     let tick = tracksForPlay![i].bars![ix].rel2abstick(indexOfEvent: k)
-                    if (tick >= lhTick!) && (tick < rhTick!) {
+                    if (tick >= lhTick) && (tick < rhTick!) {
                         // push the event to midi playback stack
-                        
+                        //
                         if (ev.eventStatus & UInt8(0x90)) == UInt8(0x90) {
                             // prepare note off event first
-                            // tick has abs value
+                            // tick has the running value from the beggining of the song
+                            
                             let noteOffTick = tick + Int(ev.gateTime)
-                            let noteOffMachtime = self.machTime(byTick: noteOffTick)! + nanoAtStart
+                            let noteOffMachtime = self.machTime(byTick: noteOffTick, min: lhRelmach)! - lhRelmach + playhead.absMach
                             var stat = ev.eventStatus
                             // adjust midi channel if I have channel prefix
                             if tracksForPlay![i].playChannel != nil {
@@ -492,7 +506,7 @@ class MonitorCenter {
                             print("status > 0xf0. this should not happen")
                         }
                         let elaptick = tracksForPlay![i].bars![ix].startTick + Int(ev.eventTick)
-                        let machtime = self.machTime(byTick: elaptick)! + nanoAtStart
+                        let machtime = self.machTime(byTick: elaptick, min: lhRelmach)! - lhRelmach + playhead.absMach
                         
                         // adjust channel if I have channel prefix
                         // assuming all data are channel voice messages
@@ -509,11 +523,14 @@ class MonitorCenter {
         } // closure of i loop
 
         for j in 0..<noteOffQueue.count {
-            if (noteOffQueue[j].machtime >= lhmach + nanoAtStart) && (noteOffQueue[j].machtime < nanoNextTime) {
+            if noteOffQueue[j].machtime >= playhead.absMach && noteOffQueue[j].machtime < playhead.absMach + (rhRelmach - lhRelmach) {
                 midiEventQueue.append(noteOffQueue[j])
                 noteOffQueue[j].mark = true
+            } else {
+                noteOffQueue[j].mark = false
             }
         }
+
         // clean up used note off event queue
             // need to change. iterate index won't work
         var cleanedNoteOffQueue = Array<midiRawEvent>()
@@ -523,7 +540,9 @@ class MonitorCenter {
                 cleanedNoteOffQueue.append(ev)
             }
         }
+
         noteOffQueue = cleanedNoteOffQueue
+
         // sort midi event queue and make final midi raw event queue
         let playbackqueue = midiEventQueue.sorted(by: {$0.machtime < $1.machtime})
         
@@ -535,6 +554,10 @@ class MonitorCenter {
         //  print(String(format: "st:%2x note:%2x vel:%2x", midiEv.data[0], midiEv.data[1], midiEv.data[2]))
         // }
         
+        // update playhead
+        playhead.absMach = rhRelmach - lhRelmach + playhead.absMach
+        playhead.relMach = rhRelmach
+        playhead.nextTick = rhTick
         return playbackqueue
     }   // end of queue2Play
     
@@ -554,14 +577,14 @@ class MonitorCenter {
                 self.isPlayingTimeLocked = true
                 
                 let now = mach_absolute_time()
-                if self.nanoNextTime < now {
+                if self.playhead.absMach < now {
                     // this point may be the entry of contine play
-                    let behind = now - self.nanoNextTime + 50000000
-                    self.nanoNextTime = now + 50000000  // add 50ms margin
-                    self.nanoAtStart = self.nanoAtStart + behind
+                    let behind = now - self.playhead.absMach + 50000000
+                    // self.playhead.absMach = now + 50000000  // add 50ms margin
+                    self.playhead.absMach += behind
                     print("\(behind)nano:behind")
                 }
-                if self.nanoNextTime - now < 500000000 {
+                if self.playhead.absMach - now < PlayTimeWindow {
                     let evQueue = self.queue2Play()
                     if evQueue != nil {
                         _ = self.objMidi?.midiPacketInit()
@@ -603,6 +626,34 @@ class MonitorCenter {
         
 
     }   // end of playingThread
+    
+    func flushNoteOff() throws {
+        if status != .Playing {
+            return
+        }
+        
+        var i = 0
+        while isPlayingTimeLocked == true {
+            Thread.sleep(forTimeInterval: PlayingThreadInterval/2)
+            if i > 5 {
+                let err = ysError(source: "Player.swift", line: 702, type: .timeoutForSemaphor)
+                throw err
+            }
+            i += 1
+        }
+        // flush note off
+        let i64 = playhead.absMach + 5000000   // send note offs 5ms later than
+        // the last event on queue
+        let d:Double = Double(i64) * nanoRatio
+        let miditime:__uint64_t = __uint64_t(d)
+        
+        _ = self.objMidi?.midiPacketInit()
+        for event in noteOffQueue {
+            var ev = event
+            _ = objMidi?.setEvent(Int32(event.size), data: &ev.data, eventTime: miditime)
+        }
+        objMidi?.send()
+    } // end of fulushNoteOff() function
 
     //MARK: Sub functions
     //
@@ -675,7 +726,12 @@ class MonitorCenter {
     
     // Take elapsed tick value
     // and return offset machtime from the start of the song
-    func machTime(byTick tick: Int) -> __uint64_t? {
+    // Note: due to the rounding error in converting from double to __uint64_t,
+    // it sometimes generate smaller value than expected.
+    // That is a problem where, for instance, I expect the machtime corresponding
+    // to the begining of the bar or lhRelmach in queue2play because the event may miss
+    // To prevent the problem, I have min parameter so it won't be smaller than it.
+    func machTime(byTick tick: Int, min: __uint64_t?) -> __uint64_t? {
         if tempoMapSeq.count == 0 {
             return nil
         }
@@ -694,7 +750,7 @@ class MonitorCenter {
                         // Given tick is before the tick in previous event.
                         // reset curIndexTempoMap and call itself again
                         curIndexInTempoMap = 0
-                        return machTime(byTick: tick)
+                        return machTime(byTick: tick, min:min)
                     }
                     hit = i - 1
                     break
@@ -716,8 +772,56 @@ class MonitorCenter {
         macht = tempoMapSeq[hit].beginNanoTime + __uint64_t(sectionTick) * tempoMapSeq[hit].nanoPerTick
         let scaled:Double = Double(macht) * nanoRatio
         curIndexInTempoMap = hit
-        return __uint64_t(scaled)
+        var mt = __uint64_t(scaled)
+        if min != nil {
+            mt = mt < min! ? min! : mt
+        }
+
+        return mt
     } // end of machTime
+    
+    func tempo(atTick tick: Int, ticksPerQ tpq: Int) -> Double? {
+        guard tempoMapSeq.count > 0 else {
+            return nil
+        }
+        if curIndexInTempoMap > tempoMapSeq.count - 1 {
+            curIndexInTempoMap = 0
+        }
+        
+        let indexBeforeProcess = curIndexInTempoMap
+        var hitIndex: Int?
+        var ipoint: Int = 0
+        
+        for i in curIndexInTempoMap..<tempoMapSeq.count {
+            ipoint = i
+            hitIndex = nil
+            
+            if tempoMapSeq[i].beginTick > tick {
+                if i == indexBeforeProcess {
+                    // curIndexInTempoMap is beyond the point of interest
+                    curIndexInTempoMap = 0
+                    return tempo(atTick: tick, ticksPerQ: tpq)
+                }
+                hitIndex = i - 1
+                curIndexInTempoMap = hitIndex!
+                break
+            } else if tempoMapSeq[i].beginTick == tick {
+                hitIndex = i
+                curIndexInTempoMap = hitIndex!
+                break
+            }
+        }
+        if hitIndex == nil && ipoint == tempoMapSeq.count-1 {
+            // if I have no more tempo change beyond the tick, then
+            // apply the last tempo
+            let tmp = tempoMapSeq[ipoint].getTempo(ticksPerQuarter: tpq)
+            return tmp
+        }
+        guard hitIndex != nil else {
+            return nil
+        }
+        return tempoMapSeq[hitIndex!].getTempo(ticksPerQuarter: tpq)
+    } // end of tempo(atTick.. funcion
 
 }   // end of class MonitorCenter
 

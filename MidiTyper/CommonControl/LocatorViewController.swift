@@ -98,17 +98,34 @@ class LocatorViewController: NSViewController, NSTextFieldDelegate, NSWindowDele
 
         switch event.keyCode {
         case 48:    // tabkey
-            if curFocus == .BarField {
-                parentWC?.window?.makeFirstResponder(beatNumberField)
-            }
-            if curFocus == .BeatField {
-                parentWC?.window?.makeFirstResponder(clockNumberField)
-            }
-            if curFocus == .ClockField {
-                parentWC?.window?.makeFirstResponder(barNumberField)
-            }
-            if curFocus == .Nobody {
-                parentWC?.window?.makeFirstResponder(barNumberField)
+            if event.modifierFlags.contains(.shift) {
+                let resp: LocatorTextField?
+                switch curFocus {
+                case .BarField:
+                    resp = clockNumberField
+                case .BeatField:
+                    resp = barNumberField
+                case .ClockField:
+                    resp = beatNumberField
+                default:
+                    resp = nil
+                }
+                parentWC?.window?.makeFirstResponder(resp)
+                resp?.selectText(self)
+            } else {
+                let resp: LocatorTextField?
+                switch curFocus {
+                case .BarField:
+                    resp = beatNumberField
+                case .BeatField:
+                    resp = clockNumberField
+                case .ClockField:
+                    resp = barNumberField
+                default:
+                    resp = nil
+                }
+                parentWC?.window?.makeFirstResponder(resp)
+                resp?.selectText(self)
             }
         case 49:    // space bar
             toggleAction(self)
@@ -153,17 +170,20 @@ class LocatorViewController: NSViewController, NSTextFieldDelegate, NSWindowDele
     
     @IBAction func barFieldAction(_ sender: Any) {
         if validateLocatorFields() == false { return }
-        locate()
+        barNumberField.selectText(sender)
+        //locate()
     }
     
     @IBAction func beatFieldAction(_ sender: Any) {
         if validateLocatorFields() == false { return }
-        locate()
+        beatNumberField.selectText(sender)
+        //locate()
     }
     
     @IBAction func clockFieldAction(_ sender: Any) {
         if validateLocatorFields() == false { return }
-        locate()
+        clockNumberField.selectText(sender)
+        //locate()
     }
     
     func locate() -> Void {
