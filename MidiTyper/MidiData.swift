@@ -97,25 +97,31 @@ class intermedSeqWithChannel: NSObject {
 class MetaEvent: NSObject, NSCoding {
     var metaTag: UInt8
     var eventTick: Int
+    var metaLen: Int
     var data:[UInt8]
     
     override init() {
         metaTag = 0
         eventTick = 0
-        data = Array<UInt8>.init(repeatElement(0, count: 128))
+        metaLen = 0
+        data = Array<UInt8>()
         
         super.init()
     }
     
-    init(metaTag: UInt8, eventTick: Int, data: [UInt8]) {
+    init(metaTag: UInt8, eventTick: Int, len:Int, data: [UInt8]) {
         self.metaTag = metaTag
         self.eventTick = eventTick
-        self.data = data
+        self.metaLen = len
+        self.data = Array<UInt8>.init()
+        for i in 0..<metaLen {
+            self.data.append(data[i])
+        }
         super.init()
     }
     
     override func copy() -> Any {
-        let clone = MetaEvent(metaTag: metaTag, eventTick: eventTick, data: data)
+        let clone = MetaEvent(metaTag: metaTag, eventTick: eventTick, len: metaLen, data: data)
         return clone
     }
     
@@ -123,14 +129,16 @@ class MetaEvent: NSObject, NSCoding {
         guard let metaTag = aDecoder.decodeObject(forKey: "metaTag") as? UInt8 else { return nil }
         
         let eventTick = aDecoder.decodeInteger(forKey: "eventTick")
+        let len = aDecoder.decodeInteger(forKey: "metaLen")
         guard let data = aDecoder.decodeObject(forKey: "data") as? [UInt8] else { return nil }
         
-        self.init(metaTag: metaTag, eventTick: eventTick, data: data)
+        self.init(metaTag: metaTag, eventTick: eventTick, len: len, data: data)
     }
     
     func encode(with aCoder: NSCoder) {
         aCoder.encode(metaTag, forKey: "metaTag")
         aCoder.encode(eventTick, forKey: "eventTick")
+        aCoder.encode(metaLen,forKey: "metaLen")
         aCoder.encode(data, forKey: "data")
     }
 }
@@ -254,6 +262,34 @@ class Bar: NSObject, NSCoding {
         }
         self.events.append(e)
         return Int(e.eventTick)
+    }
+    
+    func beatAndTick(fromAbsTick atick: Int) -> (beat: Int?, tick: Int?) {
+        if timeSig["num"] == nil || timeSig["denom"] == nil {
+            return (nil, nil)
+        }
+        let rel = atick - self.startTick
+        let ticksPerBeat = self.barLen / self.timeSig["num"]!
+        let beat = rel / ticksPerBeat
+        if beat >= timeSig["num"]! {
+            return (nil, nil)
+        }
+        let tick = rel - (beat * ticksPerBeat)
+        
+        return (beat, tick)
+    }
+    
+    func beatAndTick(fromRelTick rtick: Int) -> (beat: Int?, tick: Int?) {
+        if timeSig["num"] == nil || timeSig["denom"] == nil {
+            return (nil, nil)
+        }
+        let ticksPerBeat = barLen / timeSig["num"]!
+        let beat = rtick / ticksPerBeat
+        if beat >= timeSig["num"]! {
+            return (nil, nil)
+        }
+        let tick = rtick - ticksPerBeat * beat
+        return (beat, tick)
     }
 }
 

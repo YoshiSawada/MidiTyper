@@ -87,13 +87,10 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
             if meta.metaTag == tagTempo {
                 let measnum = midi!.barSeqTemplate.findBar(tick: meta.eventTick, Expandable: false)
                 let bar2 = (midi!.barSeqTemplate.bars?[measnum!])!
-                let residual = meta.eventTick - bar2.startTick
-                let tickPerBeat = bar2.barLen / bar2.timeSig["num"]!
-                let beat = residual / tickPerBeat
-                let residualTick = residual - beat * tickPerBeat
+                let (beat, residualTick) = bar2.beatAndTick(fromAbsTick: meta.eventTick)
                 
                 let tmp = midi!.monitor!.tempo(atTick: meta.eventTick, ticksPerQ: Int(tpq))
-                let tempo = OnelineTST.init(TempoWithZerobaseMeas: measnum!, beat: beat, tick: residualTick, tmp: tmp!, obj: meta)
+                let tempo = OnelineTST.init(TempoWithZerobaseMeas: measnum!, beat: beat!, tick: residualTick!, tmp: tmp!, obj: meta)
                 //let tempo = TST.Tempo(bar: measnum!, beat: beat, tick: residualTick, tempo: tmp!)
                 //let one = OnelineTST.init(tst: tempo)
                 tstLines.append(tempo)

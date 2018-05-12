@@ -447,6 +447,8 @@ private func readMetaEvent (MidiData owner:MidiData, offset ofs:Int, eventTick e
     metaEvt.metaTag = owner.SMF!.load(fromByteOffset: ofs, as: UInt8.self)
     metaEvt.eventTick = et
     let metalen = owner.SMF!.load(fromByteOffset: ofs + 1, as: UInt8.self)
+    metaEvt.metaLen = Int(metalen)
+    metaEvt.data = Array<UInt8>.init(repeating: UInt8(0), count: Int(metalen))
     
     switch metaEvt.metaTag {
     case tagTempo: // tempo

@@ -2270,6 +2270,9 @@ IA
                                     </textField>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="DIu-IW-7jJ">
                                         <rect key="frame" x="174" y="0.0" width="70" height="22"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="70" id="JdZ-5G-aR1"/>
+                                        </constraints>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="Value" drawsBackground="YES" id="5cx-YI-Rl8">
                                             <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="ghk-Px-mRd"/>
                                             <font key="font" metaFont="system"/>
@@ -2291,16 +2294,29 @@ IA
                                     <real value="3.4028234663852886e+38"/>
                                 </customSpacing>
                             </stackView>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1Q5-zr-Cna">
+                                <rect key="frame" x="402" y="31" width="64" height="32"/>
+                                <buttonCell key="cell" type="push" title="Edit" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Oav-u1-IdV">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="oFE-SR-gqp" name="value" keyPath="values" id="qsZ-ii-G0L"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="VX9-yE-0yP" secondAttribute="trailing" constant="20" symbolic="YES" id="6HN-SH-AJg"/>
                             <constraint firstItem="VX9-yE-0yP" firstAttribute="leading" secondItem="vEz-f7-Apd" secondAttribute="leading" id="6a9-OC-XbP"/>
                             <constraint firstItem="SqC-Q1-yW2" firstAttribute="top" secondItem="vEz-f7-Apd" secondAttribute="bottom" constant="19" id="EvH-xj-RwZ"/>
+                            <constraint firstItem="VX9-yE-0yP" firstAttribute="leading" secondItem="7E6-Sg-JbQ" secondAttribute="leading" constant="20" id="I66-wI-ARn"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="vEz-f7-Apd" secondAttribute="trailing" constant="357" id="NOy-hp-FMJ"/>
-                            <constraint firstItem="VX9-yE-0yP" firstAttribute="top" secondItem="7E6-Sg-JbQ" secondAttribute="top" constant="20" symbolic="YES" id="iVI-Tt-oC6"/>
-                            <constraint firstItem="VX9-yE-0yP" firstAttribute="leading" secondItem="7E6-Sg-JbQ" secondAttribute="leading" constant="20" symbolic="YES" id="jP0-fE-DW4"/>
+                            <constraint firstItem="1Q5-zr-Cna" firstAttribute="trailing" secondItem="VX9-yE-0yP" secondAttribute="trailing" id="bTf-Jy-7xF"/>
+                            <constraint firstAttribute="bottom" secondItem="1Q5-zr-Cna" secondAttribute="bottom" constant="38" id="f2M-46-Kda"/>
+                            <constraint firstItem="VX9-yE-0yP" firstAttribute="top" secondItem="7E6-Sg-JbQ" secondAttribute="top" constant="20" id="iVI-Tt-oC6"/>
                             <constraint firstAttribute="trailing" secondItem="SqC-Q1-yW2" secondAttribute="trailing" constant="216" id="nFd-cj-vfS"/>
                             <constraint firstItem="vEz-f7-Apd" firstAttribute="top" secondItem="VX9-yE-0yP" secondAttribute="bottom" constant="20" id="rq5-SZ-Fv7"/>
+                            <constraint firstItem="1Q5-zr-Cna" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="SqC-Q1-yW2" secondAttribute="trailing" constant="8" symbolic="YES" id="uXA-Ip-Xow"/>
                             <constraint firstItem="vEz-f7-Apd" firstAttribute="leading" secondItem="SqC-Q1-yW2" secondAttribute="leading" id="wVs-7r-LAo"/>
                             <constraint firstAttribute="bottom" secondItem="SqC-Q1-yW2" secondAttribute="bottom" constant="38" id="zDg-fy-YIG"/>
                         </constraints>
@@ -2315,6 +2331,7 @@ IA
                     </connections>
                 </viewController>
                 <customObject id="B8N-Ee-oDs" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <userDefaultsController representsSharedInstance="YES" id="oFE-SR-gqp"/>
             </objects>
             <point key="canvasLocation" x="532" y="1569"/>
         </scene>
