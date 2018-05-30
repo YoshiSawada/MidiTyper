@@ -17,6 +17,9 @@ class LocationControlWC: NSWindowController {
     override func windowDidLoad() {
         super.windowDidLoad()
         
+        let nc = NotificationCenter.default
+        nc.post(name: ntLocatorWinconLoaded, object: self)
+        
         window?.autorecalculatesKeyViewLoop = true
         // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
     }

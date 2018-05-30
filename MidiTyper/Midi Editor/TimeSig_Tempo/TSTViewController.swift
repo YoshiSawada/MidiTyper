@@ -11,6 +11,8 @@ import Cocoa
 class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
     
     let types: [String] = ["Time Sig", "Tempo"]
+    override var acceptsFirstResponder: Bool { return true }
+
 
     @IBOutlet weak var TSTtableView: NSTableView!
     @IBOutlet weak var typeSelectionPopUp: NSPopUpButton!
@@ -18,6 +20,9 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
     @IBOutlet weak var beatField: NSTextField!
     @IBOutlet weak var tickField: NSTextField!
     @IBOutlet weak var valueField: NSTextField!
+    @IBOutlet weak var editButton: NSButton!
+    @IBOutlet weak var removeButton: NSButton!
+    @IBOutlet weak var insertButton: NSButton!
     
     var docCon: NSDocumentController?
     var midi: MidiData?
@@ -25,6 +30,15 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
     
     let tsColor = NSColor.systemOrange
     let tmpColor = NSColor.black
+    
+    enum FocusedField {
+        case Meas
+        case Beat
+        case Tick
+        case Value
+    }
+    
+    var curFocus: FocusedField = FocusedField.Meas
 
     
     override func viewDidLoad() {
@@ -36,6 +50,11 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
 
         typeSelectionPopUp.removeAllItems()
         typeSelectionPopUp.addItems(withTitles: types)
+        typeSelectionPopUp.isEnabled = false
+        
+        editButton.isEnabled = false
+        removeButton.isEnabled = false
+        insertButton.isEnabled = false
         
         // debug
         if docCon?.currentDocument != nil {
@@ -45,6 +64,9 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
         }
         
         loadData()
+        
+        // debug
+        TSTtableView.refusesFirstResponder = true
     }
     
     func loadData() {
@@ -52,6 +74,10 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
             return
         }
         midi = docCon!.currentDocument! as? MidiData
+        
+        if (midi?.numOfTracks)! < 1 {
+            return
+        }
         
         tstLines.removeAll()
         
@@ -159,4 +185,102 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
         return cell
     }
     
+    func tableViewSelectionDidChange(_ notification: Notification) {
+        let selectedRow = TSTtableView.selectedRow
+        if selectedRow >= 0 && selectedRow < tstLines.count-1  {
+            let line = tstLines[selectedRow]
+            if line.type == "Time Sig" {
+                let (meas, ts) = line.timeSigText()
+                if meas == nil || ts == nil {
+                    return
+                }
+                barField.stringValue = meas!
+                beatField.stringValue = "***"
+                tickField.stringValue = "***"
+                valueField.stringValue = ts!
+                typeSelectionPopUp.selectItem(withTitle: "Time Sig")
+            } else {
+                // it must be tempo
+                barField.stringValue = line.meas
+                beatField.stringValue = line.beat
+                tickField.stringValue = line.tick
+                valueField.stringValue = line.value
+                typeSelectionPopUp.selectItem(withTitle: "Tempo")
+            }
+            editButton.isEnabled = true
+            removeButton.isEnabled = true
+            insertButton.isEnabled = true
+        }
+    } // closure of tableViewSelectionDidChange
+    
+    @IBAction func editAction(_ sender: Any) {
+        // edit button action
+        if editButton.state == NSTextField.StateValue.on {
+            // show Measure field is on focus
+            focusField(tag: FocusedField.Meas)
+        }
+    }
+    
+//    override func keyDown(with event: NSEvent) {
+//        print("keyCode in TST editor = \(event.keyCode), char = \(String(describing: event.characters))")
+//    }
+    
+    func myKey(with event:NSEvent) {
+        if editButton.state == NSTextField.StateValue.off {
+            return
+        }
+        switch event.keyCode {
+        case 48: // tab key
+            // cycle key focus
+            switch curFocus {
+            case .Meas:
+                curFocus = .Beat
+            case .Beat:
+                curFocus = .Tick
+            case .Tick:
+                curFocus = .Value
+            default:
+                curFocus = .Meas
+            }
+            focusField(tag: curFocus)
+        default:
+            print("myKey in TSTViewController is called, keycode:\(event.keyCode), char:\(String(describing: event.characters))")
+        }
+    }
+    
+    func focusField(tag: FocusedField) {
+        
+        switch tag {
+        case .Meas:
+            barField.backgroundColor = NSColor.systemYellow
+            beatField.backgroundColor = NSColor.controlBackgroundColor
+            tickField.backgroundColor = NSColor.controlBackgroundColor
+            valueField.backgroundColor = NSColor.controlBackgroundColor
+        case .Beat:
+            barField.backgroundColor = NSColor.controlBackgroundColor
+            beatField.backgroundColor = NSColor.systemYellow
+            tickField.backgroundColor = NSColor.controlBackgroundColor
+            valueField.backgroundColor = NSColor.controlBackgroundColor
+        case .Tick:
+            barField.backgroundColor = NSColor.controlBackgroundColor
+            beatField.backgroundColor = NSColor.controlBackgroundColor
+            tickField.backgroundColor = NSColor.systemYellow
+            valueField.backgroundColor = NSColor.controlBackgroundColor
+        default:
+            barField.backgroundColor = NSColor.controlBackgroundColor
+            beatField.backgroundColor = NSColor.controlBackgroundColor
+            tickField.backgroundColor = NSColor.controlBackgroundColor
+            valueField.backgroundColor = NSColor.systemYellow
+        }
+    }
+    
+    
+    override func becomeFirstResponder() -> Bool {
+        // return true
+        return false
+    }
+    
+    override func resignFirstResponder() -> Bool {
+        return true
+    }
 }

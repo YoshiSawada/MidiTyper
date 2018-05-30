@@ -708,9 +708,10 @@
                 <windowController storyboardIdentifier="Document Window Controller" showSeguePresentationStyle="single" id="jGA-0Y-lOj" userLabel="Midi Editor Window" customClass="DocumentWC" customModule="MidiTyper" customModuleProvider="target" sceneMemberID="viewController">
                     <window key="window" title="MIDI Event Editor" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="Event Editor Window Frame Position" animationBehavior="default" tabbingMode="preferred" id="Ckk-yw-fiv">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+                        <windowPositionMask key="initialPositionMask" leftStrut="YES" topStrut="YES"/>
                         <rect key="contentRect" x="160" y="313" width="960" height="560"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+                        <value key="minSize" type="size" width="960" height="560"/>
                         <connections>
                             <outlet property="delegate" destination="jGA-0Y-lOj" id="98r-iN-zZc"/>
                         </connections>
@@ -1530,15 +1531,6 @@ IA
                         <rect key="frame" x="0.0" y="0.0" width="959" height="560"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" preferredMaxLayoutWidth="246" translatesAutoresizingMaskIntoConstraints="NO" id="TyV-c9-G0C">
-                                <rect key="frame" x="356" y="278" width="248" height="22"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Your document contents here" id="Cc7-nU-5Mv">
-                                    <font key="font" metaFont="system" size="18"/>
-                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
                             <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="n5f-L5-ZdJ">
                                 <rect key="frame" x="227" y="104" width="713" height="436"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -1969,7 +1961,7 @@ IA
         <scene sceneID="5hx-mg-h3V">
             <objects>
                 <windowController storyboardIdentifier="TimeSig and TempoEditor Win Con" showSeguePresentationStyle="single" id="yqR-Vx-G5N" userLabel="TST Editor Window Controller" customClass="TSTEditorWinC" customModule="MidiTyper" customModuleProvider="target" sceneMemberID="viewController">
-                    <window key="window" title="Time Signature and Tempo Editor" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="TST Window Frame" animationBehavior="default" id="BpJ-kb-5AF">
+                    <window key="window" title="Time Signature and Tempo Editor" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="TST Window Frame" animationBehavior="default" id="BpJ-kb-5AF">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" fullSizeContentView="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="294" y="313" width="480" height="416"/>
@@ -2013,7 +2005,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" title="Text Cell" id="mKN-7A-T28">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" title="Text Cell" id="mKN-7A-T28">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -2049,7 +2041,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" title="Text Cell" id="wDK-Em-Lpd">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" title="Text Cell" id="wDK-Em-Lpd">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -2086,7 +2078,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="TLG-gJ-wQX">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" alignment="left" title="Text Cell" id="TLG-gJ-wQX">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -2123,7 +2115,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="xus-v3-kEn">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" alignment="left" title="Text Cell" id="xus-v3-kEn">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -2160,7 +2152,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="7qd-r3-7xV">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" alignment="left" title="Text Cell" id="7qd-r3-7xV">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -2237,7 +2229,7 @@ IA
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="UaE-2f-BCc"/>
                                         </constraints>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="Bar" drawsBackground="YES" id="KIs-gd-qPn">
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="Bar" drawsBackground="YES" id="KIs-gd-qPn">
                                             <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="KXE-Z5-9qd"/>
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -2249,7 +2241,7 @@ IA
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="oze-RG-vlO"/>
                                         </constraints>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="Beat" drawsBackground="YES" id="DQs-Kw-G3J">
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="Beat" drawsBackground="YES" id="DQs-Kw-G3J">
                                             <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="tXR-tT-QU4"/>
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -2261,7 +2253,7 @@ IA
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="dtL-JD-kXg"/>
                                         </constraints>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="Tick" drawsBackground="YES" id="kUJ-dU-gui">
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="Tick" drawsBackground="YES" id="kUJ-dU-gui">
                                             <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="gTJ-sU-PYV"/>
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -2273,7 +2265,7 @@ IA
                                         <constraints>
                                             <constraint firstAttribute="width" constant="70" id="JdZ-5G-aR1"/>
                                         </constraints>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="Value" drawsBackground="YES" id="5cx-YI-Rl8">
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="Value" drawsBackground="YES" id="5cx-YI-Rl8">
                                             <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="ghk-Px-mRd"/>
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -2294,29 +2286,57 @@ IA
                                     <real value="3.4028234663852886e+38"/>
                                 </customSpacing>
                             </stackView>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1Q5-zr-Cna">
-                                <rect key="frame" x="402" y="31" width="64" height="32"/>
-                                <buttonCell key="cell" type="push" title="Edit" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Oav-u1-IdV">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <binding destination="oFE-SR-gqp" name="value" keyPath="values" id="qsZ-ii-G0L"/>
-                                </connections>
-                            </button>
+                            <stackView distribution="fill" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OYx-Tn-5U8">
+                                <rect key="frame" x="383" y="20" width="77" height="79"/>
+                                <subviews>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1Q5-zr-Cna">
+                                        <rect key="frame" x="7" y="51" width="64" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Edit" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Oav-u1-IdV">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="editAction:" target="hyw-tO-7sd" id="EpP-b3-Qzu"/>
+                                        </connections>
+                                    </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Mlk-4T-hyT">
+                                        <rect key="frame" x="-6" y="22" width="89" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="olK-oI-20h">
+                                            <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                    </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ol8-ZW-wdo">
+                                        <rect key="frame" x="1" y="-7" width="75" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Insert" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4Pp-ni-IyF">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                    </button>
+                                </subviews>
+                                <visibilityPriorities>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
+                                </visibilityPriorities>
+                                <customSpacing>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
+                                </customSpacing>
+                            </stackView>
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="VX9-yE-0yP" secondAttribute="trailing" constant="20" symbolic="YES" id="6HN-SH-AJg"/>
                             <constraint firstItem="VX9-yE-0yP" firstAttribute="leading" secondItem="vEz-f7-Apd" secondAttribute="leading" id="6a9-OC-XbP"/>
                             <constraint firstItem="SqC-Q1-yW2" firstAttribute="top" secondItem="vEz-f7-Apd" secondAttribute="bottom" constant="19" id="EvH-xj-RwZ"/>
+                            <constraint firstAttribute="bottom" secondItem="OYx-Tn-5U8" secondAttribute="bottom" constant="20" id="FQM-1M-wnk"/>
+                            <constraint firstItem="OYx-Tn-5U8" firstAttribute="trailing" secondItem="VX9-yE-0yP" secondAttribute="trailing" id="H56-SZ-cp0"/>
                             <constraint firstItem="VX9-yE-0yP" firstAttribute="leading" secondItem="7E6-Sg-JbQ" secondAttribute="leading" constant="20" id="I66-wI-ARn"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="vEz-f7-Apd" secondAttribute="trailing" constant="357" id="NOy-hp-FMJ"/>
-                            <constraint firstItem="1Q5-zr-Cna" firstAttribute="trailing" secondItem="VX9-yE-0yP" secondAttribute="trailing" id="bTf-Jy-7xF"/>
-                            <constraint firstAttribute="bottom" secondItem="1Q5-zr-Cna" secondAttribute="bottom" constant="38" id="f2M-46-Kda"/>
                             <constraint firstItem="VX9-yE-0yP" firstAttribute="top" secondItem="7E6-Sg-JbQ" secondAttribute="top" constant="20" id="iVI-Tt-oC6"/>
                             <constraint firstAttribute="trailing" secondItem="SqC-Q1-yW2" secondAttribute="trailing" constant="216" id="nFd-cj-vfS"/>
                             <constraint firstItem="vEz-f7-Apd" firstAttribute="top" secondItem="VX9-yE-0yP" secondAttribute="bottom" constant="20" id="rq5-SZ-Fv7"/>
-                            <constraint firstItem="1Q5-zr-Cna" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="SqC-Q1-yW2" secondAttribute="trailing" constant="8" symbolic="YES" id="uXA-Ip-Xow"/>
                             <constraint firstItem="vEz-f7-Apd" firstAttribute="leading" secondItem="SqC-Q1-yW2" secondAttribute="leading" id="wVs-7r-LAo"/>
                             <constraint firstAttribute="bottom" secondItem="SqC-Q1-yW2" secondAttribute="bottom" constant="38" id="zDg-fy-YIG"/>
                         </constraints>
@@ -2325,6 +2345,9 @@ IA
                         <outlet property="TSTtableView" destination="q0P-E7-sH5" id="PC8-Yo-QEs"/>
                         <outlet property="barField" destination="bMr-Z6-fCv" id="FGw-LM-716"/>
                         <outlet property="beatField" destination="lUR-0a-UBt" id="qTA-oh-gpR"/>
+                        <outlet property="editButton" destination="1Q5-zr-Cna" id="V7l-ie-uca"/>
+                        <outlet property="insertButton" destination="ol8-ZW-wdo" id="Br6-mf-8Nz"/>
+                        <outlet property="removeButton" destination="Mlk-4T-hyT" id="jxN-1m-KvO"/>
                         <outlet property="tickField" destination="RoU-q3-06Q" id="ncF-am-Xmf"/>
                         <outlet property="typeSelectionPopUp" destination="vEz-f7-Apd" id="y5S-yf-HOA"/>
                         <outlet property="valueField" destination="DIu-IW-7jJ" id="mOf-ie-NXN"/>

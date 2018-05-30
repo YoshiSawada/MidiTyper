@@ -21,6 +21,9 @@ let ntAppLaunched = Notification.Name(rawValue: "Application Launched")
 let ntDocumentOpened = Notification.Name(rawValue: "Document is opened")
 let ntInvalidLocation = Notification.Name(rawValue: "Invalid locator value")
 let ntDidLoadLocationTextField = Notification.Name(rawValue: "Locator Field is opened")
+let ntDidTSTWinConLoaded = Notification.Name(rawValue: "TST WinCon Loaded")
+let ntLocatorWinconLoaded = Notification.Name(rawValue: "Locator Wincon Loaded")
+let ntDocWinconLoaded = Notification.Name(rawValue: "Document Wincon Loaded")
 
 struct ysError: Error {
     
@@ -45,10 +48,21 @@ struct ysError: Error {
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var docCon: NSDocumentController?
+    var docWincon: DocumentWC?
+    var tstWC: TSTEditorWinC?
+    var locWC: LocationControlWC?
     let objMidi:objCMIDIBridge = objCMIDIBridge()
     let storyboard: NSStoryboard?
+    var app: NSApplication?
 
     var midiInterface: MidiInterface?
+    
+    enum WindowTag {
+        case EventEditWin
+        case TSTWin // time signature and tempo editor
+        case LocationControllerWin
+        case ConfigurationWin
+    }
 
 
     override init() {
@@ -59,6 +73,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
+        
+        app = aNotification.object as? NSApplication
+        
         docCon = NSDocumentController.shared
         if docCon == nil {
             print("shared document controller is nil !!")
@@ -69,10 +86,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // regist notifications to observe
         let dc = NotificationCenter.default
 
-        dc.addObserver(forName:ntPlayable, object:nil, queue:nil, using:appObserver)
-        dc.addObserver(forName: ntPlaying, object: nil, queue: nil, using: appObserver)
-        dc.addObserver(forName: ntStopped, object: nil, queue: nil, using: appObserver)
-        dc.addObserver(forName: ntEndReached, object: nil, queue: nil, using: appObserver)
+        dc.addObserver(forName:ntPlayable, object:nil, queue:nil, using:seqStateObserver)
+        dc.addObserver(forName: ntPlaying, object: nil, queue: nil, using: seqStateObserver)
+        dc.addObserver(forName: ntStopped, object: nil, queue: nil, using: seqStateObserver)
+        dc.addObserver(forName: ntEndReached, object: nil, queue: nil, using: seqStateObserver)
+        
+        
+        dc.addObserver(forName: ntDidTSTWinConLoaded, object: nil, queue: nil, using: appstateObserver)
+        dc.addObserver(forName: ntLocatorWinconLoaded, object: nil, queue: nil, using: appstateObserver)
+        dc.addObserver(forName: ntDocWinconLoaded, object: nil, queue: nil, using: appstateObserver)
         
         // scan Midi Interface
         midiInterface = MidiInterface()
@@ -105,7 +127,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
 
-    func appObserver(notf: Notification) -> Void {
+    func seqStateObserver(notf: Notification) -> Void {
         switch notf.name {
         case ntPlayable:    // playable but not playing
 //            playMenuItem.isEnabled = true
@@ -136,18 +158,39 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             print("Unknown notification: \(notf.name)")
         }
     }
+    
+    func appstateObserver(notf: Notification) ->Void {
+        switch notf.name {
+        case ntDidTSTWinConLoaded:
+            tstWC = notf.object as? TSTEditorWinC
+        case ntDocWinconLoaded:
+            docWincon = notf.object as? DocumentWC
+        case ntLocatorWinconLoaded:
+            locWC = notf.object as? LocationControlWC
+        default:
+            return
+        }
+    }
 
     func keyDown(with event: NSEvent) {
-//        let aWin = NSApplication.shared.keyWindow
-//        let vc =  aWin?.contentViewController as? LocatorViewController
-//        if vc != nil {
-//            // Locator window is key window
-//            print("Locator view is in key window")
-//            vc?.keyDown(with: event)
-//        }
         // debug
         print("keyDown in AppDelegate: \(event.keyCode)")
         if (event.modifierFlags.rawValue & NSEvent.ModifierFlags.shift.rawValue) != 0 { print("shift is pressed down") }
+        
+        let whichWin = frontWindow()
+        // debug
+        print("current key window is \(String(describing: whichWin))")
+        
+        // dispatch keydown to keywindow
+        switch whichWin {
+        case .TSTWin?:
+            guard tstWC != nil else {
+                return
+            }
+            tstWC!.myKey(with: event)
+        default:
+            return
+        }
         
         return  // do nothing for now
     }
@@ -178,6 +221,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // debug; add more in catching errors
             print(error)
         } // end of closure of completion handler
+    }
+    
+    func frontWindow() -> WindowTag? {
+        guard app != nil else {
+            return nil
+        }
+        guard app?.windows != nil else {
+            return nil
+        }
+        
+        for win in (app?.windows)! {
+            if win.isKeyWindow {
+                switch win.windowController {
+                case docWincon:
+                    return WindowTag.EventEditWin
+                case tstWC:
+                    return WindowTag.TSTWin
+                case locWC:
+                    return WindowTag.LocationControllerWin
+                default:
+                    if (win.windowController as? setupWindowController) != nil {
+                        return WindowTag.ConfigurationWin
+                    } else {
+                        return nil
+                    }
+                }
+            }
+        }
+        
+        return nil
     }
     
     func displayAlert(_ mes:String) {

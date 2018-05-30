@@ -48,9 +48,18 @@ class OnelineTST: NSObject {
         self.value = String(format: "%.2f", tmp)
     }
     
+    func timeSigText() -> (meas: String?, timeSig: String?) {
+        if case let .TimeSig(imeas, inum, idenom, _) = aTst {
+            let denom = 2 << (idenom-1)
+            let s = String(format: "%d/%d", inum, denom)
+            return (String(imeas+1), s)
+        }
+        return (nil, nil)
+    }
+    
 //  How to access this union structure
 //  Assuming aTst is a union variable with the type of TST
-//        if case let .TimeSig(ibar, inum, idenom) = aTst {
+//        if case let .TimeSig(ibar, inum, idenom, bar) = aTst {
 //        // The variable has TimeSig data, do what you want for TimeSig
 //            return
 //        }

@@ -123,8 +123,8 @@
 		926C63D3203C57BB008AD54F /* MidiTyper */ = {
 			isa = PBXGroup;
 			children = (
-				9216B4A32090BB61009A8448 /* Midi Editor */,
 				926C63D4203C57BB008AD54F /* AppDelegate.swift */,
+				9216B4A32090BB61009A8448 /* Midi Editor */,
 				92D682CE204B7E5B004AFA9A /* CommonControl */,
 				92D682CB204B6E0D004AFA9A /* MidiInterface */,
 				926C63D8203C57BB008AD54F /* MidiData.swift */,
