@@ -24,6 +24,7 @@ let ntDidLoadLocationTextField = Notification.Name(rawValue: "Locator Field is o
 let ntDidTSTWinConLoaded = Notification.Name(rawValue: "TST WinCon Loaded")
 let ntLocatorWinconLoaded = Notification.Name(rawValue: "Locator Wincon Loaded")
 let ntDocWinconLoaded = Notification.Name(rawValue: "Document Wincon Loaded")
+let ntMidiNoteKeyIn = Notification.Name(rawValue: "MidiNoteKeyIn")
 
 struct ysError: Error {
     

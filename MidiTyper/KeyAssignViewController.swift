@@ -306,7 +306,7 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         }
         
         ret = fileMgr.fileExists(atPath: path as! String)
-        if ret == false {   // path string exists but the file doesn't
+        if ret == false {   // path string exists but the file doesn't. It is considered the first launch
             table = defaultKeyAssignTable
             makeKeyAssignTable(from: table!)
             saveKeyAssign() // if this is the first time to launch

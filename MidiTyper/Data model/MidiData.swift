@@ -62,6 +62,63 @@ class MidiEvent: NSObject, NSCoding {
         self.vel = v2
         self.gateTime = gt
     }
+    
+    func stringValue() -> (String, String, String)? {
+        if eventStatus & 0x90 == 0 {
+            // event is not a note. In the future this may change so it will show control changes and others
+            return nil
+        }
+        if vel == 0 || gateTime == 0 {
+            return nil
+        }
+        
+        var octav: Int
+        
+        if note >= 24 {
+            // octav in +
+            octav = Int(note - 24) / 12
+        } else {
+            if Int(note) % 12 > 0 {
+                octav = ((24 - Int(note)) / 12 + 1) * -1
+            } else {
+                octav = (24 - Int(note)) / 12 * -1
+            }
+        }
+        
+        var noteSymbol: String
+        
+        switch Int(note) % 12 {
+        case 0:
+            noteSymbol = "C"
+        case 1:
+            noteSymbol = "C#"
+        case 2:
+            noteSymbol = "D"
+        case 3:
+            noteSymbol = "D#"
+        case 4:
+            noteSymbol = "E"
+        case 5:
+            noteSymbol = "F"
+        case 6:
+            noteSymbol = "F#"
+        case 7:
+            noteSymbol = "G"
+        case 8:
+            noteSymbol = "G#"
+        case 9:
+            noteSymbol = "A"
+        case 10:
+            noteSymbol = "A#"
+        default:
+            noteSymbol = "B"
+        }
+        let notationStr = noteSymbol + String(octav)
+        let velocityStr = String(vel)
+        let gtStr = String(gateTime)
+        
+        return (notationStr, velocityStr, gtStr)
+    }
 }
 
 class intermedSeqWithChannel: NSObject {

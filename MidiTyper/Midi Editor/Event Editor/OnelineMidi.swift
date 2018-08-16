@@ -76,9 +76,21 @@ class OnelineMidi: NSObject {
     }
     
     func notename(noteval: UInt8) -> String {
-        let octav = String(noteval / 12)
-        let mod = noteval%12
-        let note = octav + noteDic[Int(mod)]!
+        var octav: Int
+        
+        if noteval >= 24 {
+            // octav in +
+            octav = Int(noteval - 24) / 12
+        } else {
+            if Int(noteval) % 12 > 0 {
+                octav = ((24 - Int(noteval)) / 12 + 1) * -1
+            } else {
+                octav = (24 - Int(noteval)) / 12 * -1
+            }
+        }
+
+        let mod = noteval % 12
+        let note = noteDic[Int(mod)]! + String(octav)
         return note
     }
 }

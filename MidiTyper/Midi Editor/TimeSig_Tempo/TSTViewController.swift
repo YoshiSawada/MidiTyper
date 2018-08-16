@@ -36,6 +36,7 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
         case Beat
         case Tick
         case Value
+        case none
     }
     
     var curFocus: FocusedField = FocusedField.Meas
@@ -218,6 +219,23 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
         if editButton.state == NSTextField.StateValue.on {
             // show Measure field is on focus
             focusField(tag: FocusedField.Meas)
+        } else {
+            offFocus()
+        }
+    }
+    
+    func offFocus() ->Void {
+        switch curFocus {
+        case .Meas:
+            barField.backgroundColor = NSColor.controlBackgroundColor
+        case .Beat:
+            beatField.backgroundColor = NSColor.controlBackgroundColor
+        case .Tick:
+            tickField.backgroundColor = NSColor.controlBackgroundColor
+        //case .Value:
+        default:
+             valueField.backgroundColor = NSColor.controlBackgroundColor
+        
         }
     }
     
@@ -232,6 +250,33 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
         switch event.keyCode {
         case 48: // tab key
             // cycle key focus
+            keyTab(with: event)
+        default:
+            print("myKey in TSTViewController is called, keycode:\(event.keyCode), char:\(String(describing: event.characters))")
+        }
+    }
+    
+    func keyTab(with event: NSEvent) {
+        
+        if editButton.state == NSTextField.StateValue.off {
+            return
+        }
+        
+        if event.modifierFlags.contains(NSEvent.ModifierFlags.shift) {
+            // shift is pressed down
+            switch curFocus {
+            case .Meas:
+                curFocus = .Value
+            case .Beat:
+                curFocus = .Meas
+            case .Tick:
+                curFocus = .Beat
+            case .Value:
+                curFocus = .Tick
+            default:
+                curFocus = .Meas
+            }
+        } else {
             switch curFocus {
             case .Meas:
                 curFocus = .Beat
@@ -239,13 +284,13 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
                 curFocus = .Tick
             case .Tick:
                 curFocus = .Value
+            case .Value:
+                curFocus = .Meas
             default:
                 curFocus = .Meas
             }
-            focusField(tag: curFocus)
-        default:
-            print("myKey in TSTViewController is called, keycode:\(event.keyCode), char:\(String(describing: event.characters))")
         }
+        focusField(tag: curFocus)
     }
     
     func focusField(tag: FocusedField) {
@@ -266,11 +311,16 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
             beatField.backgroundColor = NSColor.controlBackgroundColor
             tickField.backgroundColor = NSColor.systemYellow
             valueField.backgroundColor = NSColor.controlBackgroundColor
-        default:
+        case .Value:
             barField.backgroundColor = NSColor.controlBackgroundColor
             beatField.backgroundColor = NSColor.controlBackgroundColor
             tickField.backgroundColor = NSColor.controlBackgroundColor
             valueField.backgroundColor = NSColor.systemYellow
+        default:    // none
+            barField.backgroundColor = NSColor.controlBackgroundColor
+            beatField.backgroundColor = NSColor.controlBackgroundColor
+            tickField.backgroundColor = NSColor.controlBackgroundColor
+            valueField.backgroundColor = NSColor.controlBackgroundColor
         }
     }
     

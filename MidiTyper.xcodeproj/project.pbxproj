@@ -32,6 +32,7 @@
 		92C499E42052AB8A006211C4 /* KeyAssignTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C499E02052AB8A006211C4 /* KeyAssignTextField.swift */; };
 		92C499E52052AB8A006211C4 /* KeyAssignViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C499E12052AB8A006211C4 /* KeyAssignViewController.swift */; };
 		92C499E62052AB8A006211C4 /* setupWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C499E22052AB8A006211C4 /* setupWindowController.swift */; };
+		92C4B17E2121D21F00EFED97 /* MidiKeyin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C4B17D2121D21F00EFED97 /* MidiKeyin.swift */; };
 		92D682CD204B6E5D004AFA9A /* MIDIInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D682CC204B6E5D004AFA9A /* MIDIInterface.swift */; };
 		92D682D0204B7EDF004AFA9A /* LocationControlWC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D682CF204B7EDF004AFA9A /* LocationControlWC.swift */; };
 /* End PBXBuildFile section */
@@ -67,6 +68,7 @@
 		92C499E02052AB8A006211C4 /* KeyAssignTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeyAssignTextField.swift; path = MidiTyper/KeyAssignTextField.swift; sourceTree = SOURCE_ROOT; };
 		92C499E12052AB8A006211C4 /* KeyAssignViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeyAssignViewController.swift; path = MidiTyper/KeyAssignViewController.swift; sourceTree = SOURCE_ROOT; };
 		92C499E22052AB8A006211C4 /* setupWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = setupWindowController.swift; path = MidiTyper/setupWindowController.swift; sourceTree = SOURCE_ROOT; };
+		92C4B17D2121D21F00EFED97 /* MidiKeyin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MidiKeyin.swift; sourceTree = "<group>"; };
 		92D682CC204B6E5D004AFA9A /* MIDIInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIInterface.swift; sourceTree = "<group>"; };
 		92D682CF204B7EDF004AFA9A /* LocationControlWC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationControlWC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -103,6 +105,15 @@
 			path = Icons;
 			sourceTree = "<group>";
 		};
+		922FF7C321244E6000AA783A /* Data model */ = {
+			isa = PBXGroup;
+			children = (
+				926C63D8203C57BB008AD54F /* MidiData.swift */,
+				92C43E3A204834BD00B1B075 /* SMF.swift */,
+			);
+			path = "Data model";
+			sourceTree = "<group>";
+		};
 		926C63C8203C57BB008AD54F = {
 			isa = PBXGroup;
 			children = (
@@ -124,15 +135,13 @@
 			isa = PBXGroup;
 			children = (
 				926C63D4203C57BB008AD54F /* AppDelegate.swift */,
-				9216B4A32090BB61009A8448 /* Midi Editor */,
-				92D682CE204B7E5B004AFA9A /* CommonControl */,
-				92D682CB204B6E0D004AFA9A /* MidiInterface */,
-				926C63D8203C57BB008AD54F /* MidiData.swift */,
-				92C43E3A204834BD00B1B075 /* SMF.swift */,
 				92191BE82046F19E0045C473 /* MidiTyper-Bridging-Header.h */,
 				92191BEA2046F19F0045C473 /* objCMIDIBridge.h */,
 				92191BE92046F19F0045C473 /* objCMIDIBridge.m */,
-				92191BE72046F19E0045C473 /* Player.swift */,
+				9216B4A32090BB61009A8448 /* Midi Editor */,
+				92D682CE204B7E5B004AFA9A /* CommonControl */,
+				92D682CB204B6E0D004AFA9A /* MidiInterface */,
+				922FF7C321244E6000AA783A /* Data model */,
 				926C63DA203C57BB008AD54F /* Assets.xcassets */,
 				926C63DC203C57BB008AD54F /* Main.storyboard */,
 				926C63DF203C57BB008AD54F /* Info.plist */,
@@ -156,6 +165,7 @@
 			isa = PBXGroup;
 			children = (
 				92C499DD20527B7D006211C4 /* DocumentWC.swift */,
+				92C4B17D2121D21F00EFED97 /* MidiKeyin.swift */,
 				926C63D6203C57BB008AD54F /* ViewController.swift */,
 				9216B4A62090BBF3009A8448 /* OnelineMidi.swift */,
 			);
@@ -165,6 +175,7 @@
 		92D682CB204B6E0D004AFA9A /* MidiInterface */ = {
 			isa = PBXGroup;
 			children = (
+				92191BE72046F19E0045C473 /* Player.swift */,
 				92D682CC204B6E5D004AFA9A /* MIDIInterface.swift */,
 				92C499E02052AB8A006211C4 /* KeyAssignTextField.swift */,
 				92C499E12052AB8A006211C4 /* KeyAssignViewController.swift */,
@@ -263,6 +274,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				92C499E52052AB8A006211C4 /* KeyAssignViewController.swift in Sources */,
+				92C4B17E2121D21F00EFED97 /* MidiKeyin.swift in Sources */,
 				9263F1EA204EC66300F52242 /* LocatorViewController.swift in Sources */,
 				92C43E3B204834BD00B1B075 /* SMF.swift in Sources */,
 				92C499DE20527B7D006211C4 /* DocumentWC.swift in Sources */,
