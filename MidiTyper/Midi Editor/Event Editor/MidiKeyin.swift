@@ -10,11 +10,13 @@ import Cocoa
 
 class MIDITypedInObject: NSObject {
     var isEnterKey: Bool
+    var isRest: Bool
     var typedString: [String:String]
     var midiEvent: MidiEvent?
     
     override init() {
         isEnterKey = false
+        isRest = true
         typedString = Dictionary(dictionaryLiteral: ("Note", ""), ("Vel", ""), ("GateTime", ""), ("StepTiem", ""))
         midiEvent = nil
     }
@@ -33,6 +35,7 @@ class MidiKeyin: NSObject {
     var lastStep: Int   // used for dot process
     var slurFlag: Bool
     let ticksPerQuarter = 480 // assuming this
+    let gateTimeRatioMultipleOf10 = 9
     var keyAssignTable: [keyAssign]
     var typedData: MIDITypedInObject
     var nc: NotificationCenter?
@@ -72,14 +75,14 @@ class MidiKeyin: NSObject {
 
     override init() {
         octav = 3
-        gateTime = 384
-        stepTime = 480
+        gateTime = 0
+        stepTime = 0
         velocity = 80
-        lastNoteName = ""
-        lastStepName = "16th"
-        curNote = 60
+        lastNoteName = "Rest"
+        lastStepName = ""
         curStep = 120
         lastStep = 120
+        curNote = 0
         slurFlag = false
         keyAssignTable = defaultKeyAssignTable
         typedData = MIDITypedInObject()
@@ -89,18 +92,31 @@ class MidiKeyin: NSObject {
     
     init(with kat: [keyAssign]) {
         octav = 3
-        gateTime = 384
-        stepTime = 480
+        gateTime = 0
+        stepTime = 0
         keyAssignTable = kat
         velocity = 80
-        lastNoteName = ""
+        lastNoteName = "Rest"
         lastStepName = ""
-        curNote = 0
         curStep = 0
+        curNote = 0
         lastStep = 0
         slurFlag = false
         typedData = MIDITypedInObject()
         super.init()
+    }
+    
+    func set(MidiEvent mev: MidiEvent) {
+        typedData.midiEvent = mev.copy() as? MidiEvent
+        if typedData.midiEvent == nil { return }
+        
+        curNote = Int(typedData.midiEvent!.note)
+        velocity = Int(typedData.midiEvent!.vel)
+        gateTime = Int(typedData.midiEvent!.gateTime)
+        stepTime = 0
+        
+        // set string value for mev
+        stringValue()
     }
     
     func keyIn(event: NSEvent) -> MIDITypedInObject {
@@ -130,12 +146,18 @@ class MidiKeyin: NSObject {
                         // create midi event
                         typedData.midiEvent = MidiEvent.init()
                         typedData.midiEvent?.setEvent(tick: 0, midiStatus: 0x90, value1: UInt8(curNote), value2: UInt8(velocity), gateTime: Int32(gateTime))
+                        // varlidate the data
+                        if typedData.midiEvent!.note < 0 || typedData.midiEvent!.note > 127 { typedData.midiEvent = nil }
+                        if typedData.midiEvent!.vel < 1 || typedData.midiEvent!.vel > 127 { typedData.midiEvent = nil }
+                        if typedData.midiEvent!.gateTime < 1 { typedData.midiEvent = nil }
                         
                         // reset parameters in key in buffer
                         gateTime = 0
                         stepTime = 0
                         curNote = 0
                         lastNoteName = ""
+                        lastNoteName = "Rest"
+                        typedData.isRest = true
                         
                         print("do enter process")
                     }
@@ -154,6 +176,8 @@ class MidiKeyin: NSObject {
 
         // if shift key is pressed, increase octav for this key in
         var aOctav: Int
+        
+        lastStepName = ""   // this is necessary to make my input method work.
         
         // The same key is pressed in a row
         if note == lastNoteName {
@@ -222,16 +246,20 @@ class MidiKeyin: NSObject {
         }
 
         // post MidiNoteKeyIn notification so I can send Midi note for monitor
+        //  send out midi note event to midi interface only when note key is pressed.
         note4monitor = MidiEvent.init(tick: 0, midiStatus: UInt8(0x90), note: UInt8(curNote), vel: UInt8(velocity), gateTime: Int32(gateTime))
         nc?.post(name: ntMidiNoteKeyIn, object: note4monitor)
 
         lastNoteName = note
+        typedData.isRest = false
     }
     
     private func subStep(step: String, shift: Bool) -> Void {
         // if the same key is typed repeatedly
         
         var st: Int
+        
+        lastNoteName = ""   // this is necessary to make my input method work
         
         switch step {
         case "32th":
@@ -248,7 +276,7 @@ class MidiKeyin: NSObject {
             st = ticksPerQuarter * 4 // this may not be right
                         // depending on the time signature
         case "dot":
-            st = lastStep / 2
+            st = lastStep / 2 * 3
         case "slur":
             slurFlag = true
             return
@@ -270,11 +298,13 @@ class MidiKeyin: NSObject {
         // if the step key is repeated
         if step == lastStepName {
             stepTime += st
-            return
+        } else {
+            stepTime = st
         }
         
-        stepTime = st
-        gateTime = stepTime / 10 * 9    // 90% of steptime
+        gateTime = stepTime / 10 * gateTimeRatioMultipleOf10
+        
+        lastStepName = step
     }
     
     private func subOctav(keyLabel: String) -> Void {
@@ -296,7 +326,7 @@ class MidiKeyin: NSObject {
         }
         
         var noteStr = notenames[aNote]
-        noteStr = noteStr + String(aOctav)
+        noteStr = typedData.isRest ? "Rest" : noteStr + String(aOctav)
         
         // make step time string
         var stepstr: String

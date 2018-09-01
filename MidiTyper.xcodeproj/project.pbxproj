@@ -35,6 +35,7 @@
 		92C4B17E2121D21F00EFED97 /* MidiKeyin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C4B17D2121D21F00EFED97 /* MidiKeyin.swift */; };
 		92D682CD204B6E5D004AFA9A /* MIDIInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D682CC204B6E5D004AFA9A /* MIDIInterface.swift */; };
 		92D682D0204B7EDF004AFA9A /* LocationControlWC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D682CF204B7EDF004AFA9A /* LocationControlWC.swift */; };
+		92EA9FB721312F0F006FA27E /* EscapeTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92EA9FB621312F0F006FA27E /* EscapeTextField.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -71,6 +72,7 @@
 		92C4B17D2121D21F00EFED97 /* MidiKeyin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MidiKeyin.swift; sourceTree = "<group>"; };
 		92D682CC204B6E5D004AFA9A /* MIDIInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIInterface.swift; sourceTree = "<group>"; };
 		92D682CF204B7EDF004AFA9A /* LocationControlWC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationControlWC.swift; sourceTree = "<group>"; };
+		92EA9FB621312F0F006FA27E /* EscapeTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EscapeTextField.swift; path = "MidiTyper/Midi Editor/Event Editor/EscapeTextField.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,6 +170,7 @@
 				92C4B17D2121D21F00EFED97 /* MidiKeyin.swift */,
 				926C63D6203C57BB008AD54F /* ViewController.swift */,
 				9216B4A62090BBF3009A8448 /* OnelineMidi.swift */,
+				92EA9FB621312F0F006FA27E /* EscapeTextField.swift */,
 			);
 			path = "Event Editor";
 			sourceTree = "<group>";
@@ -275,6 +278,7 @@
 			files = (
 				92C499E52052AB8A006211C4 /* KeyAssignViewController.swift in Sources */,
 				92C4B17E2121D21F00EFED97 /* MidiKeyin.swift in Sources */,
+				92EA9FB721312F0F006FA27E /* EscapeTextField.swift in Sources */,
 				9263F1EA204EC66300F52242 /* LocatorViewController.swift in Sources */,
 				92C43E3B204834BD00B1B075 /* SMF.swift in Sources */,
 				92C499DE20527B7D006211C4 /* DocumentWC.swift in Sources */,

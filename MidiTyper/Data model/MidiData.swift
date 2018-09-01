@@ -348,6 +348,27 @@ class Bar: NSObject, NSCoding {
         let tick = rtick - ticksPerBeat * beat
         return (beat, tick)
     }
+    
+    func relTick(fromBeat beat: Int, andTick tick: Int) -> Int? {
+        var relTick: Int
+        
+        if timeSig["num"] == nil {
+            return nil
+        }
+        
+        let ticksPerBeat = barLen / timeSig["num"]!
+        relTick = ticksPerBeat * beat + tick
+        return relTick
+    }
+    
+    func sort() {
+        if events.count <= 1 { return }
+        
+        let reorderedEvents:Array<MidiEvent>? = self.events.sorted(by: { $0.eventTick < $1.eventTick })
+        if reorderedEvents != nil {
+            events = reorderedEvents!
+        }
+    }
 }
 
 class Track: NSObject, NSCoding {
@@ -543,6 +564,7 @@ class MidiData: NSDocument {
     var numOfTracks: Int
     var ticksPerQuarter: UInt16?    // essential information only given by original file at given time.
     var trackStartPtr: Int?
+    var title: String?
     
     
     // class vars
@@ -631,6 +653,7 @@ class MidiData: NSDocument {
                 // debug
                 makeWindowControllers()
                 showWindows()
+                title = url.lastPathComponent
                 
                 let nc = NotificationCenter.default
                 nc.post(name: ntDocumentOpened, object: self)
@@ -720,20 +743,20 @@ class MidiData: NSDocument {
     
     internal func makeBarSeq () throws {
         
-        var err = ysError(source: "MidiData", line: 500, type: ysError.errorID.SMFParse)
+        var err = ysError(source: "MidiData", line: 746, type: ysError.errorID.SMFParse)
         
         if commonTrackSeq == nil || monitor == nil {
-            err.line = 503
+            err.line = 749
             throw err
         }
         
         if (commonTrackSeq?.count)! < 1 {
-            err.line = 508
+            err.line = 754
             throw err
         }
         
         if monitor!.isTimeSigInitialized == false {
-            err.line = 513
+            err.line = 759
             throw err
         }
         

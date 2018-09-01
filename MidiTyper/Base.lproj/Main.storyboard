@@ -163,9 +163,28 @@
                                                 <action selector="selectAll:" target="Ady-hI-5gd" id="VNm-Mi-diN"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="xm4-92-sc6"/>
-                                        <menuItem title="Edit Mode" alternate="YES" keyEquivalent="e" id="Ymn-bP-G9S"/>
-                                        <menuItem title="Insert Mode" alternate="YES" keyEquivalent="i" id="ll5-ib-YaF"/>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="Operation" id="QdE-ND-Oqk">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Operation" id="y72-sU-7qy">
+                                    <items>
+                                        <menuItem title="Change" enabled="NO" alternate="YES" keyEquivalent="e" id="mTd-m8-Jdw">
+                                            <connections>
+                                                <action selector="changeModeAction:" target="Voe-Tx-rLC" id="nTF-9e-Z55"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Insert" enabled="NO" alternate="YES" keyEquivalent="i" id="A0m-cb-wgB">
+                                            <connections>
+                                                <action selector="insertModeAction:" target="Voe-Tx-rLC" id="2KY-KT-PIs"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Note Typing" enabled="NO" alternate="YES" keyEquivalent="t" id="0fl-Ac-wmC">
+                                            <connections>
+                                                <action selector="noteTypingAction:" target="Voe-Tx-rLC" id="Cj5-VU-VlP"/>
+                                            </connections>
+                                        </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>
@@ -263,7 +282,13 @@
                         <outlet property="delegate" destination="Voe-Tx-rLC" id="yTS-dk-lbr"/>
                     </connections>
                 </application>
-                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="MidiTyper" customModuleProvider="target"/>
+                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="MidiTyper" customModuleProvider="target">
+                    <connections>
+                        <outlet property="changeMenuItem" destination="mTd-m8-Jdw" id="kfF-KT-JAS"/>
+                        <outlet property="insMenuItem" destination="A0m-cb-wgB" id="fme-eJ-JPR"/>
+                        <outlet property="noteTypingMenuItem" destination="0fl-Ac-wmC" id="wVC-R7-tQR"/>
+                    </connections>
+                </customObject>
             </objects>
             <point key="canvasLocation" x="40" y="-347"/>
         </scene>
@@ -1159,6 +1184,9 @@ IA
                                             <rect key="frame" x="20" y="374" width="96" height="22"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" placeholderString="--" drawsBackground="YES" id="vHd-J5-ict">
+                                                <numberFormatter key="formatter" formatterBehavior="default10_4" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="guh-5C-NDP">
+                                                    <real key="minimum" value="1"/>
+                                                </numberFormatter>
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1185,13 +1213,24 @@ IA
                                                 <action selector="trackSelectPopupAction:" target="5gI-5U-AMq" id="pif-hf-gjK"/>
                                             </connections>
                                         </popUpButton>
+                                        <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nTw-jy-Sbn" customClass="EscapeTextField" customModule="MidiTyper" customModuleProvider="target">
+                                            <rect key="frame" x="28" y="86" width="96" height="22"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" focusRingType="none" drawsBackground="YES" id="wYb-n2-f6G">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="backgroundColor" name="controlHighlightColor" catalog="System" colorSpace="catalog"/>
+                                                <allowedInputSourceLocales>
+                                                    <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                                                </allowedInputSourceLocales>
+                                            </textFieldCell>
+                                        </textField>
                                     </subviews>
                                 </view>
                             </box>
                             <textField verticalHuggingPriority="750" verifyAmbiguity="off" translatesAutoresizingMaskIntoConstraints="NO" id="4e3-bN-n3n">
                                 <rect key="frame" x="295" y="20" width="60" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" placeholderString="Beat" drawsBackground="YES" usesSingleLineMode="YES" id="Yz6-xs-HPb">
-                                    <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="1Mr-eP-hEo">
+                                    <numberFormatter key="formatter" formatterBehavior="default10_4" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="e2x-zE-vu2">
                                         <real key="minimum" value="0.0"/>
                                     </numberFormatter>
                                     <font key="font" metaFont="system"/>
@@ -1201,10 +1240,13 @@ IA
                                         <string>NSAllRomanInputSourcesLocaleIdentifier</string>
                                     </allowedInputSourceLocales>
                                 </textFieldCell>
+                                <connections>
+                                    <outlet property="nextKeyView" destination="vTh-np-kjB" id="qSC-yA-Fgz"/>
+                                </connections>
                             </textField>
                             <button verticalHuggingPriority="750" verifyAmbiguity="off" translatesAutoresizingMaskIntoConstraints="NO" id="g4e-l7-6tr">
-                                <rect key="frame" x="18" y="18" width="46" height="18"/>
-                                <buttonCell key="cell" type="check" title="Edit" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="nTb-49-FsP">
+                                <rect key="frame" x="18" y="18" width="69" height="18"/>
+                                <buttonCell key="cell" type="check" title="Change" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="nTb-49-FsP">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
@@ -1232,7 +1274,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="right" title="Text Cell" id="00e-QX-atQ">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" alignment="right" title="Text Cell" id="00e-QX-atQ">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1245,7 +1287,7 @@ IA
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="FMJ-qL-gOl">
                                                                     <rect key="frame" x="0.0" y="0.0" width="60" height="17"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="Meas" id="JV3-05-7NO">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" alignment="right" title="Meas" id="JV3-05-7NO">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1269,7 +1311,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="right" title="Text Cell" id="0Ur-e4-2ci">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" alignment="right" title="Text Cell" id="0Ur-e4-2ci">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1282,7 +1324,7 @@ IA
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="U0c-Oo-dHc">
                                                                     <rect key="frame" x="0.0" y="0.0" width="60" height="17"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="Beat" id="0Fs-1G-ZG2">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" alignment="right" title="Beat" id="0Fs-1G-ZG2">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1306,7 +1348,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="right" title="Text Cell" id="aUc-OL-hFr">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" alignment="right" title="Text Cell" id="aUc-OL-hFr">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1319,7 +1361,7 @@ IA
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="sc9-TN-NYF">
                                                                     <rect key="frame" x="0.0" y="0.0" width="60" height="17"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="Tick" id="i0M-LI-C3f">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" alignment="right" title="Tick" id="i0M-LI-C3f">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1343,7 +1385,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="right" title="Text Cell" id="yWF-yh-u4u">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" alignment="right" title="Text Cell" id="yWF-yh-u4u">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1356,7 +1398,7 @@ IA
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="QQA-WC-s8o">
                                                                     <rect key="frame" x="0.0" y="0.0" width="100" height="17"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="center" title="Event" id="mp9-nA-Jbg">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" alignment="center" title="Event" id="mp9-nA-Jbg">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1380,7 +1422,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="right" title="Text Cell" id="5r1-Ke-aMB">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" alignment="right" title="Text Cell" id="5r1-Ke-aMB">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1393,7 +1435,7 @@ IA
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="i2v-iD-rBe">
                                                                     <rect key="frame" x="0.0" y="0.0" width="60" height="17"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="Note" id="dFF-hZ-duG">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" alignment="right" title="Note" id="dFF-hZ-duG">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1417,7 +1459,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="right" title="Text Cell" id="M9a-Ku-viL">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" alignment="right" title="Text Cell" id="M9a-Ku-viL">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1430,7 +1472,7 @@ IA
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="2Cl-04-X9b">
                                                                     <rect key="frame" x="0.0" y="0.0" width="60" height="17"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="Vel" id="C7l-ss-oKk">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" alignment="right" title="Vel" id="C7l-ss-oKk">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1454,7 +1496,7 @@ IA
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="pRT-ow-nnU">
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" refusesFirstResponder="YES" alignment="left" title="Text Cell" id="pRT-ow-nnU">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1467,7 +1509,7 @@ IA
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="p7E-dM-RVi">
                                                                     <rect key="frame" x="0.0" y="0.0" width="60" height="17"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="GT" id="Nbp-O1-iRo">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" alignment="right" title="GT" id="Nbp-O1-iRo">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1509,7 +1551,7 @@ IA
                             <textField verticalHuggingPriority="750" verifyAmbiguity="off" translatesAutoresizingMaskIntoConstraints="NO" id="Z6M-J7-Ksa">
                                 <rect key="frame" x="211" y="20" width="60" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" placeholderString="Bar" usesSingleLineMode="YES" id="1KX-3p-QOT">
-                                    <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="3zn-z8-hSd">
+                                    <numberFormatter key="formatter" formatterBehavior="default10_4" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="VIu-qj-KOU">
                                         <real key="minimum" value="1"/>
                                     </numberFormatter>
                                     <font key="font" metaFont="system"/>
@@ -1519,13 +1561,16 @@ IA
                                         <string>NSAllRomanInputSourcesLocaleIdentifier</string>
                                     </allowedInputSourceLocales>
                                 </textFieldCell>
+                                <connections>
+                                    <outlet property="nextKeyView" destination="4e3-bN-n3n" id="BSG-0Q-JNq"/>
+                                </connections>
                             </textField>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="zzn-Fi-g3u">
                                 <rect key="frame" x="565" y="20" width="60" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="60" id="Ced-NT-Kac"/>
                                 </constraints>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="C3" drawsBackground="YES" id="9xp-Vs-R6Z">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="C3" drawsBackground="YES" id="9xp-Vs-R6Z">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1536,7 +1581,7 @@ IA
                                 <constraints>
                                     <constraint firstAttribute="width" constant="60" id="roF-4X-1MF"/>
                                 </constraints>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="432" drawsBackground="YES" id="J5u-3q-cam">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="432" drawsBackground="YES" id="J5u-3q-cam">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1548,7 +1593,7 @@ IA
                                     <constraint firstAttribute="height" constant="22" id="RK2-c6-pi5"/>
                                     <constraint firstAttribute="width" constant="60" id="bfQ-EJ-74j"/>
                                 </constraints>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="480" drawsBackground="YES" id="KYs-Hf-gEU">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="480" drawsBackground="YES" id="KYs-Hf-gEU">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1589,7 +1634,9 @@ IA
                             <textField verticalHuggingPriority="750" verifyAmbiguity="off" translatesAutoresizingMaskIntoConstraints="NO" id="vTh-np-kjB">
                                 <rect key="frame" x="378" y="20" width="60" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" placeholderString="Clock" drawsBackground="YES" usesSingleLineMode="YES" id="Wqo-F1-9tf">
-                                    <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="c8W-uY-YXQ"/>
+                                    <numberFormatter key="formatter" formatterBehavior="default10_4" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="oXC-CS-Nl8">
+                                        <real key="minimum" value="0.0"/>
+                                    </numberFormatter>
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1597,13 +1644,16 @@ IA
                                         <string>NSAllRomanInputSourcesLocaleIdentifier</string>
                                     </allowedInputSourceLocales>
                                 </textFieldCell>
+                                <connections>
+                                    <outlet property="nextKeyView" destination="Z6M-J7-Ksa" id="yXf-ho-9en"/>
+                                </connections>
                             </textField>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="lbh-Qt-qef">
                                 <rect key="frame" x="662" y="20" width="60" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="60" id="Mn4-Ht-2EJ"/>
                                 </constraints>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="64" drawsBackground="YES" id="yqK-5x-dpm">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="64" drawsBackground="YES" id="yqK-5x-dpm">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1634,11 +1684,24 @@ IA
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="sJX-qP-uv3">
-                                <rect key="frame" x="102" y="18" width="57" height="18"/>
+                                <rect key="frame" x="125" y="18" width="57" height="18"/>
                                 <buttonCell key="cell" type="check" title="Insert" bezelStyle="regularSquare" imagePosition="left" inset="2" id="SKn-iS-Vo2">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="insModeAction:" target="5gI-5U-AMq" id="Tew-He-vif"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SSq-34-kVh">
+                                <rect key="frame" x="463" y="18" width="96" height="18"/>
+                                <buttonCell key="cell" type="check" title="Note Typing" bezelStyle="regularSquare" imagePosition="left" inset="2" id="dJR-JL-N4N">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="noteTypingButtonAction:" target="5gI-5U-AMq" id="J1n-Km-Y72"/>
+                                </connections>
                             </button>
                         </subviews>
                         <constraints>
@@ -1649,6 +1712,7 @@ IA
                             <constraint firstItem="lbh-Qt-qef" firstAttribute="centerX" secondItem="FL0-Zi-sEo" secondAttribute="centerX" id="8OK-9l-2yT"/>
                             <constraint firstAttribute="bottom" secondItem="g4e-l7-6tr" secondAttribute="bottom" constant="20" id="8RT-fr-MhM"/>
                             <constraint firstItem="4e3-bN-n3n" firstAttribute="centerX" secondItem="pbV-cl-bYh" secondAttribute="centerX" id="8ak-1A-LT9"/>
+                            <constraint firstAttribute="bottom" secondItem="SSq-34-kVh" secondAttribute="bottom" constant="20" id="8fN-MU-qjq"/>
                             <constraint firstItem="qYf-E8-lS8" firstAttribute="top" secondItem="hl3-Gx-0rw" secondAttribute="bottom" constant="8" symbolic="YES" id="Fpo-bc-gBX"/>
                             <constraint firstItem="1wS-nn-2Eq" firstAttribute="leading" secondItem="pbV-cl-bYh" secondAttribute="trailing" constant="56" id="GsJ-Hk-v2l"/>
                             <constraint firstItem="Yhz-gh-fmC" firstAttribute="top" secondItem="n5f-L5-ZdJ" secondAttribute="bottom" constant="12" id="Jlb-pS-zZM"/>
@@ -1663,6 +1727,7 @@ IA
                             <constraint firstItem="qYf-E8-lS8" firstAttribute="baseline" secondItem="aAG-lB-ikt" secondAttribute="baseline" id="QuZ-Ec-tLv"/>
                             <constraint firstItem="vTh-np-kjB" firstAttribute="leading" secondItem="4e3-bN-n3n" secondAttribute="trailing" constant="23" id="SAq-5Z-BDr"/>
                             <constraint firstItem="n5f-L5-ZdJ" firstAttribute="leading" secondItem="FfJ-pu-PQg" secondAttribute="trailing" constant="40" id="Svq-Kx-j6g"/>
+                            <constraint firstItem="zzn-Fi-g3u" firstAttribute="leading" secondItem="SSq-34-kVh" secondAttribute="trailing" constant="8" symbolic="YES" id="Tza-gd-18l"/>
                             <constraint firstItem="pbV-cl-bYh" firstAttribute="leading" secondItem="qdy-se-XAB" secondAttribute="trailing" constant="59" id="U9K-Oc-hEu"/>
                             <constraint firstItem="n5f-L5-ZdJ" firstAttribute="leading" secondItem="Z6M-J7-Ksa" secondAttribute="leading" id="XGr-Dr-2Ks"/>
                             <constraint firstItem="qYf-E8-lS8" firstAttribute="leading" secondItem="lbh-Qt-qef" secondAttribute="trailing" constant="43" id="XPY-7r-nYc"/>
@@ -1675,10 +1740,12 @@ IA
                             <constraint firstItem="n5f-L5-ZdJ" firstAttribute="top" secondItem="ERx-hH-rdd" secondAttribute="top" constant="20" symbolic="YES" id="cYA-nC-DZ8"/>
                             <constraint firstItem="n5f-L5-ZdJ" firstAttribute="trailing" secondItem="Rs6-0k-SAL" secondAttribute="trailing" id="d3A-vw-abo"/>
                             <constraint firstItem="n5f-L5-ZdJ" firstAttribute="trailing" secondItem="aAG-lB-ikt" secondAttribute="trailing" id="d67-OC-V9e"/>
+                            <constraint firstItem="Z6M-J7-Ksa" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="sJX-qP-uv3" secondAttribute="trailing" constant="31" id="dMY-Id-Mbr"/>
                             <constraint firstItem="zzn-Fi-g3u" firstAttribute="centerX" secondItem="Yhz-gh-fmC" secondAttribute="centerX" id="e7S-iM-vd8"/>
                             <constraint firstItem="Rs6-0k-SAL" firstAttribute="leading" secondItem="hl3-Gx-0rw" secondAttribute="trailing" constant="41" id="fcv-jc-cmd"/>
                             <constraint firstAttribute="bottom" secondItem="Z6M-J7-Ksa" secondAttribute="bottom" constant="20" id="hBL-6J-SWF"/>
                             <constraint firstItem="1wS-nn-2Eq" firstAttribute="centerX" secondItem="vTh-np-kjB" secondAttribute="centerX" id="jfC-Te-hJn"/>
+                            <constraint firstItem="hl3-Gx-0rw" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="FL0-Zi-sEo" secondAttribute="trailing" constant="45" id="k9u-PO-nK1"/>
                             <constraint firstItem="n5f-L5-ZdJ" firstAttribute="leading" secondItem="ERx-hH-rdd" secondAttribute="leading" constant="211" id="kfi-Lx-YwR"/>
                             <constraint firstAttribute="bottom" secondItem="n5f-L5-ZdJ" secondAttribute="bottom" constant="79" id="osG-IY-1yx"/>
                             <constraint firstItem="FfJ-pu-PQg" firstAttribute="leading" secondItem="ERx-hH-rdd" secondAttribute="leading" constant="20" symbolic="YES" id="pQ3-V2-Hgf"/>
@@ -1693,10 +1760,13 @@ IA
                         <outlet property="beatText" destination="4e3-bN-n3n" id="WGg-1A-dmC"/>
                         <outlet property="editButton" destination="g4e-l7-6tr" id="RhC-6y-N7a"/>
                         <outlet property="editorTableView" destination="Doj-ns-R5Z" id="QR2-WS-R0A"/>
+                        <outlet property="escapeText" destination="nTw-jy-Sbn" id="PQk-iI-eWC"/>
                         <outlet property="gatetimeText" destination="qYf-E8-lS8" id="JBy-bj-T8S"/>
+                        <outlet property="insButton" destination="sJX-qP-uv3" id="T2x-ri-vss"/>
                         <outlet property="midiChannelPopUP" destination="4D8-ns-0Bs" id="cBm-eZ-vGb"/>
                         <outlet property="midiKeyIn" destination="uGQ-k0-gr3" id="Ihg-aG-Yxl"/>
                         <outlet property="noteText" destination="zzn-Fi-g3u" id="HlX-o8-jtD"/>
+                        <outlet property="noteTypingButton" destination="SSq-34-kVh" id="L7N-tN-ray"/>
                         <outlet property="steptimeText" destination="aAG-lB-ikt" id="gNB-Ax-fvB"/>
                         <outlet property="tickText" destination="vTh-np-kjB" id="JzN-nW-2oP"/>
                         <outlet property="trackSelectBox" destination="cyV-mT-RIi" id="F36-fU-GEa"/>

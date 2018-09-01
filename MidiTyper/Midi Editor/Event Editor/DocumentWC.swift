@@ -34,6 +34,11 @@ class DocumentWC: NSWindowController, NSWindowDelegate {
 //        window?.setFrame(frame! as! NSRect, display: true)
     }
     
+    func keyDownHook(with event: NSEvent) {
+        let vc = window?.contentViewController as? ViewController
+        vc?.keyDownHook(with: event)
+    }
+    
     func windowWillClose(_ notification: Notification) {
         window?.saveFrame(usingName: DocumentWC.windowFrameAutosaveName)
     }

@@ -8,8 +8,6 @@
 
 import Cocoa
 
-// Error definitions
-//
 
 // Notification definition
 let ntPlayable = Notification.Name(rawValue: "Ready to play")
@@ -25,6 +23,12 @@ let ntDidTSTWinConLoaded = Notification.Name(rawValue: "TST WinCon Loaded")
 let ntLocatorWinconLoaded = Notification.Name(rawValue: "Locator Wincon Loaded")
 let ntDocWinconLoaded = Notification.Name(rawValue: "Document Wincon Loaded")
 let ntMidiNoteKeyIn = Notification.Name(rawValue: "MidiNoteKeyIn")
+let ntChangeEventMenuIssued = Notification.Name(rawValue: "ChangeEventMenuIssued")
+let ntInsEventMenuIssued = Notification.Name(rawValue: "InsertEventMenuIssued")
+let ntNoteTypingMenuIssued = Notification.Name(rawValue: "NoteTypingMenuIssued")
+
+// Error definitions
+//
 
 struct ysError: Error {
     
@@ -39,6 +43,7 @@ struct ysError: Error {
         case midiInterface
         case SMFParse
         case timeoutForSemaphor
+        case typedinEvent
     }
     var source: String  // source file name
     var line: Int   // line of code
@@ -57,6 +62,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var app: NSApplication?
 
     var midiInterface: MidiInterface?
+
+    @IBOutlet weak var changeMenuItem: NSMenuItem!
+    @IBOutlet weak var insMenuItem: NSMenuItem!
+    @IBOutlet weak var noteTypingMenuItem: NSMenuItem!
+    
     
     enum WindowTag {
         case EventEditWin
@@ -124,9 +134,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self.keyDown(with: aEvent)
             return aEvent
         }
+        
+        // clean up menu items
+        changeMenuItem.isEnabled = false
+        insMenuItem.isEnabled = false
+        noteTypingMenuItem.isEnabled = false
 
     }
 
+    // Get notification for document to be closed.
+    //  and disable editMenuItem and insMenuItem
+    
 
     func seqStateObserver(notf: Notification) -> Void {
         switch notf.name {
@@ -175,12 +193,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func keyDown(with event: NSEvent) {
         // debug
-        print("keyDown in AppDelegate: \(event.keyCode)")
-        if (event.modifierFlags.rawValue & NSEvent.ModifierFlags.shift.rawValue) != 0 { print("shift is pressed down") }
+//        print("keyDown in AppDelegate: \(event.keyCode)")
+//        if (event.modifierFlags.rawValue & NSEvent.ModifierFlags.shift.rawValue) != 0 { print("shift is pressed down") }
         
         let whichWin = frontWindow()
         // debug
-        print("current key window is \(String(describing: whichWin))")
+//        print("current key window is \(String(describing: whichWin))")
         
         // dispatch keydown to keywindow
         switch whichWin {
@@ -189,6 +207,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 return
             }
             tstWC!.myKey(with: event)
+        case .EventEditWin?:
+            docWincon?.keyDownHook(with: event)
+
         default:
             return
         }
@@ -267,7 +288,51 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func saveDocumentAs(sender: Any) {
         print("save as is called")
     }
+    // MARK: Menu commands
+   
+    @IBAction func changeModeAction(_ sender: Any) {
+        let whichWin = frontWindow()
+        if whichWin == .EventEditWin {
+            let dc = NotificationCenter.default
+            if changeMenuItem.state == NSControl.StateValue.on {
+                changeMenuItem.state = NSControl.StateValue.off
+            } else {
+                changeMenuItem.state = NSControl.StateValue.on
+            }
+            
+            dc.post(name: ntChangeEventMenuIssued, object: self)
+        }
+    }
     
+    @IBAction func insertModeAction(_ sender: Any) {
+        let whichwin = frontWindow()
+        if whichwin == .EventEditWin {
+            let dc = NotificationCenter.default
+            if insMenuItem.state == NSControl.StateValue.on {
+                insMenuItem.state = NSControl.StateValue.off
+            } else {
+                insMenuItem.state = NSControl.StateValue.on
+            }
+            
+            dc.post(name: ntInsEventMenuIssued, object: self)
+        }
+    }
+    
+    @IBAction func noteTypingAction(_ sender: Any) {
+        let whichWin = frontWindow()
+        if whichWin == .EventEditWin {
+            let dc = NotificationCenter.default
+            if noteTypingMenuItem.state == NSControl.StateValue.on {
+                noteTypingMenuItem.state = NSControl.StateValue.off
+            } else {
+                noteTypingMenuItem.state = NSControl.StateValue.on
+            }
+            
+            dc.post(name: ntNoteTypingMenuIssued, object: self)
+        }
+    }
+    
+    // MARK: Error handling
     func errorHandle(err: ysError) {
         let message = String(format: "error in %s, line %d, type \(err.type)", err.source, err.line)
         print(message)
