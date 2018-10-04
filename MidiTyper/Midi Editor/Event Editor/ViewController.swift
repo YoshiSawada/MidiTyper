@@ -80,11 +80,17 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 escapeText.isEnabled = true
                 escapeText.becomeFirstResponder()
                 escapeText.resign = false
+                barText.isEnabled = false
+                beatText.isEnabled = false
+                tickText.isEnabled = false
             } else {
                 //noteTypingButton.state = NSControl.StateValue.off
                 escapeText.isEnabled = false
                 barText.becomeFirstResponder()  // this may not be necessary.
                 escapeText.resign = true
+                barText.isEnabled = true
+                beatText.isEnabled = true
+                tickText.isEnabled = true
             }
         }
     }
@@ -136,6 +142,13 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         editButton.isEnabled = false
         insButton.isEnabled = false
         noteTypingButton.isEnabled = false
+        
+        // Below line has no effect
+        // noteText.refusesFirstResponder = true
+        
+        barText.stringValue = "1"
+        beatText.stringValue = "1"
+        tickText.stringValue = "0"
     }
 
     override var representedObject: Any? {
@@ -201,9 +214,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             if del?.noteTypingMenuItem.state == NSControl.StateValue.on {
                 isNoteTyping = true
                 noteTypingButton.state = NSControl.StateValue.on
+                midiKeyIn.typedData.isNoteType = true
             } else {
                 isNoteTyping = false
                 noteTypingButton.state = NSControl.StateValue.off
+                midiKeyIn.typedData.isNoteType = false
             }
         default:
             print("The observer in midi edit view received a notification")
@@ -242,7 +257,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         }
         
         let trackCount = midi!.tracks!.count
-        if trackCount < trackIndexInFocus! - 1 {
+        if trackCount < trackIndexInFocus! - 1 || trackIndexInFocus! < 0 {
             return
         }
         
@@ -321,9 +336,16 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         // if enter is pressed, process it depending on either change or insert mode.
         
         if typed.isEnterKey {
+            
+            typed.isEnterKey = false    // reset the flag
+            
             if insButton.state == NSControl.StateValue.off {
                 // replace mode
-                barInFocus?.events.remove(at: eventIndexInFocus)
+                if midiKeyIn.setMidiEvent(fromTextField: noteText.stringValue, vel: velocityText.stringValue, gt: gatetimeText.stringValue) {
+                    // replace it with the edited event
+                    barInFocus?.events.remove(at: eventIndexInFocus)
+                    // insert is going to be done later
+                }
             }
             
             do {
@@ -340,7 +362,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             loadTrack()
             editorTableView.reloadData()
             
-            return
+            // debug; 2018/9/30 omit return here as I want to update typedNote information in text fields
+            // return
         } // end of enter key process
 
         if isNoteTyping == true {
@@ -488,7 +511,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         selectedRow = editorTableView.selectedRow
         // if no row is selected, then the result will be -1
         if selectedRow == -1 {
-            barInFocus = nil
             eventInFocus = nil
             return
         }
@@ -618,8 +640,9 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         // ix == nil, then the focused line is bar itself
         barText.stringValue = String(bar.measNum + 1)
         if ix == nil {
-            beatText.stringValue = "***"
-            tickText.stringValue = "***"
+            barText.intValue = Int32(bar.measNum + 1)
+            beatText.stringValue = "1"
+            tickText.stringValue = "0"
         } else {
             if ix! - 1 > bar.events.count {
                 // error
@@ -631,108 +654,109 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 tickText.stringValue = "??"
                 return
             }
-            beatText.stringValue = String(beatAndTick.beat!)
+            beatText.stringValue = String(beatAndTick.beat!+1)
             tickText.stringValue = String(beatAndTick.tick!)
         }
     }
     
     func getTimeField(forBar bar:Bar) -> (measnum: Int?, tick: Int?) {
-        let meas = barText.integerValue < 1 ? nil : barText.integerValue
-        let beat = beatText.integerValue < 1 ? nil : beatText.integerValue
+        let meas = barText.integerValue < 1 ? nil : barText.integerValue - 1
+        let beat = beatText.integerValue < 1 ? nil : beatText.integerValue - 1
         if meas == nil || beat == nil { return (nil, nil) }
         let tick = tickText.integerValue
         let reltick = bar.relTick(fromBeat: beat!, andTick: tick)
         
-        return (meas! - 1, reltick)
+        return (meas!, reltick)
     }
     
     func insertTypedEventToTrack() throws -> Void {
-        
+
         var er = ysError.init(source: "insertTypedEventToTrack in ViewController", line: 618, type: ysError.errorID.typedinEvent)
 
         
         let measnum = barText.integerValue < 1 ? nil : barText.integerValue - 1
-        let beat = beatText.integerValue < 1 ? nil : beatText.integerValue
+        let beat = beatText.integerValue < 1 ? nil : beatText.integerValue - 1
         let tick = tickText.integerValue
+        let stepTime = steptimeText.integerValue
+        let gateTime = gatetimeText.integerValue == 0 ? 108 : gatetimeText.integerValue
+        let vel = velocityText.integerValue == 0 ? 1 : velocityText.integerValue
         
         if measnum == nil || beat == nil {
-            er.line = 625
+            er.line = 692
             throw(er)
         }
         
         if barInFocus == nil {
-            er.line = 630
+            er.line = 698
             throw(er)
         }
         
         if midi?.tracks?[trackIndexInFocus!] == nil {
-            er.line = 635
+            er.line = 702
             throw(er)
         }
         
         measToSelect = measnum
+
+        midiKeyIn.typedData.midiEvent.gateTime = Int32(gateTime)
+        midiKeyIn.typedData.midiEvent.vel = UInt8(vel)
         
         if measnum == barInFocus!.measNum {
             // don't have to change the target bar
+            // label A-open
             let tickInBar = barInFocus?.relTick(fromBeat: beat!, andTick: tick)
             if tickInBar == nil {
                 er.line = 649
                 throw(er)
             }
             
-            let typedMidiEvent = midiKeyIn.typedData.midiEvent
-            if typedMidiEvent == nil {
-                er.line = 649
-                throw(er)
-            }
-            
-            typedMidiEvent!.eventTick = Int32(tickInBar!)
-            barInFocus!.events.append(typedMidiEvent!)
-            barInFocus?.sort()
-            
-            midi!.tracks![trackIndexInFocus!].dirty = true
-            midiEventToSelect = typedMidiEvent!.copy() as? MidiEvent
-        
-        } else {
+            midiKeyIn.typedData.midiEvent.eventTick = Int32(tickInBar!)
+            let ev = midiKeyIn.typedData.midiEvent.copy() as! MidiEvent
+            barInFocus!.events.append(ev)
+            barInFocus!.sort()
+            // label: A-close; no change in bar;
+        } else {    // A'-open; need to change the bar
             // I have to change the target bar in the track
             //    See if I have to make a new bar
             let ix = midi!.tracks![trackIndexInFocus!].index(forMeas: measnum!)
             if ix == nil {  // bar doesn't exist. I have to create a new one
-                var bar: Bar?
+                // label: B-open
+                var barTemp: Bar?
                 
                 let ix = midi!.barSeqTemplate.index(forMeas: measnum!)
                 if ix == nil {
                     // meas doesn't even exist in barseq template. Extend the length
                     // of the song.
-                    bar = newBarInBarSeqTemplate(meas: measnum!)
-                    midi!.tracks![trackIndexInFocus!].dirty = true
+                    barTemp = newBarInBarSeqTemplate(meas: measnum!)
                 } else {
                     // duplicate the bar from the template
-                    bar = midi!.barSeqTemplate.bars![ix!].copy() as? Bar
+                    barTemp = midi!.barSeqTemplate.bars![ix!].copy() as? Bar
                 }
                 
-                let tickInBar = bar?.relTick(fromBeat: beat!, andTick: tick)
+                if barTemp == nil {
+                    er.line = 744
+                    throw(er)
+                }
+                
+                let tickInBar = barTemp?.relTick(fromBeat: beat!, andTick: tick)
                 if tickInBar == nil {
-                    er.line = 667
+                    er.line = 750
                     throw(er)
                 }
                 
-                let typedMidiEvent = midiKeyIn.typedData.midiEvent
-                if typedMidiEvent == nil {
-                    er.line = 674
-                    throw(er)
-                }
+                midiKeyIn.typedData.midiEvent.eventTick = Int32(tickInBar!)
+                let anEv = midiKeyIn.typedData.midiEvent.copy() as! MidiEvent
                 
-                typedMidiEvent?.eventTick = Int32(tickInBar!)
-                bar?.events.append(typedMidiEvent!)
-                
-                midiEventToSelect = typedMidiEvent!.copy() as? MidiEvent
+                let bar = barTemp!.copy() as! Bar
+                bar.events.append(anEv)
+                bar.sort()
+                barInFocus = bar
                 
                 // add the bar to the track
-                midi!.tracks![trackIndexInFocus!].bars!.append(bar!)
-                midi!.tracks![trackIndexInFocus!].dirty = true
+                midi!.tracks![trackIndexInFocus!].bars!.append(bar)
                 
             } else { // add the event in the existing bar
+                // labrel: B-close, B'-open
                 let bar = midi!.tracks![trackIndexInFocus!].bars![ix!]
                 // debug note
                 // I think the bar has a reference to the real data
@@ -744,21 +768,25 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                     throw(er)
                 }
                 
-                let typedMidiEvent = midiKeyIn.typedData.midiEvent
-                if typedMidiEvent == nil {
-                    er.line = 705
-                    throw(er)
-                }
-                
-                typedMidiEvent!.eventTick = Int32(ticksInBar!)
-                bar.events.append(typedMidiEvent!)
+                midiKeyIn.typedData.midiEvent.eventTick = Int32(ticksInBar!)
+                let ev = midiKeyIn.typedData.midiEvent.copy() as! MidiEvent
+                bar.events.append(ev)
                 bar.sort()
-                midi!.tracks![trackIndexInFocus!].dirty = true
-                
-                midiEventToSelect = typedMidiEvent!.copy() as? MidiEvent
-            }
-        }
-    }
+                barInFocus = bar
+            } // label; B'-close
+        } // label; A-close
+        
+        midi!.tracks![trackIndexInFocus!].dirty = true
+        midiEventToSelect = midiKeyIn.typedData.midiEvent.copy() as? MidiEvent
+        
+        // set new point of bar, beat and tick
+        let newLoc = midi!.advance(by: stepTime, meas: measnum!, beat: beat!, tick: tick)
+        
+        barText.integerValue = newLoc!.meas + 1
+        beatText.integerValue = newLoc!.beat + 1
+        tickText.integerValue = newLoc!.relTick
+
+    } // close funcion
     
     // Will be used when creating a bar beyond the end of the song
     // This function returns a copy of bar template so it won't create
@@ -819,9 +847,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         if noteTypingButton.state == NSControl.StateValue.on {
             del?.noteTypingMenuItem.state = NSControl.StateValue.on
             isNoteTyping = true
+            midiKeyIn.typedData.isNoteType = true
         } else {
             del?.noteTypingMenuItem.state = NSControl.StateValue.off
             isNoteTyping = false
+            midiKeyIn.typedData.isNoteType = false
         }
     }
     

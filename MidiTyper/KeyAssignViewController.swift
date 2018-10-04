@@ -75,7 +75,8 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         keyAssign(position: 22, action: "slur", keyLabel: "F19", code: 80),
         keyAssign(position: 23, action: "+", keyLabel: "+", code: 69),
         keyAssign(position: 24, action: "-", keyLabel: "-", code: 78),
-        keyAssign(position: 25, action: "enter", keyLabel: "enter", code: 76)
+        keyAssign(position: 25, action: "enter", keyLabel: "enter", code: 76),
+        keyAssign(position: 26, action: "enter2", keyLabel: "enter2", code: 36)
     ]
     
     @IBOutlet weak var keyAssignTableView: NSTableView!

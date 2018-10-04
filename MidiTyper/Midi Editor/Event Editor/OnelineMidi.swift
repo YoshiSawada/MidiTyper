@@ -11,6 +11,7 @@ import Cocoa
 
 // definition and template to show an event on MIDI editor
 class OnelineMidi: NSObject {
+    var barObj: Bar?
     var meas: String
     var beat: String
     var clock: String
@@ -33,10 +34,11 @@ class OnelineMidi: NSObject {
     }
     
     init(bar:Bar, ev: MidiEvent) {
+        barObj = bar
         meas = String.init(bar.measNum + 1)
         let ticksPerBeat = bar.barLen / bar.timeSig["num"]!
         let ibeat = Int(ev.eventTick) / ticksPerBeat
-        beat = String(ibeat)
+        beat = String(ibeat+1)
         clock = String(Int(ev.eventTick) - (ticksPerBeat * ibeat))
         switch ev.eventStatus & 0xf0 {
         case 0x90:

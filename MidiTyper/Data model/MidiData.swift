@@ -450,6 +450,7 @@ class Track: NSObject, NSCoding {
     }
     
     // if Expandable == true then adding bar(s) by copying the last bar as the template
+    // return value is index
     func findBar (tick absTick:Int?, Expandable exp:Bool) -> Int? {
         if bars == nil || absTick == nil {
             return nil
@@ -520,6 +521,23 @@ let tagSmpteOffset:UInt8 = 0x54
 let tagTimeSignature:UInt8 = 0x58
 let tagKey:UInt8 = 0x59
 let tagProprietaryEvent:UInt8 = 0x7f
+
+struct SongLocation {
+    // all are zero based
+    var meas: Int
+    var beat: Int
+    var tick: Int
+    var relTick: Int
+    var absTick: Int
+    
+    init() {
+        meas = 0
+        beat = 0
+        tick = 0
+        relTick = 0
+        absTick = 0
+    }
+}
 
 // MARK: Supplemental class
 //
@@ -723,6 +741,43 @@ class MidiData: NSDocument {
 
     // MARK: Midi Process functions
     //
+    
+    // Call this function in zero based values
+    func advance(by: Int, meas: Int, beat: Int, tick: Int) -> SongLocation? {
+        var newLoc = SongLocation.init()
+        
+        let ix = barSeqTemplate.index(forMeas: meas)
+        if ix == nil {
+            return nil
+        }
+        
+        // get the template bar of current location
+        let bar = barSeqTemplate.bars![ix!]
+        let tickPerBeat = bar.barLen / bar.timeSig["num"]!
+        let relTick = tickPerBeat * beat + tick + by
+        
+        if relTick < bar.barLen {  // new location is in the current bar
+            newLoc.meas = meas
+            (newLoc.beat, newLoc.relTick) = bar.beatAndTick(fromRelTick: relTick) as! (Int, Int)
+            newLoc.absTick = bar.startTick + relTick
+            newLoc.relTick = relTick
+        } else { // new location goes beyond the current bar
+            let absTick = bar.startTick + relTick
+            let newIndex = barSeqTemplate.findBar(tick: absTick, Expandable: true)
+            if newIndex == nil { return nil }
+            let newBarTemp = barSeqTemplate.bars![newIndex!]
+            newLoc.meas = newBarTemp.measNum
+
+            let newRelTick = absTick - newBarTemp.startTick
+            (newLoc.beat, newLoc.tick) = newBarTemp.beatAndTick(fromRelTick: newRelTick) as! (Int, Int)
+            newLoc.absTick = absTick
+            newLoc.relTick = newRelTick
+        }
+        
+        return newLoc
+    }
+    
+    
     internal func metaTempoToNanoPerQuarter (metaEvent meta: MetaEvent?) -> __uint64_t? {
         // meta tempo denotes microsec per quarter
         //
