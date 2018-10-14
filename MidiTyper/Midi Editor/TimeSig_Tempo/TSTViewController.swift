@@ -30,6 +30,7 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
     
     let tsColor = NSColor.systemOrange
     let tmpColor = NSColor.black
+    let del = NSApplication.shared.delegate as? AppDelegate
     
     enum FocusedField {
         case Meas
@@ -58,23 +59,30 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
         insertButton.isEnabled = false
         
         // debug
-        if docCon?.currentDocument != nil {
-            print("doc con has a currentDocument")
-        } else {
-            print("current doc is nil")
-        }
+        // we cannot expect docCon?.currentDocument is set.
+//        if docCon?.currentDocument != nil {
+//            print("doc con has a currentDocument")
+//        } else {
+//            print("current doc is nil")
+//        }
         
-        loadData()
+        midi = del?.curDoc
+        
+        if midi != nil {
+            loadData()
+        } else {
+            print("cannot get Midi Data")
+        }
         
         // debug
         TSTtableView.refusesFirstResponder = true
     }
     
     func loadData() {
-        guard docCon?.currentDocument != nil else {
+
+        if midi == nil {
             return
         }
-        midi = docCon!.currentDocument! as? MidiData
         
         if (midi?.numOfTracks)! < 1 {
             return

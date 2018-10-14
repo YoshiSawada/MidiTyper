@@ -26,6 +26,7 @@ let ntMidiNoteKeyIn = Notification.Name(rawValue: "MidiNoteKeyIn")
 let ntChangeEventMenuIssued = Notification.Name(rawValue: "ChangeEventMenuIssued")
 let ntInsEventMenuIssued = Notification.Name(rawValue: "InsertEventMenuIssued")
 let ntNoteTypingMenuIssued = Notification.Name(rawValue: "NoteTypingMenuIssued")
+let ntUntitledDocumentCreated = Notification.Name(rawValue: "Untitled Document ready")
 
 // Error definitions
 //
@@ -44,6 +45,7 @@ struct ysError: Error {
         case SMFParse
         case timeoutForSemaphor
         case typedinEvent
+        case failedToLoadSong
     }
     var source: String  // source file name
     var line: Int   // line of code
@@ -60,6 +62,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let objMidi:objCMIDIBridge = objCMIDIBridge()
     let storyboard: NSStoryboard?
     var app: NSApplication?
+    var curDoc: MidiData?
 
     var midiInterface: MidiInterface?
 
@@ -92,6 +95,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             print("shared document controller is nil !!")
         }
         // debug
+        curDoc = docCon?.documents.last as? MidiData
+        
         print("document count = \(docCon?.documents.count ?? -1)")
         
         // regist notifications to observe
@@ -106,6 +111,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dc.addObserver(forName: ntDidTSTWinConLoaded, object: nil, queue: nil, using: appstateObserver)
         dc.addObserver(forName: ntLocatorWinconLoaded, object: nil, queue: nil, using: appstateObserver)
         dc.addObserver(forName: ntDocWinconLoaded, object: nil, queue: nil, using: appstateObserver)
+        dc.addObserver(forName: ntUntitledDocumentCreated, object: nil, queue: nil, using: appstateObserver)
         
         // scan Midi Interface
         midiInterface = MidiInterface()
@@ -135,11 +141,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return aEvent
         }
         
-        // clean up menu items
-        changeMenuItem.isEnabled = false
-        insMenuItem.isEnabled = false
-        noteTypingMenuItem.isEnabled = false
-
+        if curDoc != nil {
+            dc.post(name: ntDocumentOpened, object: curDoc)
+            changeMenuItem.isEnabled = true
+            insMenuItem.isEnabled = true
+            noteTypingMenuItem.isEnabled = true
+        } else {
+            // clean up application menu items
+            changeMenuItem.isEnabled = false
+            insMenuItem.isEnabled = false
+            noteTypingMenuItem.isEnabled = false
+        }
     }
 
     // Get notification for document to be closed.
@@ -173,6 +185,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //            midiData[activeRefnum].stop(self)
 //            continueMenuItem.isEnabled = false
 //            stopMenuItem.isEnabled = false
+        case ntUntitledDocumentCreated:
+            curDoc = notf.object as? MidiData
         default:
             print("Unknown notification: \(notf.name)")
         }

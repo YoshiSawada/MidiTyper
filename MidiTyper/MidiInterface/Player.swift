@@ -59,7 +59,15 @@ class MonitorCenter {
     // declarations
     let nc = NotificationCenter.default
     var objMidi:objCMIDIBridge? = nil
-    var isTempoInitialized: Bool = false
+    var isTempoInitialized: Bool {
+        get {
+            if tempoMapSeq.count > 0 {
+                return true
+            } else {
+                return false
+            }
+        }
+    }
     var isTimeSigInitialized: Bool = false
     var curTimeSig: Dictionary<String, Int> = ["num":4, "denom":2]
     var isOrderOfBarDirty: Bool = false
@@ -840,12 +848,12 @@ func makeTrackTable(MidiData md:MidiData) -> Bool {
     
     
     trackTable = Array<TrackMap>()
-    trackTable?.reserveCapacity(md.numOfTracks)
+    trackTable?.reserveCapacity(md.numOfTracks!)
     if trackTable == nil {
         return false
     }
     // setting up Bool table for track to play
-    for i in 0..<md.numOfTracks {
+    for i in 0..<md.numOfTracks! {
         let trackMap = TrackMap(trackIndex: i, barLength: numOfBars!)
         for b in 0..<numOfBars! {
             let m = md.tracks![i].index(forMeas: b)

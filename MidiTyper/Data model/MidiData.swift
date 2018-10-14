@@ -571,6 +571,10 @@ struct TempoMap {
 
 class MidiData: NSDocument {
 
+    enum MidiDataError: Error {
+        case InitializeError(String)
+    }
+    
     // static declarations
     static var MThd:[Int8] = [ 0x4d, 0x54, 0x68, 0x64 ]
     static var MTrk:[Int8] = [ 0x4d, 0x54, 0x72, 0x6b ]
@@ -579,7 +583,11 @@ class MidiData: NSDocument {
     var curPtr: Int = 0
     var headerLength: Int?
     var formatType: UInt16?
-    var numOfTracks: Int
+    var numOfTracks: Int? {
+        get {
+            return tracks?.count
+        }
+    }
     var ticksPerQuarter: UInt16?    // essential information only given by original file at given time.
     var trackStartPtr: Int?
     var title: String?
@@ -620,11 +628,73 @@ class MidiData: NSDocument {
     override init() {
         curElapsedTick = 0
         nextMeasNum = 0
-        numOfTracks = 0
+        //  numOfTracks = 1
+        tracks = Array<Track>()
+        
+        // initialize tracks
+        let aBar = Bar.init(measNum: 0, startTick: 0, numerator: 4, denominator: 2, ticksPerQuarter: 480)
+        
+        let aTrack = Track()
+        aTrack.bars?.append(aBar)
+        tracks?.append(aTrack)
+        ticksPerQuarter = 480
+        
+        // initialize commonTrackSeq (collection of meta event)
+        var aData: [UInt8] = Array<UInt8>.init(repeating: 0, count: 4)
+        
+            // tempo 120 -> 500k microsec per quarter note
+        aData[0] = 0x07
+        aData[1] = 0xa1
+        aData[2] = 0x20
+        let metaTempo = MetaEvent.init(metaTag: tagTempo, eventTick: 0, len: 3, data: aData)
+        
+            // time sig 4/4
+        aData[0] = 4
+        aData[1] = 2
+        aData[2] = 0x18
+        aData[3] = 0x08
+        let metaTimeSig = MetaEvent.init(metaTag: tagTimeSignature, eventTick: 0, len: 4, data: aData)
+        
+            // Midi channel prefix
+        aData[0] = 0x0
+        let metaChannel = MetaEvent.init(metaTag: tagMIDIChannelPrefix, eventTick: 0, len: 1, data: aData)
+        
+            // End of Track
+        aData[0] = 0
+        let metaEnd = MetaEvent.init(metaTag: tagEndOfTrack, eventTick: 1920, len: 1, data: aData)
+        
+        commonTrackSeq?.append(metaTempo)
+        commonTrackSeq?.append(metaTimeSig)
+        commonTrackSeq?.append(metaChannel)
+        commonTrackSeq?.append(metaEnd)
+        
+        // initialize barseqTemplate
+            // if possible, barSeqTemplate should be made in the function
+            // of makeBarSeq(). But I cannot call class function in init()
+            // Thus I'm initializing barSeqTemplate manually.
+        barSeqTemplate.bars?.append(aBar.copy() as! Bar)
+        
         del = NSApplication.shared.delegate as? AppDelegate
+        if del != nil {
+            monitor = MonitorCenter(midiIF: del!.objMidi)
+        }
+        
         super.init()
         // Add your subclass-specific initialization here.
+        let ret = prepare()
+        if ret == false {
+            Swift.print("MidiData cannot initialize the tempomap")
+        }
+        nc.post(name: ntUntitledDocumentCreated, object: self)
     }
+    
+    convenience init(type: MidiData) throws {
+        self.init()
+        if numOfTracks == nil {
+            throw MidiDataError.InitializeError("Error in creating untitled Midi Data")
+        }
+    }
+    
 
     override class var autosavesInPlace: Bool {
         return false
@@ -632,6 +702,25 @@ class MidiData: NSDocument {
     
     func encode(with aCoder: NSCoder) {
         aCoder.encode(ticksPerQuarter, forKey: "ticksPerQuarter")
+    }
+    
+    func prepare() -> Bool {
+        if commonTrackSeq?.count == 0 {
+            return false
+        }
+        var nanoPerTick: __uint64_t
+        for meta in commonTrackSeq! {
+            switch meta.metaTag {
+            case tagTempo:
+                nanoPerTick = metaTempoToNanoPerQuarter (metaEvent: meta)!
+                nanoPerTick = nanoPerTick/480
+                
+                monitor!.addTempoMapElement(eventTick: meta.eventTick, nanoPerTick: nanoPerTick)
+            default:
+                continue
+            }
+        }
+        return true
     }
 
     override func makeWindowControllers() {

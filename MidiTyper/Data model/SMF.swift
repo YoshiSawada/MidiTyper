@@ -115,7 +115,7 @@ func openSMF(owner: MidiData, from url: URL) throws {
             throw err
         }
     }
-    owner.monitor!.isTempoInitialized = false
+
     owner.monitor!.isTimeSigInitialized = false
     owner.curElapsedTick = 0
     owner.nextMeasNum = 0
@@ -235,12 +235,12 @@ func openSMF(owner: MidiData, from url: URL) throws {
         }
     }
 
-    // debug at this point I have wrong data. 2018/3/18
-    if owner.tracks != nil {
-        owner.numOfTracks = owner.tracks!.count
-    } else {
-        owner.numOfTracks = 0
-    }
+    // Below is not necessary as numOfTracks now has get function
+//    if owner.tracks != nil {
+//        owner.numOfTracks = owner.tracks!.count
+//    } else {
+//        owner.numOfTracks = 0
+//    }
     
     owner.eventSeqs.removeAll()     // delete eventSeqs buffer
 
@@ -459,7 +459,7 @@ private func readMetaEvent (MidiData owner:MidiData, offset ofs:Int, eventTick e
         nanoPerTick = nanoPerTick / __uint64_t(owner.ticksPerQuarter!)
         
         owner.monitor!.addTempoMapElement(eventTick: metaEvt.eventTick, nanoPerTick: nanoPerTick)
-        owner.monitor!.isTempoInitialized = true
+        // owner.monitor!.isTempoInitialized = true
         
         ad = Int(metalen) + 2
     case tagTimeSignature: // Time signature
