@@ -1,0 +1,1707 @@
+2018-03-17 11:07:00.596177+0900 MidiTyper[719:7628] [Layout] Unable to simultaneously satisfy constraints:
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x604000088200 h=-&- v=-&- NSView:0x600000122580.minX == - 1   (active, names: '|':NSBox:0x101129a30'Box' )>",
+    "<NSAutoresizingMaskLayoutConstraint:0x604000084d80 h=-&- v=-&- H:[NSView:0x600000122580]-(-1)-|   (active, names: '|':NSBox:0x101129a30'Box' )>",
+    "<NSLayoutConstraint:0x600000094be0 NSBox:0x101129a30'Box'.width == 171   (active)>",
+    "<NSLayoutConstraint:0x600000094b40 H:[NSTextField:0x10112a340]-(<=NSSpace(20))-|   (active, names: '|':NSView:0x600000122580 )>",
+    "<NSLayoutConstraint:0x600000094a00 H:|-(NSSpace(20))-[NSTextField:0x101129f70]   (active, names: '|':NSView:0x600000122580 )>",
+    "<NSLayoutConstraint:0x600000094960 NSTextField:0x10112a340.width == 96   (active)>",
+    "<NSLayoutConstraint:0x6000000949b0 NSTextField:0x101129f70.leading == NSTextField:0x10112a340.leading   (active)>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x600000094960 NSTextField:0x10112a340.width == 96   (active)>
+
+Set the NSUserDefault NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints to YES to have -[NSWindow visualizeConstraints:] automatically called when this happens.  And/or, set a symbolic breakpoint on LAYOUT_CONSTRAINTS_NOT_SATISFIABLE to catch this in the debugger.
+document count = 1
+2018-03-17 11:07:03.366045+0900 MidiTyper[719:7628] This application can't reopen autosaved public.midi-audio files.
+2018-03-17 11:07:03.374375+0900 MidiTyper[719:7628] -[NSDocumentController reopenDocumentForURL:withContentsOfURL:display:completionHandler:] failed during state restoration. Here's the error:
+Error Domain=NSCocoaErrorDomain Code=256 "The autosaved document “Layla.mid” could not be reopened. MidiTyper cannot open files in the “MIDI audio” format." UserInfo={NSUnderlyingError=0x600000449600 {Error Domain=NSCocoaErrorDomain Code=256 "“Layla.mid” could not be handled because MidiTyper cannot open files in the “MIDI audio” format." UserInfo={NSLocalizedDescription=“Layla.mid” could not be handled because MidiTyper cannot open files in the “MIDI audio” format., NSLocalizedFailureReason=MidiTyper cannot open files in the “MIDI audio” format.}}, NSLocalizedDescription=The autosaved document “Layla.mid” could not be reopened. MidiTyper cannot open files in the “MIDI audio” format., NSLocalizedFailureReason=MidiTyper cannot open files in the “MIDI audio” format.}
+returned Int = Optional(1)
+Got playable notification
+Document count is now = 1
+2018-03-17 11:07:13.657704+0900 MidiTyper[719:7628] [Layout] Unable to simultaneously satisfy constraints:
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x60400009f950 h=-&- v=-&- NSView:0x60400012b5e0.minX == - 1   (active, names: '|':NSBox:0x101255220'Box' )>",
+    "<NSAutoresizingMaskLayoutConstraint:0x60400009f9a0 h=-&- v=-&- H:[NSView:0x60400012b5e0]-(-1)-|   (active, names: '|':NSBox:0x101255220'Box' )>",
+    "<NSLayoutConstraint:0x60400009c520 NSBox:0x101255220'Box'.width == 171   (active)>",
+    "<NSLayoutConstraint:0x60400009c480 H:[NSTextField:0x101258fd0]-(<=NSSpace(20))-|   (active, names: '|':NSView:0x60400012b5e0 )>",
+    "<NSLayoutConstraint:0x60400009c340 H:|-(NSSpace(20))-[NSTextField:0x101255650]   (active, names: '|':NSView:0x60400012b5e0 )>",
+    "<NSLayoutConstraint:0x60400009c2a0 NSTextField:0x101258fd0.width == 96   (active)>",
+    "<NSLayoutConstraint:0x60400009c2f0 NSTextField:0x101255650.leading == NSTextField:0x101258fd0.leading   (active)>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x60400009c2a0 NSTextField:0x101258fd0.width == 96   (active)>
+
+Set the NSUserDefault NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints to YES to have -[NSWindow visualizeConstraints:] automatically called when this happens.  And/or, set a symbolic breakpoint on LAYOUT_CONSTRAINTS_NOT_SATISFIABLE to catch this in the debugger.
+Succeed to read SMF
+lhbar:Optional(0) rhbar:Optional(0)
+st:92 note:32 vel:31
+st:92 note:39 vel:32
+Got playing notification
+lhbar:Optional(0) rhbar:Optional(0)
+lhbar:Optional(0) rhbar:Optional(0)
+lhbar:Optional(0) rhbar:Optional(0)
+thread is playing 1 sec
+lhbar:Optional(0) rhbar:Optional(1)
+lhbar:Optional(1) rhbar:Optional(1)
+thread is playing 2 sec
+lhbar:Optional(1) rhbar:Optional(1)
+lhbar:Optional(1) rhbar:Optional(1)
+thread is playing 3 sec
+lhbar:Optional(1) rhbar:Optional(2)
+st:99 note:25 vel:76
+st:89 note:25 vel: 0
+in thread, 99, 25, 76
+in thread, 89, 25,  0
+lhbar:Optional(2) rhbar:Optional(2)
+thread is playing 4 sec
+lhbar:Optional(2) rhbar:Optional(2)
+st:99 note:25 vel:75
+st:89 note:25 vel: 0
+in thread, 99, 25, 75
+in thread, 89, 25,  0
+lhbar:Optional(2) rhbar:Optional(2)
+thread is playing 5 sec
+lhbar:Optional(2) rhbar:Optional(3)
+st:99 note:25 vel:7b
+st:89 note:25 vel: 0
+in thread, 99, 25, 7b
+in thread, 89, 25,  0
+lhbar:Optional(3) rhbar:Optional(3)
+st:99 note:25 vel:76
+st:89 note:25 vel: 0
+in thread, 99, 25, 76
+in thread, 89, 25,  0
+thread is playing 6 sec
+lhbar:Optional(3) rhbar:Optional(3)
+st:99 note:25 vel:75
+st:89 note:25 vel: 0
+in thread, 99, 25, 75
+in thread, 89, 25,  0
+lhbar:Optional(3) rhbar:Optional(3)
+thread is playing 7 sec
+lhbar:Optional(3) rhbar:Optional(4)
+st:82 note:32 vel: 0
+st:99 note:38 vel:78
+st:82 note:39 vel: 0
+in thread, 82, 32,  0
+in thread, 99, 38, 78
+in thread, 82, 39,  0
+lhbar:Optional(4) rhbar:Optional(4)
+st:89 note:38 vel: 0
+st:99 note:38 vel:5a
+in thread, 89, 38,  0
+in thread, 99, 38, 5a
+lhbar:Optional(4) rhbar:Optional(4)
+st:89 note:38 vel: 0
+st:99 note:38 vel:59
+in thread, 89, 38,  0
+in thread, 99, 38, 59
+thread is playing 8 sec
+lhbar:Optional(4) rhbar:Optional(4)
+st:89 note:38 vel: 0
+st:99 note:38 vel:5a
+in thread, 89, 38,  0
+in thread, 99, 38, 5a
+lhbar:Optional(4) rhbar:Optional(5)
+st:89 note:38 vel: 0
+st:99 note:38 vel:78
+in thread, 89, 38,  0
+in thread, 99, 38, 78
+thread is playing 9 sec
+lhbar:Optional(5) rhbar:Optional(5)
+st:89 note:38 vel: 0
+in thread, 89, 38,  0
+lhbar:Optional(5) rhbar:Optional(5)
+st:99 note:38 vel:5a
+st:89 note:38 vel: 0
+in thread, 99, 38, 5a
+in thread, 89, 38,  0
+thread is playing 10 sec
+lhbar:Optional(5) rhbar:Optional(5)
+st:99 note:38 vel:59
+st:89 note:38 vel: 0
+in thread, 99, 38, 59
+in thread, 89, 38,  0
+lhbar:Optional(5) rhbar:Optional(5)
+st:99 note:38 vel:5a
+st:89 note:38 vel: 0
+in thread, 99, 38, 5a
+in thread, 89, 38,  0
+thread is playing 11 sec
+lhbar:Optional(5) rhbar:Optional(6)
+st:90 note:38 vel:78
+st:99 note:38 vel:78
+st:80 note:38 vel: 0
+st:89 note:38 vel: 0
+in thread, 90, 38, 78
+in thread, 99, 38, 78
+in thread, 80, 38,  0
+in thread, 89, 38,  0
+lhbar:Optional(6) rhbar:Optional(6)
+st:90 note:38 vel:5a
+st:99 note:38 vel:5a
+st:80 note:38 vel: 0
+st:89 note:38 vel: 0
+in thread, 90, 38, 5a
+in thread, 99, 38, 5a
+in thread, 80, 38,  0
+in thread, 89, 38,  0
+thread is playing 12 sec
+lhbar:Optional(6) rhbar:Optional(6)
+st:90 note:2d vel:50
+st:90 note:38 vel:59
+st:99 note:2d vel:50
+st:99 note:38 vel:59
+st:80 note:38 vel: 0
+st:89 note:38 vel: 0
+in thread, 90, 2d, 50
+in thread, 90, 38, 59
+in thread, 99, 2d, 50
+in thread, 99, 38, 59
+in thread, 80, 38,  0
+in thread, 89, 38,  0
+lhbar:Optional(6) rhbar:Optional(6)
+st:90 note:38 vel:5a
+st:99 note:38 vel:5a
+st:80 note:38 vel: 0
+st:89 note:38 vel: 0
+in thread, 90, 38, 5a
+in thread, 99, 38, 5a
+in thread, 80, 38,  0
+in thread, 89, 38,  0
+thread is playing 13 sec
+lhbar:Optional(6) rhbar:Optional(7)
+st:99 note:38 vel:78
+st:90 note:38 vel:78
+st:91 note:38 vel:78
+st:99 note:38 vel:78
+st:99 note:38 vel:78
+st:90 note:24 vel:70
+st:99 note:24 vel:70
+st:99 note:24 vel:70
+st:91 note:24 vel:70
+st:99 note:24 vel:70
+st:89 note:38 vel: 0
+st:81 note:38 vel: 0
+st:89 note:38 vel: 0
+st:80 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:24 vel: 0
+st:81 note:24 vel: 0
+st:80 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:90 note:26 vel:75
+st:99 note:26 vel:75
+st:91 note:26 vel:75
+st:99 note:26 vel:75
+st:99 note:26 vel:75
+st:99 note:26 vel:75
+st:99 note:26 vel:75
+st:90 note:26 vel:75
+st:99 note:26 vel:75
+st:91 note:26 vel:75
+in thread, 99, 38, 78
+in thread, 90, 38, 78
+in thread, 91, 38, 78
+in thread, 99, 38, 78
+in thread, 99, 38, 78
+in thread, 90, 24, 70
+in thread, 99, 24, 70
+in thread, 99, 24, 70
+in thread, 91, 24, 70
+in thread, 99, 24, 70
+in thread, 89, 38,  0
+in thread, 81, 38,  0
+in thread, 89, 38,  0
+in thread, 80, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 24,  0
+in thread, 81, 24,  0
+in thread, 80, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 90, 26, 75
+in thread, 99, 26, 75
+in thread, 91, 26, 75
+in thread, 99, 26, 75
+in thread, 99, 26, 75
+in thread, 99, 26, 75
+in thread, 99, 26, 75
+in thread, 90, 26, 75
+in thread, 99, 26, 75
+in thread, 91, 26, 75
+lhbar:Optional(7) rhbar:Optional(7)
+st:89 note:26 vel: 0
+st:89 note:26 vel: 0
+st:81 note:26 vel: 0
+st:89 note:26 vel: 0
+st:80 note:26 vel: 0
+st:99 note:38 vel:5a
+st:99 note:26 vel:75
+st:99 note:38 vel:5a
+st:91 note:26 vel:75
+st:91 note:38 vel:5a
+st:99 note:26 vel:75
+st:99 note:38 vel:5a
+st:99 note:26 vel:75
+st:90 note:38 vel:5a
+st:90 note:26 vel:75
+st:99 note:26 vel:75
+st:91 note:26 vel:75
+st:99 note:26 vel:75
+st:99 note:26 vel:75
+st:90 note:26 vel:75
+st:81 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:80 note:38 vel: 0
+st:89 note:26 vel: 0
+st:81 note:26 vel: 0
+st:89 note:26 vel: 0
+st:80 note:26 vel: 0
+st:89 note:26 vel: 0
+st:80 note:26 vel: 0
+st:89 note:26 vel: 0
+st:89 note:26 vel: 0
+st:81 note:26 vel: 0
+st:89 note:26 vel: 0
+st:80 note:26 vel: 0
+st:89 note:26 vel: 0
+st:81 note:26 vel: 0
+st:89 note:26 vel: 0
+st:89 note:26 vel: 0
+in thread, 89, 26,  0
+in thread, 89, 26,  0
+in thread, 81, 26,  0
+in thread, 89, 26,  0
+in thread, 80, 26,  0
+in thread, 99, 38, 5a
+in thread, 99, 26, 75
+in thread, 99, 38, 5a
+in thread, 91, 26, 75
+in thread, 91, 38, 5a
+in thread, 99, 26, 75
+in thread, 99, 38, 5a
+in thread, 99, 26, 75
+in thread, 90, 38, 5a
+in thread, 90, 26, 75
+in thread, 99, 26, 75
+in thread, 91, 26, 75
+in thread, 99, 26, 75
+in thread, 99, 26, 75
+in thread, 90, 26, 75
+in thread, 81, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 80, 38,  0
+in thread, 89, 26,  0
+in thread, 81, 26,  0
+in thread, 89, 26,  0
+in thread, 80, 26,  0
+in thread, 89, 26,  0
+in thread, 80, 26,  0
+in thread, 89, 26,  0
+in thread, 89, 26,  0
+in thread, 81, 26,  0
+in thread, 89, 26,  0
+in thread, 80, 26,  0
+in thread, 89, 26,  0
+in thread, 81, 26,  0
+in thread, 89, 26,  0
+in thread, 89, 26,  0
+lhbar:Optional(7) rhbar:Optional(7)
+st:90 note:24 vel:75
+st:99 note:24 vel:75
+st:91 note:24 vel:75
+st:99 note:24 vel:75
+st:99 note:24 vel:75
+st:80 note:24 vel: 0
+st:89 note:24 vel: 0
+st:81 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:91 note:26 vel:7b
+st:99 note:38 vel:59
+st:89 note:2d vel: 0
+st:99 note:26 vel:7b
+st:99 note:26 vel:7b
+st:80 note:2d vel: 0
+st:99 note:38 vel:59
+st:99 note:38 vel:59
+st:99 note:26 vel:7b
+st:90 note:38 vel:59
+st:90 note:26 vel:7b
+st:91 note:38 vel:59
+st:81 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:80 note:38 vel: 0
+st:91 note:45 vel:70
+st:99 note:45 vel:70
+st:99 note:45 vel:70
+st:99 note:32 vel:75
+st:99 note:2d vel:50
+st:99 note:45 vel:70
+st:99 note:32 vel:75
+st:99 note:32 vel:75
+st:91 note:2d vel:50
+st:99 note:2d vel:50
+st:99 note:2d vel:50
+st:90 note:45 vel:70
+st:91 note:32 vel:75
+st:90 note:32 vel:75
+st:90 note:2d vel:50
+in thread, 90, 24, 75
+in thread, 99, 24, 75
+in thread, 91, 24, 75
+in thread, 99, 24, 75
+in thread, 99, 24, 75
+in thread, 80, 24,  0
+in thread, 89, 24,  0
+in thread, 81, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 91, 26, 7b
+in thread, 99, 38, 59
+in thread, 89, 2d,  0
+in thread, 99, 26, 7b
+in thread, 99, 26, 7b
+in thread, 80, 2d,  0
+in thread, 99, 38, 59
+in thread, 99, 38, 59
+in thread, 99, 26, 7b
+in thread, 90, 38, 59
+in thread, 90, 26, 7b
+in thread, 91, 38, 59
+in thread, 81, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 80, 38,  0
+in thread, 91, 45, 70
+in thread, 99, 45, 70
+in thread, 99, 45, 70
+in thread, 99, 32, 75
+in thread, 99, 2d, 50
+in thread, 99, 45, 70
+in thread, 99, 32, 75
+in thread, 99, 32, 75
+in thread, 91, 2d, 50
+in thread, 99, 2d, 50
+in thread, 99, 2d, 50
+in thread, 90, 45, 70
+in thread, 91, 32, 75
+in thread, 90, 32, 75
+in thread, 90, 2d, 50
+thread is playing 14 sec
+lhbar:Optional(7) rhbar:Optional(7)
+st:89 note:45 vel: 0
+st:89 note:32 vel: 0
+st:81 note:45 vel: 0
+st:81 note:32 vel: 0
+st:89 note:45 vel: 0
+st:89 note:32 vel: 0
+st:89 note:45 vel: 0
+st:89 note:32 vel: 0
+st:80 note:45 vel: 0
+st:80 note:32 vel: 0
+st:90 note:30 vel:69
+st:91 note:32 vel:70
+st:99 note:32 vel:70
+st:99 note:48 vel:70
+st:99 note:48 vel:70
+st:99 note:30 vel:69
+st:81 note:2d vel: 0
+st:91 note:48 vel:70
+st:99 note:30 vel:69
+st:80 note:2d vel: 0
+st:89 note:2d vel: 0
+st:99 note:32 vel:70
+st:99 note:48 vel:70
+st:90 note:48 vel:70
+st:99 note:30 vel:69
+st:89 note:2d vel: 0
+st:89 note:2d vel: 0
+st:91 note:30 vel:69
+st:90 note:32 vel:70
+st:99 note:32 vel:70
+st:89 note:26 vel: 0
+st:89 note:26 vel: 0
+st:80 note:26 vel: 0
+st:89 note:26 vel: 0
+st:81 note:26 vel: 0
+st:81 note:32 vel: 0
+st:89 note:30 vel: 0
+st:89 note:30 vel: 0
+st:81 note:30 vel: 0
+st:81 note:48 vel: 0
+st:89 note:30 vel: 0
+st:89 note:48 vel: 0
+st:89 note:32 vel: 0
+st:89 note:48 vel: 0
+st:89 note:32 vel: 0
+st:80 note:30 vel: 0
+st:89 note:32 vel: 0
+st:89 note:48 vel: 0
+st:80 note:32 vel: 0
+st:80 note:48 vel: 0
+st:99 note:32 vel:6b
+st:90 note:38 vel:5a
+st:99 note:38 vel:5a
+st:99 note:4a vel:76
+st:90 note:4a vel:76
+st:99 note:32 vel:6b
+st:91 note:38 vel:5a
+st:91 note:4a vel:76
+st:91 note:32 vel:76
+st:90 note:32 vel:76
+st:91 note:32 vel:6b
+st:99 note:38 vel:5a
+st:99 note:4a vel:76
+st:99 note:32 vel:76
+st:90 note:32 vel:6b
+st:99 note:32 vel:6b
+st:99 note:38 vel:5a
+st:99 note:4a vel:76
+st:99 note:32 vel:76
+st:99 note:32 vel:76
+st:80 note:38 vel: 0
+st:81 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:80 note:4a vel: 0
+st:81 note:32 vel: 0
+st:89 note:4a vel: 0
+st:89 note:32 vel: 0
+st:80 note:32 vel: 0
+st:89 note:32 vel: 0
+st:89 note:4a vel: 0
+st:89 note:32 vel: 0
+st:89 note:32 vel: 0
+st:89 note:4a vel: 0
+st:89 note:32 vel: 0
+st:89 note:32 vel: 0
+st:80 note:32 vel: 0
+st:81 note:4a vel: 0
+st:81 note:32 vel: 0
+st:91 note:35 vel:76
+st:91 note:4d vel:69
+st:90 note:35 vel:76
+st:99 note:4d vel:69
+st:99 note:35 vel:76
+st:99 note:35 vel:76
+st:99 note:4d vel:69
+st:99 note:4d vel:69
+st:90 note:4d vel:69
+st:99 note:35 vel:76
+in thread, 89, 45,  0
+in thread, 89, 32,  0
+in thread, 81, 45,  0
+in thread, 81, 32,  0
+in thread, 89, 45,  0
+in thread, 89, 32,  0
+in thread, 89, 45,  0
+in thread, 89, 32,  0
+in thread, 80, 45,  0
+in thread, 80, 32,  0
+in thread, 90, 30, 69
+in thread, 91, 32, 70
+in thread, 99, 32, 70
+in thread, 99, 48, 70
+in thread, 99, 48, 70
+in thread, 99, 30, 69
+in thread, 81, 2d,  0
+in thread, 91, 48, 70
+in thread, 99, 30, 69
+in thread, 80, 2d,  0
+in thread, 89, 2d,  0
+in thread, 99, 32, 70
+in thread, 99, 48, 70
+in thread, 90, 48, 70
+in thread, 99, 30, 69
+in thread, 89, 2d,  0
+in thread, 89, 2d,  0
+in thread, 91, 30, 69
+in thread, 90, 32, 70
+in thread, 99, 32, 70
+in thread, 89, 26,  0
+in thread, 89, 26,  0
+in thread, 80, 26,  0
+in thread, 89, 26,  0
+in thread, 81, 26,  0
+in thread, 81, 32,  0
+in thread, 89, 30,  0
+in thread, 89, 30,  0
+in thread, 81, 30,  0
+in thread, 81, 48,  0
+in thread, 89, 30,  0
+in thread, 89, 48,  0
+in thread, 89, 32,  0
+in thread, 89, 48,  0
+in thread, 89, 32,  0
+in thread, 80, 30,  0
+in thread, 89, 32,  0
+in thread, 89, 48,  0
+in thread, 80, 32,  0
+in thread, 80, 48,  0
+in thread, 99, 32, 6b
+in thread, 90, 38, 5a
+in thread, 99, 38, 5a
+in thread, 99, 4a, 76
+in thread, 90, 4a, 76
+in thread, 99, 32, 6b
+in thread, 91, 38, 5a
+in thread, 91, 4a, 76
+in thread, 91, 32, 76
+in thread, 90, 32, 76
+in thread, 91, 32, 6b
+in thread, 99, 38, 5a
+in thread, 99, 4a, 76
+in thread, 99, 32, 76
+in thread, 90, 32, 6b
+in thread, 99, 32, 6b
+in thread, 99, 38, 5a
+in thread, 99, 4a, 76
+in thread, 99, 32, 76
+in thread, 99, 32, 76
+in thread, 80, 38,  0
+in thread, 81, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 80, 4a,  0
+in thread, 81, 32,  0
+in thread, 89, 4a,  0
+in thread, 89, 32,  0
+in thread, 80, 32,  0
+in thread, 89, 32,  0
+in thread, 89, 4a,  0
+in thread, 89, 32,  0
+in thread, 89, 32,  0
+in thread, 89, 4a,  0
+in thread, 89, 32,  0
+in thread, 89, 32,  0
+in thread, 80, 32,  0
+in thread, 81, 4a,  0
+in thread, 81, 32,  0
+in thread, 91, 35, 76
+in thread, 91, 4d, 69
+in thread, 90, 35, 76
+in thread, 99, 4d, 69
+in thread, 99, 35, 76
+in thread, 99, 35, 76
+in thread, 99, 4d, 69
+in thread, 99, 4d, 69
+in thread, 90, 4d, 69
+in thread, 99, 35, 76
+lhbar:Optional(7) rhbar:Optional(8)
+st:89 note:35 vel: 0
+st:89 note:4d vel: 0
+st:89 note:35 vel: 0
+st:80 note:4d vel: 0
+st:80 note:35 vel: 0
+st:89 note:4d vel: 0
+st:81 note:35 vel: 0
+st:81 note:4d vel: 0
+st:89 note:35 vel: 0
+st:89 note:4d vel: 0
+st:99 note:32 vel:62
+st:90 note:32 vel:76
+st:99 note:32 vel:76
+st:99 note:4a vel:70
+st:90 note:4a vel:70
+st:99 note:4a vel:70
+st:99 note:32 vel:76
+st:99 note:32 vel:62
+st:91 note:4a vel:70
+st:91 note:32 vel:76
+st:99 note:32 vel:62
+st:91 note:32 vel:62
+st:99 note:32 vel:76
+st:99 note:4a vel:70
+st:90 note:32 vel:62
+st:80 note:32 vel: 0
+st:89 note:4a vel: 0
+st:89 note:32 vel: 0
+st:89 note:32 vel: 0
+st:81 note:4a vel: 0
+st:81 note:32 vel: 0
+st:89 note:4a vel: 0
+st:89 note:32 vel: 0
+st:80 note:32 vel: 0
+st:89 note:32 vel: 0
+st:89 note:32 vel: 0
+st:89 note:32 vel: 0
+st:81 note:32 vel: 0
+st:80 note:4a vel: 0
+st:89 note:4a vel: 0
+st:91 note:48 vel:76
+st:90 note:48 vel:76
+st:91 note:30 vel:76
+st:99 note:30 vel:76
+st:99 note:48 vel:76
+st:99 note:30 vel:76
+st:99 note:30 vel:76
+st:99 note:48 vel:76
+st:90 note:30 vel:76
+st:99 note:48 vel:76
+st:81 note:48 vel: 0
+st:89 note:30 vel: 0
+st:80 note:30 vel: 0
+st:80 note:48 vel: 0
+st:89 note:48 vel: 0
+st:81 note:30 vel: 0
+st:89 note:30 vel: 0
+st:89 note:48 vel: 0
+st:89 note:30 vel: 0
+st:89 note:48 vel: 0
+st:99 note:38 vel:78
+st:99 note:4a vel:6e
+st:99 note:35 vel:76
+st:99 note:24 vel:7a
+st:99 note:32 vel:71
+st:91 note:38 vel:78
+st:91 note:4a vel:6e
+st:91 note:35 vel:76
+st:91 note:24 vel:7a
+st:91 note:32 vel:71
+st:90 note:24 vel:7a
+st:90 note:35 vel:76
+st:99 note:38 vel:78
+st:99 note:4a vel:6e
+st:99 note:35 vel:76
+st:99 note:24 vel:7a
+st:99 note:32 vel:71
+st:90 note:4a vel:6e
+st:90 note:38 vel:78
+st:99 note:32 vel:71
+st:99 note:38 vel:78
+st:99 note:4a vel:6e
+st:99 note:35 vel:76
+st:99 note:24 vel:7a
+st:99 note:32 vel:71
+st:99 note:24 vel:7a
+st:99 note:35 vel:76
+st:99 note:4a vel:6e
+st:99 note:38 vel:78
+st:90 note:32 vel:71
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:81 note:24 vel: 0
+st:89 note:24 vel: 0
+st:80 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:81 note:35 vel: 0
+st:89 note:35 vel: 0
+st:80 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:81 note:38 vel: 0
+st:80 note:38 vel: 0
+st:89 note:38 vel: 0
+in thread, 89, 35,  0
+in thread, 89, 4d,  0
+in thread, 89, 35,  0
+in thread, 80, 4d,  0
+in thread, 80, 35,  0
+in thread, 89, 4d,  0
+in thread, 81, 35,  0
+in thread, 81, 4d,  0
+in thread, 89, 35,  0
+in thread, 89, 4d,  0
+in thread, 99, 32, 62
+in thread, 90, 32, 76
+in thread, 99, 32, 76
+in thread, 99, 4a, 70
+in thread, 90, 4a, 70
+in thread, 99, 4a, 70
+in thread, 99, 32, 76
+in thread, 99, 32, 62
+in thread, 91, 4a, 70
+in thread, 91, 32, 76
+in thread, 99, 32, 62
+in thread, 91, 32, 62
+in thread, 99, 32, 76
+in thread, 99, 4a, 70
+in thread, 90, 32, 62
+in thread, 80, 32,  0
+in thread, 89, 4a,  0
+in thread, 89, 32,  0
+in thread, 89, 32,  0
+in thread, 81, 4a,  0
+in thread, 81, 32,  0
+in thread, 89, 4a,  0
+in thread, 89, 32,  0
+in thread, 80, 32,  0
+in thread, 89, 32,  0
+in thread, 89, 32,  0
+in thread, 89, 32,  0
+in thread, 81, 32,  0
+in thread, 80, 4a,  0
+in thread, 89, 4a,  0
+in thread, 91, 48, 76
+in thread, 90, 48, 76
+in thread, 91, 30, 76
+in thread, 99, 30, 76
+in thread, 99, 48, 76
+in thread, 99, 30, 76
+in thread, 99, 30, 76
+in thread, 99, 48, 76
+in thread, 90, 30, 76
+in thread, 99, 48, 76
+in thread, 81, 48,  0
+in thread, 89, 30,  0
+in thread, 80, 30,  0
+in thread, 80, 48,  0
+in thread, 89, 48,  0
+in thread, 81, 30,  0
+in thread, 89, 30,  0
+in thread, 89, 48,  0
+in thread, 89, 30,  0
+in thread, 89, 48,  0
+in thread, 99, 38, 78
+in thread, 99, 4a, 6e
+in thread, 99, 35, 76
+in thread, 99, 24, 7a
+in thread, 99, 32, 71
+in thread, 91, 38, 78
+in thread, 91, 4a, 6e
+in thread, 91, 35, 76
+in thread, 91, 24, 7a
+in thread, 91, 32, 71
+in thread, 90, 24, 7a
+in thread, 90, 35, 76
+in thread, 99, 38, 78
+in thread, 99, 4a, 6e
+in thread, 99, 35, 76
+in thread, 99, 24, 7a
+in thread, 99, 32, 71
+in thread, 90, 4a, 6e
+in thread, 90, 38, 78
+in thread, 99, 32, 71
+in thread, 99, 38, 78
+in thread, 99, 4a, 6e
+in thread, 99, 35, 76
+in thread, 99, 24, 7a
+in thread, 99, 32, 71
+in thread, 99, 24, 7a
+in thread, 99, 35, 76
+in thread, 99, 4a, 6e
+in thread, 99, 38, 78
+in thread, 90, 32, 71
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 81, 24,  0
+in thread, 89, 24,  0
+in thread, 80, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 81, 35,  0
+in thread, 89, 35,  0
+in thread, 80, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 81, 38,  0
+in thread, 80, 38,  0
+in thread, 89, 38,  0
+thread is playing 15 sec
+lhbar:Optional(8) rhbar:Optional(8)
+st:80 note:32 vel: 0
+st:89 note:32 vel: 0
+st:89 note:32 vel: 0
+st:89 note:32 vel: 0
+st:81 note:32 vel: 0
+st:89 note:32 vel: 0
+st:99 note:24 vel:7b
+st:99 note:32 vel:70
+st:99 note:35 vel:6b
+st:99 note:24 vel:7b
+st:90 note:24 vel:7b
+st:99 note:35 vel:6b
+st:99 note:24 vel:7b
+st:99 note:32 vel:70
+st:99 note:32 vel:70
+st:90 note:35 vel:6b
+st:99 note:24 vel:7b
+st:91 note:35 vel:6b
+st:99 note:35 vel:6b
+st:91 note:24 vel:7b
+st:90 note:32 vel:70
+st:99 note:32 vel:70
+st:91 note:32 vel:70
+st:99 note:35 vel:6b
+st:81 note:35 vel: 0
+st:80 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:24 vel: 0
+st:80 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:81 note:24 vel: 0
+st:89 note:32 vel: 0
+st:80 note:32 vel: 0
+st:89 note:32 vel: 0
+st:89 note:32 vel: 0
+st:81 note:32 vel: 0
+st:89 note:32 vel: 0
+st:99 note:38 vel:5a
+st:99 note:35 vel:71
+st:99 note:28 vel:70
+st:99 note:30 vel:70
+st:91 note:38 vel:5a
+st:91 note:35 vel:71
+st:91 note:28 vel:70
+st:91 note:30 vel:70
+st:99 note:38 vel:5a
+st:99 note:38 vel:5a
+st:99 note:35 vel:71
+st:90 note:30 vel:70
+st:99 note:35 vel:71
+st:99 note:28 vel:70
+st:90 note:28 vel:70
+st:99 note:30 vel:70
+st:99 note:28 vel:70
+st:90 note:35 vel:71
+st:99 note:30 vel:70
+st:99 note:35 vel:71
+st:99 note:38 vel:5a
+st:99 note:28 vel:70
+st:99 note:30 vel:70
+st:90 note:38 vel:5a
+st:89 note:35 vel: 0
+st:81 note:35 vel: 0
+st:89 note:35 vel: 0
+st:80 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:81 note:38 vel: 0
+st:89 note:38 vel: 0
+st:80 note:38 vel: 0
+st:89 note:28 vel: 0
+st:81 note:28 vel: 0
+st:89 note:28 vel: 0
+st:89 note:28 vel: 0
+st:80 note:28 vel: 0
+st:89 note:28 vel: 0
+in thread, 80, 32,  0
+in thread, 89, 32,  0
+in thread, 89, 32,  0
+in thread, 89, 32,  0
+in thread, 81, 32,  0
+in thread, 89, 32,  0
+in thread, 99, 24, 7b
+in thread, 99, 32, 70
+in thread, 99, 35, 6b
+in thread, 99, 24, 7b
+in thread, 90, 24, 7b
+in thread, 99, 35, 6b
+in thread, 99, 24, 7b
+in thread, 99, 32, 70
+in thread, 99, 32, 70
+in thread, 90, 35, 6b
+in thread, 99, 24, 7b
+in thread, 91, 35, 6b
+in thread, 99, 35, 6b
+in thread, 91, 24, 7b
+in thread, 90, 32, 70
+in thread, 99, 32, 70
+in thread, 91, 32, 70
+in thread, 99, 35, 6b
+in thread, 81, 35,  0
+in thread, 80, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 24,  0
+in thread, 80, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 81, 24,  0
+in thread, 89, 32,  0
+in thread, 80, 32,  0
+in thread, 89, 32,  0
+in thread, 89, 32,  0
+in thread, 81, 32,  0
+in thread, 89, 32,  0
+in thread, 99, 38, 5a
+in thread, 99, 35, 71
+in thread, 99, 28, 70
+in thread, 99, 30, 70
+in thread, 91, 38, 5a
+in thread, 91, 35, 71
+in thread, 91, 28, 70
+in thread, 91, 30, 70
+in thread, 99, 38, 5a
+in thread, 99, 38, 5a
+in thread, 99, 35, 71
+in thread, 90, 30, 70
+in thread, 99, 35, 71
+in thread, 99, 28, 70
+in thread, 90, 28, 70
+in thread, 99, 30, 70
+in thread, 99, 28, 70
+in thread, 90, 35, 71
+in thread, 99, 30, 70
+in thread, 99, 35, 71
+in thread, 99, 38, 5a
+in thread, 99, 28, 70
+in thread, 99, 30, 70
+in thread, 90, 38, 5a
+in thread, 89, 35,  0
+in thread, 81, 35,  0
+in thread, 89, 35,  0
+in thread, 80, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 81, 38,  0
+in thread, 89, 38,  0
+in thread, 80, 38,  0
+in thread, 89, 28,  0
+in thread, 81, 28,  0
+in thread, 89, 28,  0
+in thread, 89, 28,  0
+in thread, 80, 28,  0
+in thread, 89, 28,  0
+lhbar:Optional(8) rhbar:Optional(8)
+st:89 note:4a vel: 0
+st:81 note:4a vel: 0
+st:89 note:4a vel: 0
+st:89 note:4a vel: 0
+st:89 note:4a vel: 0
+st:80 note:4a vel: 0
+st:80 note:30 vel: 0
+st:89 note:30 vel: 0
+st:89 note:30 vel: 0
+st:89 note:30 vel: 0
+st:81 note:30 vel: 0
+st:89 note:30 vel: 0
+st:99 note:35 vel:6b
+st:99 note:41 vel:3d
+st:99 note:3e vel:35
+st:99 note:41 vel:3d
+st:99 note:46 vel:32
+st:90 note:35 vel:6b
+st:99 note:2e vel:75
+st:99 note:46 vel:32
+st:99 note:35 vel:6b
+st:99 note:3e vel:35
+st:99 note:3e vel:35
+st:99 note:41 vel:3d
+st:99 note:46 vel:32
+st:90 note:46 vel:32
+st:99 note:2e vel:75
+st:99 note:35 vel:6b
+st:90 note:2e vel:75
+st:99 note:35 vel:6b
+st:99 note:2e vel:75
+st:99 note:3e vel:35
+st:90 note:41 vel:3d
+st:99 note:46 vel:32
+st:99 note:2e vel:75
+st:91 note:2e vel:75
+st:91 note:46 vel:32
+st:90 note:3e vel:35
+st:91 note:35 vel:6b
+st:91 note:41 vel:3d
+st:91 note:3e vel:35
+st:99 note:41 vel:3d
+st:89 note:35 vel: 0
+st:80 note:35 vel: 0
+st:81 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:99 note:24 vel:6b
+st:91 note:24 vel:6b
+st:99 note:24 vel:6b
+st:99 note:24 vel:6b
+st:99 note:24 vel:6b
+st:90 note:24 vel:6b
+st:81 note:24 vel: 0
+st:89 note:24 vel: 0
+st:80 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:99 note:38 vel:59
+st:99 note:35 vel:75
+st:99 note:24 vel:75
+st:91 note:38 vel:59
+st:91 note:35 vel:75
+st:91 note:24 vel:75
+st:99 note:38 vel:59
+st:90 note:24 vel:75
+st:99 note:35 vel:75
+st:90 note:35 vel:75
+st:90 note:38 vel:59
+st:99 note:24 vel:75
+st:99 note:24 vel:75
+st:99 note:38 vel:59
+st:99 note:35 vel:75
+st:99 note:38 vel:59
+st:99 note:35 vel:75
+st:99 note:24 vel:75
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:81 note:24 vel: 0
+st:89 note:24 vel: 0
+st:80 note:24 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:81 note:35 vel: 0
+st:80 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:80 note:38 vel: 0
+st:81 note:38 vel: 0
+st:89 note:38 vel: 0
+in thread, 89, 4a,  0
+in thread, 81, 4a,  0
+in thread, 89, 4a,  0
+in thread, 89, 4a,  0
+in thread, 89, 4a,  0
+in thread, 80, 4a,  0
+in thread, 80, 30,  0
+in thread, 89, 30,  0
+in thread, 89, 30,  0
+in thread, 89, 30,  0
+in thread, 81, 30,  0
+in thread, 89, 30,  0
+in thread, 99, 35, 6b
+in thread, 99, 41, 3d
+in thread, 99, 3e, 35
+in thread, 99, 41, 3d
+in thread, 99, 46, 32
+in thread, 90, 35, 6b
+in thread, 99, 2e, 75
+in thread, 99, 46, 32
+in thread, 99, 35, 6b
+in thread, 99, 3e, 35
+in thread, 99, 3e, 35
+in thread, 99, 41, 3d
+in thread, 99, 46, 32
+in thread, 90, 46, 32
+in thread, 99, 2e, 75
+in thread, 99, 35, 6b
+in thread, 90, 2e, 75
+in thread, 99, 35, 6b
+in thread, 99, 2e, 75
+in thread, 99, 3e, 35
+in thread, 90, 41, 3d
+in thread, 99, 46, 32
+in thread, 99, 2e, 75
+in thread, 91, 2e, 75
+in thread, 91, 46, 32
+in thread, 90, 3e, 35
+in thread, 91, 35, 6b
+in thread, 91, 41, 3d
+in thread, 91, 3e, 35
+in thread, 99, 41, 3d
+in thread, 89, 35,  0
+in thread, 80, 35,  0
+in thread, 81, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 99, 24, 6b
+in thread, 91, 24, 6b
+in thread, 99, 24, 6b
+in thread, 99, 24, 6b
+in thread, 99, 24, 6b
+in thread, 90, 24, 6b
+in thread, 81, 24,  0
+in thread, 89, 24,  0
+in thread, 80, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 99, 38, 59
+in thread, 99, 35, 75
+in thread, 99, 24, 75
+in thread, 91, 38, 59
+in thread, 91, 35, 75
+in thread, 91, 24, 75
+in thread, 99, 38, 59
+in thread, 90, 24, 75
+in thread, 99, 35, 75
+in thread, 90, 35, 75
+in thread, 90, 38, 59
+in thread, 99, 24, 75
+in thread, 99, 24, 75
+in thread, 99, 38, 59
+in thread, 99, 35, 75
+in thread, 99, 38, 59
+in thread, 99, 35, 75
+in thread, 99, 24, 75
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 81, 24,  0
+in thread, 89, 24,  0
+in thread, 80, 24,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 81, 35,  0
+in thread, 80, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 80, 38,  0
+in thread, 81, 38,  0
+in thread, 89, 38,  0
+thread is playing 16 sec
+lhbar:Optional(8) rhbar:Optional(8)
+st:80 note:2e vel: 0
+st:89 note:2e vel: 0
+st:89 note:2e vel: 0
+st:89 note:2e vel: 0
+st:81 note:2e vel: 0
+st:89 note:2e vel: 0
+st:99 note:24 vel:76
+st:99 note:2d vel:5f
+st:99 note:35 vel:6b
+st:99 note:24 vel:76
+st:90 note:24 vel:76
+st:99 note:35 vel:6b
+st:99 note:24 vel:76
+st:99 note:2d vel:5f
+st:99 note:2d vel:5f
+st:90 note:35 vel:6b
+st:99 note:24 vel:76
+st:91 note:35 vel:6b
+st:99 note:35 vel:6b
+st:91 note:24 vel:76
+st:90 note:2d vel:5f
+st:99 note:2d vel:5f
+st:91 note:2d vel:5f
+st:99 note:35 vel:6b
+st:81 note:35 vel: 0
+st:80 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:24 vel: 0
+st:80 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:81 note:24 vel: 0
+st:89 note:2d vel: 0
+st:80 note:2d vel: 0
+st:89 note:2d vel: 0
+st:89 note:2d vel: 0
+st:81 note:2d vel: 0
+st:89 note:2d vel: 0
+st:99 note:38 vel:5a
+st:99 note:35 vel:6b
+st:99 note:28 vel:75
+st:99 note:2b vel:75
+st:91 note:38 vel:5a
+st:91 note:35 vel:6b
+st:91 note:28 vel:75
+st:91 note:2b vel:75
+st:99 note:38 vel:5a
+st:99 note:38 vel:5a
+st:99 note:35 vel:6b
+st:90 note:2b vel:75
+st:99 note:35 vel:6b
+st:99 note:28 vel:75
+st:90 note:28 vel:75
+st:99 note:2b vel:75
+st:99 note:28 vel:75
+st:90 note:35 vel:6b
+st:99 note:2b vel:75
+st:99 note:35 vel:6b
+st:99 note:38 vel:5a
+st:99 note:28 vel:75
+st:99 note:2b vel:75
+st:90 note:38 vel:5a
+st:89 note:35 vel: 0
+st:81 note:35 vel: 0
+st:89 note:35 vel: 0
+st:80 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:81 note:38 vel: 0
+st:89 note:38 vel: 0
+st:80 note:38 vel: 0
+st:89 note:28 vel: 0
+st:81 note:28 vel: 0
+st:89 note:28 vel: 0
+st:89 note:28 vel: 0
+st:80 note:28 vel: 0
+st:89 note:28 vel: 0
+in thread, 80, 2e,  0
+in thread, 89, 2e,  0
+in thread, 89, 2e,  0
+in thread, 89, 2e,  0
+in thread, 81, 2e,  0
+in thread, 89, 2e,  0
+in thread, 99, 24, 76
+in thread, 99, 2d, 5f
+in thread, 99, 35, 6b
+in thread, 99, 24, 76
+in thread, 90, 24, 76
+in thread, 99, 35, 6b
+in thread, 99, 24, 76
+in thread, 99, 2d, 5f
+in thread, 99, 2d, 5f
+in thread, 90, 35, 6b
+in thread, 99, 24, 76
+in thread, 91, 35, 6b
+in thread, 99, 35, 6b
+in thread, 91, 24, 76
+in thread, 90, 2d, 5f
+in thread, 99, 2d, 5f
+in thread, 91, 2d, 5f
+in thread, 99, 35, 6b
+in thread, 81, 35,  0
+in thread, 80, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 24,  0
+in thread, 80, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 81, 24,  0
+in thread, 89, 2d,  0
+in thread, 80, 2d,  0
+in thread, 89, 2d,  0
+in thread, 89, 2d,  0
+in thread, 81, 2d,  0
+in thread, 89, 2d,  0
+in thread, 99, 38, 5a
+in thread, 99, 35, 6b
+in thread, 99, 28, 75
+in thread, 99, 2b, 75
+in thread, 91, 38, 5a
+in thread, 91, 35, 6b
+in thread, 91, 28, 75
+in thread, 91, 2b, 75
+in thread, 99, 38, 5a
+in thread, 99, 38, 5a
+in thread, 99, 35, 6b
+in thread, 90, 2b, 75
+in thread, 99, 35, 6b
+in thread, 99, 28, 75
+in thread, 90, 28, 75
+in thread, 99, 2b, 75
+in thread, 99, 28, 75
+in thread, 90, 35, 6b
+in thread, 99, 2b, 75
+in thread, 99, 35, 6b
+in thread, 99, 38, 5a
+in thread, 99, 28, 75
+in thread, 99, 2b, 75
+in thread, 90, 38, 5a
+in thread, 89, 35,  0
+in thread, 81, 35,  0
+in thread, 89, 35,  0
+in thread, 80, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 81, 38,  0
+in thread, 89, 38,  0
+in thread, 80, 38,  0
+in thread, 89, 28,  0
+in thread, 81, 28,  0
+in thread, 89, 28,  0
+in thread, 89, 28,  0
+in thread, 80, 28,  0
+in thread, 89, 28,  0
+lhbar:Optional(8) rhbar:Optional(9)
+st:89 note:46 vel: 0
+st:89 note:41 vel: 0
+st:89 note:3e vel: 0
+st:89 note:46 vel: 0
+st:89 note:41 vel: 0
+st:89 note:3e vel: 0
+st:89 note:46 vel: 0
+st:89 note:41 vel: 0
+st:89 note:3e vel: 0
+st:80 note:46 vel: 0
+st:80 note:41 vel: 0
+st:80 note:3e vel: 0
+st:81 note:3e vel: 0
+st:81 note:41 vel: 0
+st:81 note:46 vel: 0
+st:89 note:3e vel: 0
+st:89 note:41 vel: 0
+st:89 note:46 vel: 0
+st:80 note:2b vel: 0
+st:89 note:2b vel: 0
+st:89 note:2b vel: 0
+st:81 note:2b vel: 0
+st:89 note:2b vel: 0
+st:89 note:2b vel: 0
+st:99 note:40 vel:41
+st:99 note:35 vel:5a
+st:99 note:40 vel:41
+st:99 note:43 vel:3f
+st:99 note:48 vel:3a
+st:99 note:30 vel:6b
+st:99 note:48 vel:3a
+st:99 note:43 vel:3f
+st:91 note:30 vel:6b
+st:91 note:40 vel:41
+st:91 note:43 vel:3f
+st:91 note:48 vel:3a
+st:99 note:35 vel:5a
+st:99 note:30 vel:6b
+st:90 note:35 vel:5a
+st:99 note:30 vel:6b
+st:99 note:35 vel:5a
+st:99 note:40 vel:41
+st:99 note:43 vel:3f
+st:99 note:48 vel:3a
+st:90 note:30 vel:6b
+st:90 note:40 vel:41
+st:99 note:48 vel:3a
+st:99 note:43 vel:3f
+st:99 note:40 vel:41
+st:99 note:35 vel:5a
+st:99 note:30 vel:6b
+st:90 note:43 vel:3f
+st:90 note:48 vel:3a
+st:91 note:35 vel:5a
+st:89 note:35 vel: 0
+st:81 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:80 note:35 vel: 0
+st:89 note:35 vel: 0
+st:99 note:38 vel:78
+st:99 note:35 vel:69
+st:99 note:24 vel:75
+st:91 note:38 vel:78
+st:91 note:35 vel:69
+st:91 note:24 vel:75
+st:99 note:38 vel:78
+st:99 note:35 vel:69
+st:99 note:24 vel:75
+st:99 note:38 vel:78
+st:99 note:35 vel:69
+st:99 note:24 vel:75
+st:99 note:38 vel:78
+st:90 note:38 vel:78
+st:90 note:24 vel:75
+st:99 note:35 vel:69
+st:90 note:35 vel:69
+st:99 note:24 vel:75
+st:80 note:35 vel: 0
+st:81 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:81 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:80 note:24 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:81 note:38 vel: 0
+st:80 note:38 vel: 0
+st:89 note:38 vel: 0
+in thread, 89, 46,  0
+in thread, 89, 41,  0
+in thread, 89, 3e,  0
+in thread, 89, 46,  0
+in thread, 89, 41,  0
+in thread, 89, 3e,  0
+in thread, 89, 46,  0
+in thread, 89, 41,  0
+in thread, 89, 3e,  0
+in thread, 80, 46,  0
+in thread, 80, 41,  0
+in thread, 80, 3e,  0
+in thread, 81, 3e,  0
+in thread, 81, 41,  0
+in thread, 81, 46,  0
+in thread, 89, 3e,  0
+in thread, 89, 41,  0
+in thread, 89, 46,  0
+in thread, 80, 2b,  0
+in thread, 89, 2b,  0
+in thread, 89, 2b,  0
+in thread, 81, 2b,  0
+in thread, 89, 2b,  0
+in thread, 89, 2b,  0
+in thread, 99, 40, 41
+in thread, 99, 35, 5a
+in thread, 99, 40, 41
+in thread, 99, 43, 3f
+in thread, 99, 48, 3a
+in thread, 99, 30, 6b
+in thread, 99, 48, 3a
+in thread, 99, 43, 3f
+in thread, 91, 30, 6b
+in thread, 91, 40, 41
+in thread, 91, 43, 3f
+in thread, 91, 48, 3a
+in thread, 99, 35, 5a
+in thread, 99, 30, 6b
+in thread, 90, 35, 5a
+in thread, 99, 30, 6b
+in thread, 99, 35, 5a
+in thread, 99, 40, 41
+in thread, 99, 43, 3f
+in thread, 99, 48, 3a
+in thread, 90, 30, 6b
+in thread, 90, 40, 41
+in thread, 99, 48, 3a
+in thread, 99, 43, 3f
+in thread, 99, 40, 41
+in thread, 99, 35, 5a
+in thread, 99, 30, 6b
+in thread, 90, 43, 3f
+in thread, 90, 48, 3a
+in thread, 91, 35, 5a
+in thread, 89, 35,  0
+in thread, 81, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 80, 35,  0
+in thread, 89, 35,  0
+in thread, 99, 38, 78
+in thread, 99, 35, 69
+in thread, 99, 24, 75
+in thread, 91, 38, 78
+in thread, 91, 35, 69
+in thread, 91, 24, 75
+in thread, 99, 38, 78
+in thread, 99, 35, 69
+in thread, 99, 24, 75
+in thread, 99, 38, 78
+in thread, 99, 35, 69
+in thread, 99, 24, 75
+in thread, 99, 38, 78
+in thread, 90, 38, 78
+in thread, 90, 24, 75
+in thread, 99, 35, 69
+in thread, 90, 35, 69
+in thread, 99, 24, 75
+in thread, 80, 35,  0
+in thread, 81, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 81, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 80, 24,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 81, 38,  0
+in thread, 80, 38,  0
+in thread, 89, 38,  0
+thread is playing 17 sec
+lhbar:Optional(9) rhbar:Optional(9)
+st:80 note:30 vel: 0
+st:89 note:30 vel: 0
+st:89 note:30 vel: 0
+st:89 note:30 vel: 0
+st:81 note:30 vel: 0
+st:89 note:30 vel: 0
+st:99 note:24 vel:70
+st:99 note:2d vel:75
+st:99 note:35 vel:5a
+st:99 note:24 vel:70
+st:90 note:24 vel:70
+st:99 note:35 vel:5a
+st:99 note:24 vel:70
+st:99 note:2d vel:75
+st:99 note:2d vel:75
+st:90 note:35 vel:5a
+st:99 note:24 vel:70
+st:91 note:35 vel:5a
+st:99 note:35 vel:5a
+st:91 note:24 vel:70
+st:90 note:2d vel:75
+st:99 note:2d vel:75
+st:91 note:2d vel:75
+st:99 note:35 vel:5a
+st:81 note:35 vel: 0
+st:80 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:24 vel: 0
+st:80 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:89 note:24 vel: 0
+st:81 note:24 vel: 0
+st:89 note:2d vel: 0
+st:80 note:2d vel: 0
+st:89 note:2d vel: 0
+st:89 note:2d vel: 0
+st:81 note:2d vel: 0
+st:89 note:2d vel: 0
+st:99 note:38 vel:5a
+st:99 note:35 vel:69
+st:99 note:28 vel:76
+st:99 note:2b vel:70
+st:91 note:38 vel:5a
+st:91 note:35 vel:69
+st:91 note:28 vel:76
+st:91 note:2b vel:70
+st:99 note:38 vel:5a
+st:90 note:2b vel:70
+st:90 note:28 vel:76
+st:99 note:35 vel:69
+st:99 note:28 vel:76
+st:99 note:2b vel:70
+st:90 note:35 vel:69
+st:90 note:38 vel:5a
+st:99 note:38 vel:5a
+st:99 note:35 vel:69
+st:99 note:28 vel:76
+st:99 note:2b vel:70
+st:99 note:28 vel:76
+st:99 note:2b vel:70
+st:99 note:38 vel:5a
+st:99 note:35 vel:69
+st:89 note:35 vel: 0
+st:89 note:35 vel: 0
+st:81 note:35 vel: 0
+st:89 note:35 vel: 0
+st:80 note:35 vel: 0
+st:89 note:35 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:89 note:38 vel: 0
+st:81 note:38 vel: 0
+st:80 note:38 vel: 0
+st:89 note:38 vel: 0
+in thread, 80, 30,  0
+in thread, 89, 30,  0
+in thread, 89, 30,  0
+in thread, 89, 30,  0
+in thread, 81, 30,  0
+in thread, 89, 30,  0
+in thread, 99, 24, 70
+in thread, 99, 2d, 75
+in thread, 99, 35, 5a
+in thread, 99, 24, 70
+in thread, 90, 24, 70
+in thread, 99, 35, 5a
+in thread, 99, 24, 70
+in thread, 99, 2d, 75
+in thread, 99, 2d, 75
+in thread, 90, 35, 5a
+in thread, 99, 24, 70
+in thread, 91, 35, 5a
+in thread, 99, 35, 5a
+in thread, 91, 24, 70
+in thread, 90, 2d, 75
+in thread, 99, 2d, 75
+in thread, 91, 2d, 75
+in thread, 99, 35, 5a
+in thread, 81, 35,  0
+in thread, 80, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 24,  0
+in thread, 80, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 89, 24,  0
+in thread, 81, 24,  0
+in thread, 89, 2d,  0
+in thread, 80, 2d,  0
+in thread, 89, 2d,  0
+in thread, 89, 2d,  0
+in thread, 81, 2d,  0
+in thread, 89, 2d,  0
+in thread, 99, 38, 5a
+in thread, 99, 35, 69
+in thread, 99, 28, 76
+in thread, 99, 2b, 70
+in thread, 91, 38, 5a
+in thread, 91, 35, 69
+in thread, 91, 28, 76
+in thread, 91, 2b, 70
+in thread, 99, 38, 5a
+in thread, 90, 2b, 70
+in thread, 90, 28, 76
+in thread, 99, 35, 69
+in thread, 99, 28, 76
+in thread, 99, 2b, 70
+in thread, 90, 35, 69
+in thread, 90, 38, 5a
+in thread, 99, 38, 5a
+in thread, 99, 35, 69
+in thread, 99, 28, 76
+in thread, 99, 2b, 70
+in thread, 99, 28, 76
+in thread, 99, 2b, 70
+in thread, 99, 38, 5a
+in thread, 99, 35, 69
+in thread, 89, 35,  0
+in thread, 89, 35,  0
+in thread, 81, 35,  0
+in thread, 89, 35,  0
+in thread, 80, 35,  0
+in thread, 89, 35,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 89, 38,  0
+in thread, 81, 38,  0
+in thread, 80, 38,  0
+in thread, 89, 38,  0
+Got stopped notification
+thread finished
