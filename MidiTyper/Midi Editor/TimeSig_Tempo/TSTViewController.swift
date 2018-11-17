@@ -20,7 +20,7 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
     @IBOutlet weak var beatField: NSTextField!
     @IBOutlet weak var tickField: NSTextField!
     @IBOutlet weak var valueField: NSTextField!
-    @IBOutlet weak var editButton: NSButton!
+    @IBOutlet weak var changeButton: NSButton!
     @IBOutlet weak var removeButton: NSButton!
     @IBOutlet weak var insertButton: NSButton!
     
@@ -54,7 +54,7 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
         typeSelectionPopUp.addItems(withTitles: types)
         typeSelectionPopUp.isEnabled = false
         
-        editButton.isEnabled = false
+        changeButton.isEnabled = false
         removeButton.isEnabled = false
         insertButton.isEnabled = false
         
@@ -75,7 +75,7 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
         }
         
         // debug
-        TSTtableView.refusesFirstResponder = true
+        //TSTtableView.refusesFirstResponder = true
     }
     
     func loadData() {
@@ -196,7 +196,7 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
     
     func tableViewSelectionDidChange(_ notification: Notification) {
         let selectedRow = TSTtableView.selectedRow
-        if selectedRow >= 0 && selectedRow < tstLines.count-1  {
+        if selectedRow >= 0 && selectedRow < tstLines.count  {
             let line = tstLines[selectedRow]
             if line.type == "Time Sig" {
                 let (meas, ts) = line.timeSigText()
@@ -216,20 +216,84 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
                 valueField.stringValue = line.value
                 typeSelectionPopUp.selectItem(withTitle: "Tempo")
             }
-            editButton.isEnabled = true
+            typeSelectionPopUp.isEnabled = true
+            changeButton.isEnabled = true
             removeButton.isEnabled = true
             insertButton.isEnabled = true
+        } else {
+            typeSelectionPopUp.isEnabled = false
+            changeButton.isEnabled = false
+            removeButton.isEnabled = false
+            insertButton.isEnabled = false
         }
     } // closure of tableViewSelectionDidChange
     
-    @IBAction func editAction(_ sender: Any) {
-        // edit button action
-        if editButton.state == NSTextField.StateValue.on {
-            // show Measure field is on focus
-            focusField(tag: FocusedField.Meas)
-        } else {
-            offFocus()
+    @IBAction func changeAction(_ sender: Any) {
+        // change button action
+            // validate if the row is selected
+        let selectedRow = TSTtableView.selectedRow
+        if selectedRow == -1 {
+            return
         }
+            // validate bar field
+        let barVal = barField.integerValue
+        if barVal == 0 {
+            print("bar value must be 1 or greater")
+            return
+        }
+        let beatVal = beatField.integerValue
+        if beatVal == 0 {
+            print("beat value must be 1 or greater")
+            return
+        }
+        
+        var aLine: OnelineTST?
+        if typeSelectionPopUp.stringValue == "Time Sig" {
+            // validate time sig field
+            let div = valueField.stringValue.index(of: "/")
+            if div == nil {
+                NSSound.beep()
+                return
+            }
+            
+            let numStr = valueField.stringValue.prefix(upTo: div!)
+            let num = Int(numStr)
+            if num == nil || num == 0 {
+                NSSound.beep()
+                return
+            }
+            
+            let s = valueField.stringValue.suffix(from: div!)
+            let denomStr = s.dropFirst()
+            let denom = Int(denomStr)
+            var denomOK: Bool
+            switch denom {
+            case 2, 4, 8, 16, 32, 64:
+                denomOK = true
+            default:
+                denomOK = false
+            }
+            if denomOK == false {
+                NSSound.beep()
+                return
+            }
+            
+            // let bar = Bar.init(measNum: barVal-1, timeSig: [["num":num!], ["denom":denom!]], startTick: 0, barLen: <#T##Int#>, nextBarTick: <#T##Int#>, events: <#T##[MidiEvent]#>, metaEvents: <#T##[MetaEvent]#>)
+            aLine = OnelineTST.init(BarWithZerobaseMeas: barVal-1, num: num!, denom: denom!, barIns: <#T##Bar#>)
+            
+        } else {
+            // Then consider it's tempo
+            let tempo = valueField.doubleValue
+            if tempo < 5 || tempo > 350 {
+                // the limiter is place holder and I didn't decide
+                // what the limit should be yet.
+                print("tempo value is not valid or out of range")
+                return
+            }
+            aLine = OnelineTST.init(TempoWithZerobaseMeas: barVal-1, beat: beatVal-1, tick: tickField.integerValue, tmp: tempo, obj: <#T##MetaEvent#>)
+        }
+        
+
     }
     
     func offFocus() ->Void {
@@ -252,7 +316,7 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
 //    }
     
     func myKey(with event:NSEvent) {
-        if editButton.state == NSTextField.StateValue.off {
+        if changeButton.state == NSTextField.StateValue.off {
             return
         }
         switch event.keyCode {
@@ -266,7 +330,7 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
     
     func keyTab(with event: NSEvent) {
         
-        if editButton.state == NSTextField.StateValue.off {
+        if changeButton.state == NSTextField.StateValue.off {
             return
         }
         
@@ -334,8 +398,8 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
     
     
     override func becomeFirstResponder() -> Bool {
-        // return true
-        return false
+        return true
+        //return false
     }
     
     override func resignFirstResponder() -> Bool {

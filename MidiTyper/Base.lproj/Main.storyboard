@@ -372,12 +372,12 @@
                         <subviews>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="26" horizontalPageScroll="10" verticalLineScroll="26" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vGP-sN-ETG">
                                 <rect key="frame" x="28" y="218" width="711" height="220"/>
-                                <clipView key="contentView" id="1B2-uY-eBd">
+                                <clipView key="contentView" drawsBackground="NO" id="1B2-uY-eBd">
                                     <rect key="frame" x="1" y="0.0" width="709" height="219"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="sequential" alternatingRowBackgroundColors="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="24" rowSizeStyle="systemDefault" headerView="izs-ah-RVs" viewBased="YES" id="CO5-5D-dVc">
-                                            <rect key="frame" x="0.0" y="0.0" width="709" height="196"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="709" height="194"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -564,6 +564,7 @@
                                             </connections>
                                         </tableView>
                                     </subviews>
+                                    <nil key="backgroundColor"/>
                                 </clipView>
                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="Ebo-v1-NqP">
                                     <rect key="frame" x="1" y="203" width="709" height="16"/>
@@ -574,7 +575,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="izs-ah-RVs">
-                                    <rect key="frame" x="0.0" y="0.0" width="709" height="23"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="709" height="25"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
@@ -666,12 +667,12 @@
                         <subviews>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="24" horizontalPageScroll="10" verticalLineScroll="24" verticalPageScroll="10" usesPredominantAxisScrolling="NO" scrollerKnobStyle="dark" translatesAutoresizingMaskIntoConstraints="NO" id="5BB-O2-obS">
                                 <rect key="frame" x="30" y="93" width="690" height="357"/>
-                                <clipView key="contentView" id="0iV-Wa-S6U">
+                                <clipView key="contentView" drawsBackground="NO" id="0iV-Wa-S6U">
                                     <rect key="frame" x="1" y="0.0" width="688" height="356"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="sequential" selectionHighlightStyle="none" alternatingRowBackgroundColors="YES" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="24" usesAutomaticRowHeights="YES" headerView="rbW-Ix-fj4" viewBased="YES" id="5s1-Wg-M4b">
-                                            <rect key="frame" x="0.0" y="0.0" width="688" height="333"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="688" height="331"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="2" height="0.0"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -803,7 +804,7 @@
                                             </connections>
                                         </tableView>
                                     </subviews>
-                                    <color key="backgroundColor" name="alternateSelectedControlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <nil key="backgroundColor"/>
                                 </clipView>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="690" id="rh4-h3-zrY"/>
@@ -817,7 +818,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="rbW-Ix-fj4">
-                                    <rect key="frame" x="0.0" y="0.0" width="688" height="23"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="688" height="25"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
@@ -1228,7 +1229,7 @@ IA
                                 </view>
                             </box>
                             <textField verticalHuggingPriority="750" verifyAmbiguity="off" translatesAutoresizingMaskIntoConstraints="NO" id="4e3-bN-n3n">
-                                <rect key="frame" x="295" y="20" width="60" height="22"/>
+                                <rect key="frame" x="296" y="20" width="58" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" placeholderString="Beat" drawsBackground="YES" usesSingleLineMode="YES" id="Yz6-xs-HPb">
                                     <numberFormatter key="formatter" formatterBehavior="default10_4" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="e2x-zE-vu2">
                                         <real key="minimum" value="0.0"/>
@@ -1256,12 +1257,12 @@ IA
                             </button>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="n5f-L5-ZdJ">
                                 <rect key="frame" x="211" y="79" width="716" height="461"/>
-                                <clipView key="contentView" id="ZYn-7A-klj">
+                                <clipView key="contentView" drawsBackground="NO" id="ZYn-7A-klj">
                                     <rect key="frame" x="1" y="0.0" width="714" height="460"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="M3u-tK-ft2" viewBased="YES" id="Doj-ns-R5Z">
-                                            <rect key="frame" x="0.0" y="0.0" width="714" height="437"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="714" height="435"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1534,6 +1535,7 @@ IA
                                             </connections>
                                         </tableView>
                                     </subviews>
+                                    <nil key="backgroundColor"/>
                                 </clipView>
                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="P3e-Lp-YeB">
                                     <rect key="frame" x="1" y="7" width="0.0" height="16"/>
@@ -1544,12 +1546,12 @@ IA
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="M3u-tK-ft2">
-                                    <rect key="frame" x="0.0" y="0.0" width="714" height="23"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="714" height="25"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
                             <textField verticalHuggingPriority="750" verifyAmbiguity="off" translatesAutoresizingMaskIntoConstraints="NO" id="Z6M-J7-Ksa">
-                                <rect key="frame" x="211" y="20" width="60" height="22"/>
+                                <rect key="frame" x="211" y="20" width="61" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" placeholderString="Bar" usesSingleLineMode="YES" id="1KX-3p-QOT">
                                     <numberFormatter key="formatter" formatterBehavior="default10_4" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="VIu-qj-KOU">
                                         <real key="minimum" value="1"/>
@@ -1635,7 +1637,7 @@ IA
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" verifyAmbiguity="off" translatesAutoresizingMaskIntoConstraints="NO" id="vTh-np-kjB">
-                                <rect key="frame" x="378" y="20" width="60" height="22"/>
+                                <rect key="frame" x="377" y="20" width="62" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" placeholderString="Clock" drawsBackground="YES" usesSingleLineMode="YES" id="Wqo-F1-9tf">
                                     <numberFormatter key="formatter" formatterBehavior="default10_4" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="oXC-CS-Nl8">
                                         <real key="minimum" value="0.0"/>
@@ -1814,12 +1816,12 @@ IA
                         <subviews>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VX9-yE-0yP">
                                 <rect key="frame" x="20" y="120" width="440" height="276"/>
-                                <clipView key="contentView" id="8Vg-c5-V4Q">
+                                <clipView key="contentView" drawsBackground="NO" id="8Vg-c5-V4Q">
                                     <rect key="frame" x="1" y="0.0" width="438" height="275"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="6M2-x4-kNK" viewBased="YES" id="q0P-E7-sH5">
-                                            <rect key="frame" x="0.0" y="0.0" width="438" height="252"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="438" height="250"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1848,6 +1850,9 @@ IA
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                        <allowedInputSourceLocales>
+                                                                            <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                                                                        </allowedInputSourceLocales>
                                                                     </textFieldCell>
                                                                 </textField>
                                                             </subviews>
@@ -1884,6 +1889,9 @@ IA
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                        <allowedInputSourceLocales>
+                                                                            <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                                                                        </allowedInputSourceLocales>
                                                                     </textFieldCell>
                                                                 </textField>
                                                             </subviews>
@@ -1921,6 +1929,9 @@ IA
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                        <allowedInputSourceLocales>
+                                                                            <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                                                                        </allowedInputSourceLocales>
                                                                     </textFieldCell>
                                                                 </textField>
                                                             </subviews>
@@ -1958,6 +1969,9 @@ IA
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                        <allowedInputSourceLocales>
+                                                                            <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                                                                        </allowedInputSourceLocales>
                                                                     </textFieldCell>
                                                                 </textField>
                                                             </subviews>
@@ -1995,6 +2009,9 @@ IA
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                        <allowedInputSourceLocales>
+                                                                            <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                                                                        </allowedInputSourceLocales>
                                                                     </textFieldCell>
                                                                 </textField>
                                                             </subviews>
@@ -2016,6 +2033,7 @@ IA
                                             </connections>
                                         </tableView>
                                     </subviews>
+                                    <nil key="backgroundColor"/>
                                 </clipView>
                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="AR4-wR-kIK">
                                     <rect key="frame" x="1" y="259" width="438" height="16"/>
@@ -2026,7 +2044,7 @@ IA
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="6M2-x4-kNK">
-                                    <rect key="frame" x="0.0" y="0.0" width="438" height="23"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="438" height="25"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
@@ -2056,7 +2074,9 @@ IA
                                             <constraint firstAttribute="width" constant="50" id="UaE-2f-BCc"/>
                                         </constraints>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="Bar" drawsBackground="YES" id="KIs-gd-qPn">
-                                            <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="KXE-Z5-9qd"/>
+                                            <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="KXE-Z5-9qd">
+                                                <real key="minimum" value="0.0"/>
+                                            </numberFormatter>
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -2068,7 +2088,9 @@ IA
                                             <constraint firstAttribute="width" constant="50" id="oze-RG-vlO"/>
                                         </constraints>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" placeholderString="Beat" drawsBackground="YES" id="DQs-Kw-G3J">
-                                            <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="tXR-tT-QU4"/>
+                                            <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="tXR-tT-QU4">
+                                                <real key="minimum" value="0.0"/>
+                                            </numberFormatter>
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -2116,13 +2138,13 @@ IA
                                 <rect key="frame" x="383" y="20" width="77" height="79"/>
                                 <subviews>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1Q5-zr-Cna">
-                                        <rect key="frame" x="7" y="51" width="64" height="32"/>
-                                        <buttonCell key="cell" type="push" title="Edit" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Oav-u1-IdV">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                        <rect key="frame" x="-5" y="51" width="87" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Change" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Oav-u1-IdV">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="editAction:" target="hyw-tO-7sd" id="EpP-b3-Qzu"/>
+                                            <action selector="changeAction:" target="hyw-tO-7sd" id="E40-F0-xCP"/>
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Mlk-4T-hyT">
@@ -2171,7 +2193,7 @@ IA
                         <outlet property="TSTtableView" destination="q0P-E7-sH5" id="PC8-Yo-QEs"/>
                         <outlet property="barField" destination="bMr-Z6-fCv" id="FGw-LM-716"/>
                         <outlet property="beatField" destination="lUR-0a-UBt" id="qTA-oh-gpR"/>
-                        <outlet property="editButton" destination="1Q5-zr-Cna" id="V7l-ie-uca"/>
+                        <outlet property="changeButton" destination="1Q5-zr-Cna" id="V7l-ie-uca"/>
                         <outlet property="insertButton" destination="ol8-ZW-wdo" id="Br6-mf-8Nz"/>
                         <outlet property="removeButton" destination="Mlk-4T-hyT" id="jxN-1m-KvO"/>
                         <outlet property="tickField" destination="RoU-q3-06Q" id="ncF-am-Xmf"/>
