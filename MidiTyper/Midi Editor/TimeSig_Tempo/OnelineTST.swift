@@ -9,8 +9,8 @@
 import Cocoa
 
 enum TST {
-    case TimeSig (meas: Int, num: Int, denom: Int, bar: Bar)
-    case Tempo (meas: Int, beat: Int, tick: Int, tempo: Double, meta: MetaEvent)
+    case TimeSig (meas: Int, num: Int, denom: Int)
+    case Tempo (meas: Int, beat: Int, tick: Int, tempo: Double)
 }
 
 class OnelineTST: NSObject {
@@ -22,7 +22,7 @@ class OnelineTST: NSObject {
     var value: String
 
     override init() {
-        aTst = TST.TimeSig(meas: 0, num: 4, denom: 4, bar: Bar())
+        aTst = TST.TimeSig(meas: 0, num: 4, denom: 4)
         type = "Time Sig"
         meas = "1"
         beat = "1"
@@ -30,8 +30,8 @@ class OnelineTST: NSObject {
         value = "4/4"
     }
     
-    init(BarWithZerobaseMeas meas: Int, num: Int, denom: Int, barIns: Bar) { // Init as Bar
-        aTst = TST.TimeSig(meas: meas, num: num, denom: denom, bar: barIns)
+    init(BarWithZerobaseMeas meas: Int, num: Int, denom: Int) { // Init as Bar
+        aTst = TST.TimeSig(meas: meas, num: num, denom: denom)
         self.type = "Time Sig"
         self.meas = String(meas+1)
         self.beat = "***"
@@ -39,8 +39,8 @@ class OnelineTST: NSObject {
         self.value = String(num) + "/" + String(2 << (denom - 1))
     }
     
-    init(TempoWithZerobaseMeas meas: Int, beat: Int, tick: Int, tmp: Double, obj: MetaEvent) {
-        aTst = TST.Tempo(meas: meas, beat: beat, tick: tick, tempo: tmp, meta: obj)
+    init(TempoWithZerobaseMeas meas: Int, beat: Int, tick: Int, tmp: Double) {
+        aTst = TST.Tempo(meas: meas, beat: beat, tick: tick, tempo: tmp)
         self.type = "Tempo"
         self.meas = String(meas+1)
         self.beat = String(beat+1)
@@ -49,7 +49,7 @@ class OnelineTST: NSObject {
     }
     
     func timeSigText() -> (meas: String?, timeSig: String?) {
-        if case let .TimeSig(imeas, inum, idenom, _) = aTst {
+        if case let .TimeSig(imeas, inum, idenom) = aTst {
             let denom = 2 << (idenom-1)
             let s = String(format: "%d/%d", inum, denom)
             return (String(imeas+1), s)
