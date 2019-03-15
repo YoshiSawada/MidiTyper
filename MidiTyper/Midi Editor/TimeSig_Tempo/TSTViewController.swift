@@ -298,6 +298,9 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
             
         } else {
             // Then consider it's tempo
+            if barVal < 1 {
+                print("bar value must be 1 or greater")
+            }
             if beatVal == 0 {
                 print("beat value must be 1 or greater")
                 return nil
@@ -322,11 +325,8 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
     @IBAction func changeAction(_ sender: Any) {
         // change button action
             // validate if the row is selected
-        if (sender as! NSButton).tag == 1 {
-            print("tag == 1")
-        } else {
-            print("tag is not 1")
-        }        
+        let tagval = (sender as! NSButton).tag
+        print("tag value is \(tagval)")
     }
     
     @IBAction func typeSelected(_ sender: Any) {
@@ -347,6 +347,9 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
             // tempo is selected
             if selRow != -1 {
                 let line = tstLines[selRow]
+                if Int(line.meas) ?? 1 < 1 {
+                    barField.stringValue = "1"
+                }
                 if line.beat == "***" {
                     beatField.stringValue = "1"
                 } else {
@@ -360,6 +363,7 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
                 let tval = Int(line.value) ?? 120
                 line.value = String(tval)
             } else {
+                barField.stringValue = "1"
                 beatField.stringValue = "1"
                 tickField.stringValue = "0"
                 valueField.stringValue = "120"
