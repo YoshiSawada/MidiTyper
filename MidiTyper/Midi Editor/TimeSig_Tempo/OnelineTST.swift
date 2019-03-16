@@ -20,6 +20,8 @@ class OnelineTST: NSObject {
     var beat: String
     var tick: String
     var value: String
+    let lowestTempo = 30
+    let highestTempo = 300
 
     override init() {
         aTst = TST.TimeSig(meas: 0, num: 4, denom: 4)
@@ -44,7 +46,7 @@ class OnelineTST: NSObject {
         self.type = "Tempo"
         self.meas = String(meas+1)
         self.beat = String(beat+1)
-        self.tick = String(tick+1)
+        self.tick = String(tick)
         self.value = String(format: "%.2f", tmp)
     }
     

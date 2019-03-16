@@ -2121,6 +2121,9 @@ IA
                                 <buttonCell key="cell" type="push" title="Enter" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4Pp-ni-IyF">
                                     <behavior key="behavior" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
                                 </buttonCell>
                                 <connections>
                                     <action selector="enterAction:" target="hyw-tO-7sd" id="PjX-53-M11"/>
@@ -2155,6 +2158,9 @@ IA
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="removeAction:" target="hyw-tO-7sd" id="EzV-Ca-oyO"/>
+                                </connections>
                             </button>
                         </subviews>
                         <constraints>

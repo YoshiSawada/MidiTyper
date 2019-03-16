@@ -504,6 +504,36 @@ class Track: NSObject, NSCoding {
             return nil
         }
     }
+    
+    func ticksForMeas(zeroBaseMeas meas:Int, Expandable ext: Bool) -> Int? {
+        if bars == nil {
+            bars = Array<Bar>()
+        }
+        if meas < bars!.count {
+            return bars![meas].startTick
+        } else if ext == true {
+            // make new empty bars
+            if bars!.count == 0 {
+                return nil
+            }
+            
+            repeat {
+                let i = bars!.count
+                let lastBar = bars![i-1]
+                // var bar = Bar()
+                let bar = Bar()
+                bar.measNum = lastBar.measNum + 1
+                bar.timeSig = lastBar.timeSig
+                bar.startTick = lastBar.nextBarTick
+                bar.nextBarTick = lastBar.nextBarTick+lastBar.barLen
+                bar.barLen = lastBar.barLen
+                bars?.append(bar)
+            } while bars!.count <= meas
+            
+            return bars![meas].startTick
+        }
+        return nil
+    }
 }
 
 let tagSequenceNumber:UInt8 = 0

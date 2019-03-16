@@ -236,7 +236,13 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
             print("bar value must be 1 or greater")
             return nil
         }
+        
         let beatVal = beatField.integerValue
+        if beatVal == 0 {
+            print("beat value must be 1 or greater")
+            return nil
+        }
+        
         let tickVal = tickField.integerValue
         
         var aLine: OnelineTST?
@@ -316,7 +322,7 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
                 print("tempo value is not valid or out of range")
                 return nil
             }
-            aLine = OnelineTST.init(TempoWithZerobaseMeas: barVal-1, beat: beatVal-1, tick: tickVal-1, tmp: tempo)
+            aLine = OnelineTST.init(TempoWithZerobaseMeas: barVal-1, beat: beatVal-1, tick: tickVal, tmp: tempo)
         }
         
         return aLine
@@ -327,6 +333,29 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
             // validate if the row is selected
         let tagval = (sender as! NSButton).tag
         print("tag value is \(tagval)")
+    }
+    
+    @IBAction func removeAction(_ sender: Any) {
+        let selRow = TSTtableView.selectedRow
+        if selRow < 2 {
+            // The first tempo and Time sig should not be deleted
+            return
+        }
+        // check if the selected one is the first Tempo event
+        if tstLines[selRow].type == "Tempo" {
+            for i in 0..<selRow {
+                if tstLines[i].type == "Tempo" {
+                    // OK to delete the tempo in focus
+                    tstLines.remove(at: selRow)
+                    break
+                }
+            } // end for i in..
+        } else {
+            // then Time Sig
+            tstLines.remove(at: selRow)
+        }
+        
+        TSTtableView.reloadData()
     }
     
     @IBAction func typeSelected(_ sender: Any) {
@@ -360,8 +389,16 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
                 } else {
                     tickField.stringValue = line.tick
                 }
-                let tval = Int(line.value) ?? 120
-                line.value = String(tval)
+                
+                var tval = Int(line.value) ?? 120
+                if tval < line.lowestTempo {
+                    tval = line.lowestTempo
+                }
+                if tval > line.highestTempo {
+                    tval = line.highestTempo
+                }
+                
+                valueField.stringValue = String(tval)
             } else {
                 barField.stringValue = "1"
                 beatField.stringValue = "1"
@@ -370,27 +407,7 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
             }
         }
     }
-    //    @IBAction func insertAction(_ sender: Any) {
-//        var selectedRow = TSTtableView.selectedRow
-//
-//        // Make either Time Signature or Tempo depending on the type selection
-//        let aLine = makeTSTLine()
-//        if aLine == nil {
-//            return
-//        }
-//
-//        // if no row is selected and insert button is pressed, then put the data on the last row.
-//        selectedRow = selectedRow == -1 ? TSTtableView.numberOfRows : selectedRow
-//        if selectedRow == -1 {
-//            tstLines.append(aLine!)
-//        } else {
-//            tstLines.insert(aLine!, at: selectedRow)
-//        }
-//
-//        sortTstLines()
-//
-//        TSTtableView.reloadData()
-//    }
+
     
     @IBAction func enterAction(_ sender: Any) {
         let aLine = makeTSTLine()
@@ -411,9 +428,77 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
             }
             tstLines.remove(at: selectedRow)
             tstLines.insert(aLine!, at: selectedRow)
+            sortTstLines()
         }
         
         TSTtableView.reloadData()
+        
+        if rebuildBarSeq() == false {
+            del?.displayAlert("failed to rebuild barSeqTemplate")
+            return
+        }
+        
+        if rebuildTempoMap() == false {
+            del?.displayAlert("failed to rebuild tempoMap")
+        }
+    }
+    
+    // When rebuild Time signature and tempo,
+    // rebuild Time Signature first as it's got the info
+    // for ticks for bars.
+    func rebuildBarSeq() -> Bool {
+        if midi == nil { return false }
+        if midi!.barSeqTemplate.bars == nil { return false }
+        
+        var bars = Array<Bar>()
+        var elapsedTick: Int = 0
+        
+        for ts in tstLines {
+            if case let .TimeSig(ibar, inum, idenom) = ts.aTst {
+                let tpq = midi!.ticksPerQuarter ?? 480
+                let bar = Bar.init(measNum: ibar, startTick: elapsedTick, numerator: inum, denominator: idenom, ticksPerQuarter: Int(tpq))
+                
+                elapsedTick = bar.nextBarTick
+                
+                bars.append(bar)
+            }
+        }
+
+        midi!.barSeqTemplate.bars!.removeAll(keepingCapacity: true)
+        for bar in bars {
+            midi!.barSeqTemplate.bars!.append(bar)
+        }
+
+        return true
+    }
+    
+    func rebuildTempoMap() -> Bool {
+        
+        guard let mon = midi?.monitor else {
+            return false
+        }
+        
+        mon.resetTempoMap()
+        
+        for ts in tstLines {
+            if case let .Tempo(ibar, ibeat, itick, dtempo) = ts.aTst {
+                guard let ticksForMeas = midi!.barSeqTemplate.ticksForMeas(zeroBaseMeas: ibar, Expandable: true) else {
+                    return false
+                }
+                
+                guard let relTick = midi!.barSeqTemplate.bars![ibar].relTick(fromBeat: ibeat, andTick: itick) else {
+                    return false
+                }
+                
+                let nanoPerQuarter = Double(60 * 1000000000) / dtempo
+                let nanoPerTick = __uint64_t(nanoPerQuarter) / 480
+                
+                let tempoTick = ticksForMeas + relTick
+                
+                mon.addTempoMapElement(eventTick: tempoTick, nanoPerTick: nanoPerTick)
+            }
+        }
+        return true
     }
     
     // after edit action on timesig or tempo, call this function and sort the order in the table
