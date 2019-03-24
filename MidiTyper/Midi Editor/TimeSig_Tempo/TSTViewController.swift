@@ -79,6 +79,20 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
         //TSTtableView.refusesFirstResponder = true
     }
     
+    func setMidiData(midiData:MidiData?) -> Bool {
+        
+        guard midiData != nil else {
+            print("midiData in parameter for setMidiData is nil")
+            return false
+        }
+        
+        midi = midiData
+        
+        loadData()
+        
+        return true
+    }
+    
     func loadData() {
 
         if midi == nil {

@@ -20,6 +20,7 @@ class setupWindowController: NSWindowController, NSWindowDelegate {
         // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
         window?.delegate = self
         window?.preventsApplicationTerminationWhenModal = false
+        dc.post(name: ntSetupWindowLoaded, object: self)
     }
     
     static var storyboardId: String? {

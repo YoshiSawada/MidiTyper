@@ -654,6 +654,7 @@ class MidiData: NSDocument {
     
     let del: AppDelegate?
     let nc = NotificationCenter.default
+    var viewCon: ViewController?
 
     override init() {
         curElapsedTick = 0
@@ -709,6 +710,7 @@ class MidiData: NSDocument {
             monitor = MonitorCenter(midiIF: del!.objMidi)
         }
         
+        
         super.init()
         // Add your subclass-specific initialization here.
         let ret = prepare()
@@ -758,7 +760,21 @@ class MidiData: NSDocument {
         let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
         let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as! NSWindowController
         self.addWindowController(windowController)
+        
+        // setup MidiEventEditor
+        // get main ViewController
+        viewCon = windowController.window?.contentViewController as? ViewController
+        if viewCon == nil {
+            del?.displayAlert("Cannot instantiate MidiEvent View")
+        }
+
         windowController.window?.makeKeyAndOrderFront(self)
+    }
+    
+    func makeEventEditor() throws -> Void {
+        do {
+            try viewCon!.loadSong(midiData: self)
+        }
     }
 
     override func data(ofType typeName: String) throws -> Data {
@@ -789,18 +805,18 @@ class MidiData: NSDocument {
                 }
                 // debug
                 makeWindowControllers()
-                showWindows()
-                title = url.lastPathComponent
+
+                do {
+                    try makeEventEditor()
+                }
                 
+                title = url.lastPathComponent
+                showWindows()
+
                 let nc = NotificationCenter.default
                 nc.post(name: ntDocumentOpened, object: self)
-            } catch {
-                let t = type(of: error)
-                if t == ysError.self {
-                    let err = error as! ysError
-                    Swift.print("Source = \(err.source), Line = \(err.line), type = \(err.type)")
-                }
             }
+            
         default:
             throw NSError(domain: NSOSStatusErrorDomain, code: unknownFormatErr, userInfo: nil)
         }

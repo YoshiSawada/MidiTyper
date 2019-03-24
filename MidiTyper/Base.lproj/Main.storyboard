@@ -294,7 +294,7 @@
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController storyboardIdentifier="Document Window Controller" showSeguePresentationStyle="single" id="jGA-0Y-lOj" userLabel="Midi Editor Window" customClass="DocumentWC" customModule="MidiTyper" customModuleProvider="target" sceneMemberID="viewController">
-                    <window key="window" title="MIDI Event Editor" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="Event Editor Window Frame Position" animationBehavior="default" tabbingMode="preferred" id="Ckk-yw-fiv">
+                    <window key="window" title="MIDI Event Editor" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="Event Editor Window Frame Position" animationBehavior="default" tabbingMode="disallowed" id="Ckk-yw-fiv">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" topStrut="YES"/>
                         <rect key="contentRect" x="160" y="313" width="960" height="560"/>

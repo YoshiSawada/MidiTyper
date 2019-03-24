@@ -21,6 +21,7 @@ let ntInvalidLocation = Notification.Name(rawValue: "Invalid locator value")
 let ntDidLoadLocationTextField = Notification.Name(rawValue: "Locator Field is opened")
 let ntDidTSTWinConLoaded = Notification.Name(rawValue: "TST WinCon Loaded")
 let ntLocatorWinconLoaded = Notification.Name(rawValue: "Locator Wincon Loaded")
+let ntSetupWindowLoaded = Notification.Name(rawValue: "setupWinCon Loaded")
 let ntDocWinconLoaded = Notification.Name(rawValue: "Document Wincon Loaded")
 let ntMidiNoteKeyIn = Notification.Name(rawValue: "MidiNoteKeyIn")
 let ntChangeEventMenuIssued = Notification.Name(rawValue: "ChangeEventMenuIssued")
@@ -56,9 +57,10 @@ struct ysError: Error {
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var docCon: NSDocumentController?
-    var docWincon: DocumentWC?
+    var curDocWincon: DocumentWC?
     var tstWC: TSTEditorWinC?
     var locWC: LocationControlWC?
+    var setupWC: setupWindowController?
     let objMidi:objCMIDIBridge = objCMIDIBridge()
     let storyboard: NSStoryboard?
     var app: NSApplication?
@@ -112,6 +114,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dc.addObserver(forName: ntLocatorWinconLoaded, object: nil, queue: nil, using: appstateObserver)
         dc.addObserver(forName: ntDocWinconLoaded, object: nil, queue: nil, using: appstateObserver)
         dc.addObserver(forName: ntUntitledDocumentCreated, object: nil, queue: nil, using: appstateObserver)
+        dc.addObserver(forName: ntSetupWindowLoaded, object: nil, queue: nil, using: appstateObserver)
         
         // scan Midi Interface
         midiInterface = MidiInterface()
@@ -167,7 +170,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // debug
             print("Got playable notification")
             
-            print("Document count is now = \(docCon?.documents.count ?? -1)")
         case ntPlaying:
 //            playMenuItem.isEnabled = false
 //            stopMenuItem.isEnabled = true
@@ -197,11 +199,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         case ntDidTSTWinConLoaded:
             tstWC = notf.object as? TSTEditorWinC
         case ntDocWinconLoaded:
-            docWincon = notf.object as? DocumentWC
+            //curDocWincon = notf.object as? DocumentWC
+            // debug
+            // I was trying to get var windowNumber in NSWindow
+            // But it was set to -1 and I cannot set it either
+            // as it is get-only var.
+            return
         case ntLocatorWinconLoaded:
             locWC = notf.object as? LocationControlWC
+        case ntSetupWindowLoaded:
+            setupWC = notf.object as? setupWindowController
         default:
             return
+        }
+    }
+    
+    func curDocChanged(To dc: DocumentWC) {
+        curDocWincon = dc
+        curDoc = curDocWincon?.document as? MidiData
+
+        // change the contents of TST Window.
+        let res = (tstWC?.contentViewController as? TSTViewController)?.setMidiData(midiData: curDoc)
+        if res == false {
+            displayAlert("failed to change TST window contents")
         }
     }
 
@@ -211,8 +231,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        if (event.modifierFlags.rawValue & NSEvent.ModifierFlags.shift.rawValue) != 0 { print("shift is pressed down") }
         
         let whichWin = frontWindow()
-        // debug
-//        print("current key window is \(String(describing: whichWin))")
         
         // dispatch keydown to keywindow
         switch whichWin {
@@ -222,7 +240,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             tstWC!.myKey(with: event)
         case .EventEditWin?:
-            docWincon?.keyDownHook(with: event)
+            // need to find out what doc the window belongs to
+            curDocWincon?.keyDownHook(with: event)
 
         default:
             return
@@ -252,10 +271,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         do {
             let doc = try docCon?.makeDocument(withContentsOf: url, ofType: "mid")
             docCon?.addDocument(doc!)
+
+            // set the document window to var window in document
+            let cwin = app!.keyWindow
+            if cwin != nil {
+                doc?.setWindow(app!.keyWindow)
+                doc?.addWindowController(cwin!.windowController!)
+                cwin!.windowController!.document = doc
+            }
+
+            // currentDocument in NSDocumentController is now set to
+            // doc here autonomously
             
         } catch {
-            // debug; add more in catching errors
-            print(error)
+            errorHandle(err: error as! ysError)
         } // end of closure of completion handler
     }
     
@@ -270,21 +299,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         for win in (app?.windows)! {
             if win.isKeyWindow {
                 switch win.windowController {
-                case docWincon:
-                    return WindowTag.EventEditWin
                 case tstWC:
                     return WindowTag.TSTWin
                 case locWC:
                     return WindowTag.LocationControllerWin
+                case setupWC:
+                    return WindowTag.ConfigurationWin
                 default:
-                    if (win.windowController as? setupWindowController) != nil {
-                        return WindowTag.ConfigurationWin
-                    } else {
-                        return nil
+                    // find out which doc the keywindow belong to
+                    if docCon == nil {
+                        break
                     }
-                }
-            }
-        }
+                    if curDocWincon == win.windowController {
+                        return WindowTag.EventEditWin
+                    }
+                } // end of switch win.windowController
+            } // end of ir win.isKeyWindow
+        } // end of for win
         
         return nil
     }

@@ -10,6 +10,8 @@ import Cocoa
 
 class DocumentWC: NSWindowController, NSWindowDelegate {
     
+    let del = NSApplication.shared.delegate as? AppDelegate
+    
     static var storyboardId: String? {
         return "Document Window Controller"
     }
@@ -17,21 +19,26 @@ class DocumentWC: NSWindowController, NSWindowDelegate {
     static var windowFrameAutosaveName: NSWindow.FrameAutosaveName {
         return NSWindow.FrameAutosaveName.init(rawValue: "Event Editor Window Frame Position")
     }
-
+    
     override func windowDidLoad() {
         super.windowDidLoad()
     
         let nc = NotificationCenter.default
         // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
         window?.setFrameUsingName(DocumentWC.windowFrameAutosaveName)
-//        let defaults = UserDefaults.standard
-//        let frame = defaults.value(forKey: "Event Editor Window Frame Position")
+        
+        // debug 2019/3/23
+        // doc = document as? MidiData
+        // this doesn't succeed. Thus I set it in AppDelegate
+
         
         nc.post(name: ntDocWinconLoaded, object: self)
-//        guard frame != nil else {
-//            return
-//        }
-//        window?.setFrame(frame! as! NSRect, display: true)
+    }
+    
+    func windowDidBecomeKey(_ notification: Notification) {
+        if document != nil {
+            del?.curDocChanged(To: self)
+        }
     }
     
     func keyDownHook(with event: NSEvent) {

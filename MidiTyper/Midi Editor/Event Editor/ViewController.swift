@@ -169,26 +169,28 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             sendNoteMonitor(note: noteEvent!)
             
         case ntDocumentOpened:
-            midi = notf.object as? MidiData
-            do {
-                try loadSong()
-            } catch {
-                del?.displayAlert("error in reading SMF in tableview")
-            }
+//            midi = notf.object as? MidiData
+//            do {
+//                try loadSong()
+//            } catch {
+//                del?.displayAlert("error in reading SMF in tableview")
+//            }
             
-            title = midi?.title
-
-            // enable edit manu itmes
-            del?.changeMenuItem.isEnabled = true
-                // I put this as Xcode turns it on (checked)
-            del?.changeMenuItem.state = NSControl.StateValue.off
-            del?.insMenuItem.isEnabled = true
-            del?.noteTypingMenuItem.isEnabled = true
-            editButton.isEnabled = true
-            insButton.isEnabled = true
-            noteTypingButton.isEnabled = true
-
-            editorTableView.reloadData()
+            // debug I moved the block to loadSong
+//            title = midi?.title
+//
+//            // enable edit manu itmes
+//            del?.changeMenuItem.isEnabled = true
+//                // I put this as Xcode turns it on (checked)
+//            del?.changeMenuItem.state = NSControl.StateValue.off
+//            del?.insMenuItem.isEnabled = true
+//            del?.noteTypingMenuItem.isEnabled = true
+//            editButton.isEnabled = true
+//            insButton.isEnabled = true
+//            noteTypingButton.isEnabled = true
+//
+//            editorTableView.reloadData()
+            return
 
         case ntChangeEventMenuIssued:
             // notification observer gets called twice for some reason..
@@ -225,7 +227,10 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         }
     }
     
-    func loadSong() throws {
+    func loadSong(midiData: MidiData) throws {
+        
+        midi = midiData
+        
         // setup controlls
         
             // check if I have midi data
@@ -248,6 +253,21 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         }
 
         loadTrack()
+        
+        title = midi?.title
+        
+        // enable edit manu itmes
+        del?.changeMenuItem.isEnabled = true
+        // I put this as Xcode turns it on (checked)
+        del?.changeMenuItem.state = NSControl.StateValue.off
+        del?.insMenuItem.isEnabled = true
+        del?.noteTypingMenuItem.isEnabled = true
+        editButton.isEnabled = true
+        insButton.isEnabled = true
+        noteTypingButton.isEnabled = true
+        
+        editorTableView.reloadData()
+
     }
     
     func loadTrack() { // load focusTrack
