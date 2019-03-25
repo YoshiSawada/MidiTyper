@@ -31,7 +31,6 @@ class DocumentWC: NSWindowController, NSWindowDelegate {
         // doc = document as? MidiData
         // this doesn't succeed. Thus I set it in AppDelegate
 
-        
         nc.post(name: ntDocWinconLoaded, object: self)
     }
     

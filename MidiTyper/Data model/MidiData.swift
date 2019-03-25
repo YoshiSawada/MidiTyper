@@ -629,7 +629,8 @@ class MidiData: NSDocument {
     var SMF: UnsafeMutableRawPointer?
     var barSeqTemplate: Track = Track()
     var commonTrackSeq: Array<MetaEvent>? = []
-    var tracks:Array<Track>?
+    var tracks: Array<Track>?
+    var isNew: Bool
     
     // intermediate data
     var eventSeqs: Array<intermedSeqWithChannel> = [] // array of track of event seq
@@ -657,6 +658,7 @@ class MidiData: NSDocument {
     var viewCon: ViewController?
 
     override init() {
+        isNew = true
         curElapsedTick = 0
         nextMeasNum = 0
         //  numOfTracks = 1
@@ -769,6 +771,9 @@ class MidiData: NSDocument {
         }
 
         windowController.window?.makeKeyAndOrderFront(self)
+        
+        let nc = NotificationCenter.default
+        nc.post(name: ntDocumentViewDidPrepared, object: self)
     }
     
     func makeEventEditor() throws -> Void {
@@ -803,14 +808,20 @@ class MidiData: NSDocument {
                 if monitor?.prepare2Play(barseqtemp: barSeqTemplate, tracks: tracks!) == false {
                     del?.displayAlert("prepare2Play failed")
                 }
-                // debug
+
+                title = url.lastPathComponent
+
+                // isNew must be placed before makeWindowControllers
+                // because makeWindowsControllers invokes notification
+                // to a function where it sees if isNew is set
+                isNew = false
+                
                 makeWindowControllers()
 
                 do {
                     try makeEventEditor()
                 }
                 
-                title = url.lastPathComponent
                 showWindows()
 
                 let nc = NotificationCenter.default

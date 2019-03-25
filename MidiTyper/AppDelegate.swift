@@ -17,6 +17,7 @@ let ntEndReached = Notification.Name(rawValue: "Reached the End")
 let ntKeyAssignTableLoaded = Notification.Name(rawValue: "Key Assign Table is Loaded")
 let ntAppLaunched = Notification.Name(rawValue: "Application Launched")
 let ntDocumentOpened = Notification.Name(rawValue: "Document is opened")
+let ntDocumentViewDidPrepared = Notification.Name(rawValue: "Document View is loaded")
 let ntInvalidLocation = Notification.Name(rawValue: "Invalid locator value")
 let ntDidLoadLocationTextField = Notification.Name(rawValue: "Locator Field is opened")
 let ntDidTSTWinConLoaded = Notification.Name(rawValue: "TST WinCon Loaded")
@@ -98,6 +99,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         // debug
         curDoc = docCon?.documents.last as? MidiData
+        if curDoc != nil {
+            do {
+                try curDoc?.viewCon?.loadSong(midiData: curDoc!)
+            } catch {
+                errorHandle(err: error as! ysError)
+            }
+        }
         
         print("document count = \(docCon?.documents.count ?? -1)")
         
@@ -115,6 +123,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dc.addObserver(forName: ntDocWinconLoaded, object: nil, queue: nil, using: appstateObserver)
         dc.addObserver(forName: ntUntitledDocumentCreated, object: nil, queue: nil, using: appstateObserver)
         dc.addObserver(forName: ntSetupWindowLoaded, object: nil, queue: nil, using: appstateObserver)
+        dc.addObserver(forName: ntDocumentViewDidPrepared, object: nil, queue: nil, using: appstateObserver)
         
         // scan Midi Interface
         midiInterface = MidiInterface()
@@ -204,11 +213,47 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // I was trying to get var windowNumber in NSWindow
             // But it was set to -1 and I cannot set it either
             // as it is get-only var.
+            
+            // if this is an untitled doc (new doc) call loadSong in the MIDIData
+
+            // debug
+//            curDoc = docCon?.documents.last as? MidiData
+//            if curDoc == nil {
+//                return
+//            }
+//            if curDoc?.title == "untitled" || curDoc?.title == nil {
+//                if curDoc != nil {
+//                    do {
+//                        try curDoc?.viewCon?.loadSong(midiData: curDoc!)
+//                    } catch {
+//                        errorHandle(err: error as! ysError)
+//                    }
+//                }
+//            }
+
             return
         case ntLocatorWinconLoaded:
             locWC = notf.object as? LocationControlWC
         case ntSetupWindowLoaded:
             setupWC = notf.object as? setupWindowController
+        case ntDocumentViewDidPrepared:
+            // write to load song data for new document
+            
+            guard let aDoc = notf.object as? MidiData else {
+                return
+            }
+
+            if aDoc.isNew == true {
+                do {
+                    try aDoc.viewCon?.loadSong(midiData: aDoc)
+                    // in the case of opening an existing MidiData
+                    // I add the document in open menu
+                    docCon?.addDocument(aDoc)
+                } catch {
+                    errorHandle(err: error as! ysError)
+                }
+            }
+            return
         default:
             return
         }
@@ -286,6 +331,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } catch {
             errorHandle(err: error as! ysError)
         } // end of closure of completion handler
+        
+        
     }
     
     func frontWindow() -> WindowTag? {
