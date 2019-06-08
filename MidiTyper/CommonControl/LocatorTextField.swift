@@ -104,10 +104,9 @@ class LocatorTextField: NSTextField { //NSTextFieldDelegate
     
     override func textShouldEndEditing(_ textObject: NSText) -> Bool {
         // Don't validate if it has a charactor other than a number
-        let iter = textObject.string.makeIterator()
-        for c in iter {
+        var iter = textObject.string.makeIterator()
+        while let c = iter.next() {
             if c < "0" || c > "9" {
-                // set the field to default
                 if whoAmI == .ClockField {
                     textObject.string = "0"
                 } else {

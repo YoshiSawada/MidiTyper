@@ -204,6 +204,8 @@ const UInt32 kDelta3byteLimit = 0x1fffff;
     return t;
 }
 
+// I created a function do the same in AppDelegate
+// This object-C version may not be necessary
 -(UInt32)makeDelta : (UInt32) val { // making delta value for standard MIDI file
     UInt32 delta, b1, b2;
     

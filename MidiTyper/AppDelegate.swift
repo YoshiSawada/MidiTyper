@@ -54,6 +54,11 @@ struct ysError: Error {
     var type: errorID
 }
 
+// Standard Midi File constant
+let kDelta2byteLimit: UInt32 = 0x3fff
+let kDelta3byteLimit: UInt32 = 0x1fffff
+
+
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
@@ -84,7 +89,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     override init() {
         docCon = nil
-        storyboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+        storyboard = NSStoryboard(name: "Main", bundle: nil)
         super.init()
     }
     
@@ -135,7 +140,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             exit(1)
         }
 
-        let wc = storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "LocationControlWC")) as? LocationControlWC
+        let wc = storyboard?.instantiateController(withIdentifier: "LocationControlWC") as? LocationControlWC
         wc?.showWindow(self)
         if wc != nil {
             // Make barNumberFieled focused
@@ -164,6 +169,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             insMenuItem.isEnabled = false
             noteTypingMenuItem.isEnabled = false
         }
+        
+        // debug makeDelta
+        //      2019/4/7 tried enough cases and verified.
+//        let (d, c) = makeDelta(tick: 0xfffffff)
+//        var st = String(format:"0x%02X", d[0])
+//        st += String(format:" 0x%02X", d[1])
+//        st += String(format:" 0x%02X", d[2])
+//        st += String(format:" 0x%02X", d[3])
+//        print("d: \(st)")
+//        print("c: \(c)")
     }
 
     // Get notification for document to be closed.
@@ -215,21 +230,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // as it is get-only var.
             
             // if this is an untitled doc (new doc) call loadSong in the MIDIData
-
-            // debug
-//            curDoc = docCon?.documents.last as? MidiData
-//            if curDoc == nil {
-//                return
-//            }
-//            if curDoc?.title == "untitled" || curDoc?.title == nil {
-//                if curDoc != nil {
-//                    do {
-//                        try curDoc?.viewCon?.loadSong(midiData: curDoc!)
-//                    } catch {
-//                        errorHandle(err: error as! ysError)
-//                    }
-//                }
-//            }
 
             return
         case ntLocatorWinconLoaded:
@@ -377,11 +377,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         al.runModal()
     }
     
-    func saveDocumentAs(sender: Any) {
+    func saveDocAs(sender: Any) {
+        // debug creating SMF
+        //(docCon?.currentDocument as! MidiData).tracks![0].makeTrackChunk(del: self)
         print("save as is called")
     }
     // MARK: Menu commands
-   
+    @IBAction func saveDocumentAs(_ sender: Any) {
+        // debug creating SMF
+        if docCon?.currentDocument == nil {
+            displayAlert("You have no document")
+            return
+        }
+        // (docCon!.currentDocument as! MidiData).tracks![0].makeTrackChunk(del: self)
+        (docCon!.currentDocument as! MidiData).entrySerializedToSmf()
+        print("save as is called")
+    }
+    
     @IBAction func changeModeAction(_ sender: Any) {
         let whichWin = frontWindow()
         if whichWin == .EventEditWin {
@@ -421,6 +433,71 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             
             dc.post(name: ntNoteTypingMenuIssued, object: self)
+        }
+    }
+    
+    // MARK: Utilities
+    
+    func expandRawPointerMemory(srcPtr: UnsafeMutableRawPointer, srcSize: Int, newSize: Int) -> UnsafeMutableRawPointer {
+        // srcPtr will have undated pointer with the size of newSize
+        let newPtr = UnsafeMutableRawPointer.allocate(byteCount: newSize, alignment: 1)
+
+        newPtr.copyMemory(from: srcPtr, byteCount: srcSize)
+        srcPtr.deallocate()
+        
+        return newPtr
+    }
+    
+    func makeDelta(tick: UInt32) -> ([UInt8], Int) {
+        var delta: Array<UInt8> = Array<UInt8>.init(repeating: 0, count: 4)
+        var i8: UInt8
+
+        switch tick {
+        case 0...UInt32(0x7f):
+            delta[0] = UInt8(tick)
+            return (delta, 1)
+        case 0x80...kDelta2byteLimit:
+            // make msb
+            i8 = UInt8((tick >> 7) & 0x7f)
+            i8 = i8 | 0x80
+            delta[0] = i8
+            // make lsb
+            i8 = UInt8(tick & 0x0000007f)
+            delta[1] = i8
+            return (delta, 2)
+        case kDelta2byteLimit+1...kDelta3byteLimit:
+            // make msb
+            i8 = UInt8((tick >> 14) & 0x7f)
+            i8 = i8 | 0x80
+            delta[0] = i8
+            //make 2nd byte
+            i8 = UInt8((tick >> 7) & 0x7f)
+            i8 = i8 | 0x80
+            delta[1] = i8
+            // make lsb
+            i8 = UInt8(tick & 0x0000007f)
+            delta[2] = i8
+            return (delta,3)
+        default:
+            // make msb
+            i8 = UInt8((tick >> 21) | 0x80)
+            delta[0] = i8
+            
+            // make 2nd byte
+            i8 = UInt8((tick >> 14) & 0x7f)
+            i8 = i8 | 0x80
+            delta[1] = i8
+            
+            // make 3rd byte
+            i8 = UInt8((tick >> 7) & 0x7f)
+            i8 = i8 | 0x80
+            delta[2] = i8
+            
+            // make the lsb
+            i8 = UInt8(tick & 0x0000007f)
+            delta[3] = i8
+
+            return (delta, 4)
         }
     }
     

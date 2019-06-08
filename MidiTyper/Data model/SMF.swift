@@ -45,7 +45,7 @@ func openSMF(owner: MidiData, from url: URL) throws {
     fclose(fpin)
     
     // Check Midi header
-    if checkSMFHeader(smfPtr: owner.SMF!, header: MidiData.MThd, fileOffset: 0) == false {
+    if checkSMFHeader(smfPtr: owner.SMF!, header: MThd, fileOffset: 0) == false {
             let headerError = ysError(source: "SMF.swift", line: 48, type: ysError.errorID.noSMFHeader)
             throw headerError
     }
@@ -261,17 +261,49 @@ func openSMF(owner: MidiData, from url: URL) throws {
     // congratulations. Success in reading SMF, I hope...
 }
 
+func makeMetaEventTrackChunk(owner: MidiData) -> SMFBuffer {
+    let chunk = SMFBuffer.init()
+    var runTick: UInt32 = 0
+    
+    chunk.append(array: MTrk)
+    
+    if chunk.seek(pos: 8) == false { // skip the track size field for now
+        // chunk memory should never be as small as 8 bytes
+        chunk.expand(newSize: chunk.bufSize + 1024) // not clean. But it is OK
+    }
+    
+    for meta in owner.commonTrackSeq! {
+        let delta = UInt32(meta.eventTick) - runTick
+        let (smfDelta, len) = (owner.del?.makeDelta(tick: delta))!
+
+        chunk.append(array: smfDelta, len: len)
+        chunk.append(singleByte: 0xff)  // meta tag event status
+        chunk.append(singleByte: meta.metaTag)
+        chunk.append(singleByte: UInt8(meta.metaLen))
+        chunk.append(array: meta.data, len: meta.metaLen)
+        
+        runTick = UInt32(meta.eventTick)
+    }
+    
+    // write the track length
+    let trackLen: UInt32 = UInt32(chunk.curPos - 8)
+    
+    chunk.swapAndWrite4ByteInt(at: 4, data: trackLen)
+    
+    return chunk // should be deallocate by the owner
+}
 
 // MARK: Private functions
 //
 
+
 // Checking header
-private func checkSMFHeader(smfPtr: UnsafeMutableRawPointer, header h:[Int8], fileOffset offset: Int) -> Bool {
+private func checkSMFHeader(smfPtr: UnsafeMutableRawPointer, header h:[UInt8], fileOffset offset: Int) -> Bool {
     var pass:Bool = true
-    var c: Int8
+    var c: UInt8
     
     for i in 0...3 {
-        c = (smfPtr.load(fromByteOffset: i + offset, as: Int8.self))
+        c = (smfPtr.load(fromByteOffset: i + offset, as: UInt8.self))
         if h[i] != c {
             pass = false
             break
@@ -286,7 +318,7 @@ private func readCommonTrack (owner: MidiData) throws {
     
     var err = ysError(source: "SMF.swift", line: 150, type: ysError.errorID.SMFParse)
     
-    if checkSMFHeader(smfPtr: owner.SMF!, header: MidiData.MTrk, fileOffset: owner.curPtr)  == false {
+    if checkSMFHeader(smfPtr: owner.SMF!, header: MTrk, fileOffset: owner.curPtr)  == false {
         err.line = 156
         throw err
     }
@@ -513,7 +545,7 @@ internal func readTrack(trackPtr tr:UnsafeRawPointer) -> (seq:Array<MidiEvent>?,
     var prefixCh:UInt8? = nil
     
     
-    bValue = isSMFHeader(ofType: MidiData.MTrk, atSeqPointer: tr)
+    bValue = isSMFHeader(ofType: MTrk, atSeqPointer: tr)
     if bValue == false {
         track = nil
         return (track, nil, nil)
@@ -546,7 +578,7 @@ internal func readTrack(trackPtr tr:UnsafeRawPointer) -> (seq:Array<MidiEvent>?,
         switch buf[0] {
             
         case 0x80...0x8f: // note off
-            let idx:Int? = noteOnTable.index(where: {$0.eventStatus & 0x0f == buf[0] & 0x0f && $0.note == buf[1]})
+            let idx:Int? = noteOnTable.firstIndex(where: {$0.eventStatus & 0x0f == buf[0] & 0x0f && $0.note == buf[1]})
             // we must have correspoinding note on
             if idx != nil {
                 // write gate time of the note on
@@ -563,7 +595,7 @@ internal func readTrack(trackPtr tr:UnsafeRawPointer) -> (seq:Array<MidiEvent>?,
             // gate time zero is place holder. It'll be valid when we have note off corresponding to
             // this note on event
             if buf[2] == 0 { // velocity zero = note off
-                let idx:Int? = noteOnTable.index(where: {$0.eventStatus == buf[0] && $0.note == buf[1]})
+                let idx:Int? = noteOnTable.firstIndex(where: {$0.eventStatus == buf[0] && $0.note == buf[1]})
                 if idx == nil {
                     print("note on associated with the note off doesn't exit status = \(buf[0]) note = \(buf[1])")
                 } else {
@@ -671,7 +703,7 @@ internal func readTrack(trackPtr tr:UnsafeRawPointer) -> (seq:Array<MidiEvent>?,
     return (track, Int(tracklen) + 8, prefixCh)
 }
 
-internal func isSMFHeader(ofType header:[Int8], atSeqPointer seqptr: UnsafeRawPointer) -> Bool {
+internal func isSMFHeader(ofType header:[UInt8], atSeqPointer seqptr: UnsafeRawPointer) -> Bool {
     
     var pass:Bool = true
     

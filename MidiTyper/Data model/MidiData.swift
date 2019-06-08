@@ -10,6 +10,11 @@ import Cocoa
 
 // MARK: struct, enum etc.
 //
+
+// static declarations
+let MThd:[UInt8] = [ 0x4d, 0x54, 0x68, 0x64 ]
+let MTrk:[UInt8] = [ 0x4d, 0x54, 0x72, 0x6b ]
+
 class MidiEvent: NSObject, NSCoding {
     var eventTick: Int32 = 0
     var eventStatus: UInt8 = 0
@@ -49,7 +54,7 @@ class MidiEvent: NSObject, NSCoding {
     }
     
     func encode(with aCoder: NSCoder) {
-        let byteData = Data.init(bytes: [eventStatus, note, vel])
+        let byteData = Data.init([eventStatus, note, vel])
         aCoder.encode(eventTick, forKey: "eventTick")
         aCoder.encode(byteData, forKey: "byteData")
         aCoder.encode(gateTime, forKey: "gateTime")
@@ -153,7 +158,7 @@ class intermedSeqWithChannel: NSObject {
 
 class MetaEvent: NSObject, NSCoding {
     var metaTag: UInt8
-    var eventTick: Int
+    var eventTick: Int  // running / elapsed tick
     var metaLen: Int
     var data:[UInt8]
     
@@ -379,6 +384,18 @@ class Track: NSObject, NSCoding {
     var dirty:Bool  // shows the order of bars may not be aligned
     var lhIndexPtr, rhIndexPtr:Int
     var playChannel:UInt8?
+    var serializedTrack: UnsafeMutableRawPointer
+    let defaultSerialzedTrackSize: Int = 1024
+    let dataSizeIncrement: Int = 1024
+    var serializedTrackSize: Int    // Not include 8 bytes header
+    var smfTrackSize: UInt32 { // UInt32 track size for SMF in swapped byte order
+        get {
+            return CFSwapInt32(UInt32(serializedTrackSize))
+        }
+    }
+    private var curMemSize: Int
+    private var offset: Int // later it may also be used to know the size
+
     
     override init() {
         bars = Array<Bar>()
@@ -388,6 +405,10 @@ class Track: NSObject, NSCoding {
         lhIndexPtr = 0
         rhIndexPtr = 0
         playChannel = 0
+        serializedTrack = UnsafeMutableRawPointer.allocate(byteCount: defaultSerialzedTrackSize, alignment: 1)
+        curMemSize = defaultSerialzedTrackSize
+        offset = 0
+        serializedTrackSize = 0
         super.init()
     }
     
@@ -400,7 +421,12 @@ class Track: NSObject, NSCoding {
         
         self.playChannel = pc
         self.bars = barsArray
-        
+        serializedTrack = UnsafeMutableRawPointer.allocate(byteCount: defaultSerialzedTrackSize, alignment: 1)
+
+        curMemSize = defaultSerialzedTrackSize
+        offset = 0
+        serializedTrackSize = 0
+
         super.init()
     }
     
@@ -445,7 +471,7 @@ class Track: NSObject, NSCoding {
         if bars == nil {
             return nil
         }
-        let i = bars!.index(where: {$0.measNum == meas})
+        let i = bars!.firstIndex(where: {$0.measNum == meas})
         return i
     }
     
@@ -534,7 +560,171 @@ class Track: NSObject, NSCoding {
         }
         return nil
     }
-}
+    
+    func makeTrackChunk(del: AppDelegate) -> Void {
+        // note off array
+        var prevTick: UInt32 = 0
+        offset = 0
+        
+        struct noteOff {
+            var tick: UInt32
+            var channel: UInt8
+            var note: UInt8
+            var used: Bool
+            
+            init(tick: UInt32, ch: UInt8, note: UInt8) {
+                self.tick = tick
+                self.channel = ch
+                self.note = note
+                self.used = false
+            }
+        }
+        
+        var noteOffArray: [noteOff] = Array<noteOff>.init()
+        
+        if bars == nil {
+            return
+        }
+        
+        // put track chunk label
+        for i in 0...3 {
+            serializedTrack.storeBytes(of: MTrk[i], toByteOffset: offset, as: UInt8.self)
+            offset += 1
+        }
+        
+        // skip the tracksize field now
+        offset += 4
+        
+        // write playback channel
+        var chMeta: [UInt8] = [0x0, 0xff, 0x20, 0x01, 0x00]
+        chMeta[4] = playChannel ?? 0
+        for i in 0...4 {
+            serializedTrack.storeBytes(of: chMeta[i], toByteOffset: offset, as: UInt8.self)
+            offset += 1
+        }
+        
+        for bar in bars! {
+            let barBeginTick: UInt32 = UInt32(bar.startTick)
+            for ev in bar.events {
+                let noteonTick = barBeginTick + UInt32(ev.eventTick)
+                
+                // see if any note off should come before the note on
+                for i in 0..<noteOffArray.count {
+                    let nf = noteOffArray[i]
+                    if nf.tick <= noteonTick {
+                        // add the note off first
+                        let delta = nf.tick - prevTick
+                        let (deltastream, c) = del.makeDelta(tick: delta)
+                        verifyMemorySize(del: del, need: c+3)
+                        for j in 0...c-1 {
+                            serializedTrack.storeBytes(of: deltastream[j], toByteOffset: offset, as: UInt8.self)
+                            offset += 1
+                        }
+                        prevTick = nf.tick
+                            // flag it to mark it to delete
+                        // I must access to noteOffArray[i] directly
+                        // rather than nf as I change the value inside.
+                        noteOffArray[i].used = true
+                        
+                        // add note off in serialized memory
+                        serializedTrack.storeBytes(of: nf.channel | 0x80, toByteOffset: offset, as: UInt8.self)
+                        offset += 1
+                        serializedTrack.storeBytes(of: nf.note, toByteOffset: offset, as: UInt8.self)
+                        offset += 1
+                        serializedTrack.storeBytes(of: 0, toByteOffset: offset, as: UInt8.self)
+                        offset += 1
+                    }
+                } // end of noteoff array loop
+                
+                // delete marked noteoff
+                    // start from the last subscript number to zero
+                    // as we delete element as we go
+                var remainToCheck = noteOffArray.count
+                if remainToCheck > 0 {
+                    remainToCheck = remainToCheck - 1 // convert it to subscript val
+                    
+                    while remainToCheck >= 0 {
+                        if noteOffArray[remainToCheck].used == true {
+                            noteOffArray.remove(at: remainToCheck)
+                        }
+                        remainToCheck = remainToCheck - 1
+                    }
+                }
+                
+                // put note off in array
+                let noteoff = noteOff.init(tick: noteonTick+UInt32(ev.gateTime), ch: ev.eventStatus & 0x0f, note: ev.note)
+                noteOffArray.append(noteoff)
+                noteOffArray = noteOffArray.sorted(by: {$0.tick < $1.tick})
+                
+                // make delta value for note on
+                let delta = noteonTick - prevTick
+                let (deltaStream, c) = del.makeDelta(tick: delta)
+                verifyMemorySize(del: del, need: c+3)
+                for i in 0...c-1 {
+                    serializedTrack.storeBytes(of: deltaStream[i], toByteOffset: offset, as: UInt8.self)
+                    offset += 1
+                }
+                prevTick = noteonTick
+                
+                // add note on to serialized memory
+                serializedTrack.storeBytes(of: ev.eventStatus | 0x80, toByteOffset: offset, as: UInt8.self)
+                offset += 1
+                serializedTrack.storeBytes(of: ev.note, toByteOffset: offset, as: UInt8.self)
+                offset += 1
+                serializedTrack.storeBytes(of: ev.vel, toByteOffset: offset, as: UInt8.self)
+                offset += 1
+
+            } // end of events loop
+            // add note off if there's any
+            for noff in noteOffArray {
+                let delta = noff.tick - prevTick
+                let (deltastream, c) = del.makeDelta(tick: delta)
+                verifyMemorySize(del: del, need: c+3)
+                for i in 0...c-1 {
+                    serializedTrack.storeBytes(of: deltastream[i], toByteOffset: offset, as: UInt8.self)
+                    offset += 1
+                }
+                prevTick = noff.tick
+                // add note off event in serialezed memory
+                serializedTrack.storeBytes(of: noff.channel | 0x80, toByteOffset: offset, as: UInt8.self)
+                offset += 1
+                serializedTrack.storeBytes(of: noff.note, toByteOffset: offset, as: UInt8.self)
+                offset += 1
+                serializedTrack.storeBytes(of: 0, toByteOffset: offset, as: UInt8.self)
+                offset += 1
+            }   // end of for to add the rest of note offs if any
+        } // end of loop for bar
+        
+        // write end of track meta event
+        let endOfTrack: [UInt8] = [0xff, 0x2f, 0x00]
+        verifyMemorySize(del: del, need: 3)
+        for i in 0...2 {
+            serializedTrack.storeBytes(of: endOfTrack[i], toByteOffset: offset, as: UInt8.self)
+            offset += 1
+        }
+        
+        // write track chunk size
+        var ui32: UInt32
+        ui32 = UInt32(offset)
+        serializedTrackSize = Int(ui32)
+        ui32 = ui32 - 8 // less header size
+        ui32 = CFSwapInt32(ui32)
+        
+        serializedTrack.storeBytes(of: ui32, toByteOffset: 4, as: UInt32.self)
+        
+    } // end of function make SMF track chunk
+    
+    func deinitialize() -> Void {
+        serializedTrack.deallocate()
+    }
+    
+    private func verifyMemorySize(del: AppDelegate, need: Int) -> Void {
+        if offset + need > curMemSize {
+            serializedTrack = del.expandRawPointerMemory(srcPtr: serializedTrack, srcSize: curMemSize, newSize: curMemSize+dataSizeIncrement)
+            curMemSize += dataSizeIncrement
+        }
+    }
+} // end of Track
 
 let tagSequenceNumber:UInt8 = 0
 let tagTextEvent:UInt8 = 1
@@ -605,10 +795,6 @@ class MidiData: NSDocument {
         case InitializeError(String)
     }
     
-    // static declarations
-    static var MThd:[Int8] = [ 0x4d, 0x54, 0x68, 0x64 ]
-    static var MTrk:[Int8] = [ 0x4d, 0x54, 0x72, 0x6b ]
-    
     // vars for SMF
     var curPtr: Int = 0
     var headerLength: Int?
@@ -621,6 +807,8 @@ class MidiData: NSDocument {
     var ticksPerQuarter: UInt16?    // essential information only given by original file at given time.
     var trackStartPtr: Int?
     var title: String?
+    
+    var smfWholeChunk: SMFBuffer
     
     
     // class vars
@@ -657,6 +845,8 @@ class MidiData: NSDocument {
     let nc = NotificationCenter.default
     var viewCon: ViewController?
 
+    // MARK: MidiData Functions
+    
     override init() {
         isNew = true
         curElapsedTick = 0
@@ -712,6 +902,7 @@ class MidiData: NSDocument {
             monitor = MonitorCenter(midiIF: del!.objMidi)
         }
         
+        smfWholeChunk = SMFBuffer.init(memSize: 1024, incSize: 1024)
         
         super.init()
         // Add your subclass-specific initialization here.
@@ -738,6 +929,17 @@ class MidiData: NSDocument {
         aCoder.encode(ticksPerQuarter, forKey: "ticksPerQuarter")
     }
     
+    func deinitialize() -> Void {
+        smfWholeChunk.deinitialize()
+        if tracks == nil {
+            return
+        }
+        
+        for tr in tracks! {
+            tr.deinitialize()
+        }
+    }
+    
     func prepare() -> Bool {
         if commonTrackSeq?.count == 0 {
             return false
@@ -759,8 +961,8 @@ class MidiData: NSDocument {
 
     override func makeWindowControllers() {
         // Returns the Storyboard that contains your Document window.
-        let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-        let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as! NSWindowController
+        let storyboard = NSStoryboard(name: "Main", bundle: nil)
+        let windowController = storyboard.instantiateController(withIdentifier: "Document Window Controller") as! NSWindowController
         self.addWindowController(windowController)
         
         // setup MidiEventEditor
@@ -832,6 +1034,36 @@ class MidiData: NSDocument {
             throw NSError(domain: NSOSStatusErrorDomain, code: unknownFormatErr, userInfo: nil)
         }
         Swift.print("Succeed to read SMF")
+    }
+    
+    func entrySerializedToSmf() -> Void {
+        
+        guard tracks != nil else {
+            del?.displayAlert("No Trackdata")
+            return
+        }
+        
+        // Make the main header
+        smfWholeChunk.append(array: MThd)
+        // header size
+        smfWholeChunk.swapAndWrite4ByteInt(at: 4, data: UInt32(6))
+        // SMF format type 1
+        smfWholeChunk.swapAndWrite4ByteInt(at: 8, data: UInt32(1))
+        // ticksPerQuarter
+        smfWholeChunk.swapAndWrite2ByteInt(at: 12, data: ticksPerQuarter ?? UInt16(480))
+        _ = smfWholeChunk.seek(pos: 14)
+        
+        // make 1st track
+        let metaTrack = makeMetaEventTrackChunk(owner: self)
+        smfWholeChunk.append(chunk: metaTrack)
+        
+        // append midi event tracks here
+        for tr in tracks! {
+            // smfWholeChunk.appen(tr.serializedTrack)
+            tr.makeTrackChunk(del: del!)
+            smfWholeChunk.append(buffer: tr.serializedTrack, size: tr.serializedTrackSize)
+        }
+        
     }
     
     func start(_ sender: Any)  {

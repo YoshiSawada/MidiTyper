@@ -52,7 +52,7 @@ class midiInterfaceController: NSViewController, NSTableViewDataSource, NSTableV
     } // end of viewDidLoad()
     
     override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
-        if segue.identifier!.rawValue == "ShowKeyAssignTableSheetSegue" {
+        if segue.identifier! == "ShowKeyAssignTableSheetSegue" {
             let kavc = segue.destinationController as! KeyAssignViewController
             // this code below doesn't work for unknown reason
             // I'm using notification to set var window in
@@ -109,7 +109,7 @@ class midiInterfaceController: NSViewController, NSTableViewDataSource, NSTableV
         case CellIdentifiers.DestinationCell:
             if endp.endpointType == midiRefType.kDestinationPoint {
                 //cell?.textField?.stringValue = endp.names["EndPoint"]!
-                cell?.imageView?.image = NSImage(named: NSImage.Name(rawValue: "if_Midi_113178.icns"))
+                cell?.imageView?.image = NSImage(named: "if_Midi_113178.icns")
                 color = NSColor.controlTextColor
                 if endp.connected == true {
                     cell?.textField?.stringValue = "Connected"
@@ -120,7 +120,7 @@ class midiInterfaceController: NSViewController, NSTableViewDataSource, NSTableV
         case CellIdentifiers.SourceCell:
             if endp.endpointType == midiRefType.kSourcePoint {
                 //cell?.textField?.stringValue = endp.names["EndPoint"]!
-                cell?.imageView?.image = NSImage(named: NSImage.Name(rawValue: "if_Midi_113178.icns"))
+                cell?.imageView?.image = NSImage(named: "if_Midi_113178.icns")
                 if endp.connected == true {
                     cell?.textField?.stringValue = "Connected"
                 }

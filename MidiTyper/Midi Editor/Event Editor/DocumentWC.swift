@@ -17,7 +17,7 @@ class DocumentWC: NSWindowController, NSWindowDelegate {
     }
     
     static var windowFrameAutosaveName: NSWindow.FrameAutosaveName {
-        return NSWindow.FrameAutosaveName.init(rawValue: "Event Editor Window Frame Position")
+        return "Event Editor Window Frame Position"
     }
     
     override func windowDidLoad() {

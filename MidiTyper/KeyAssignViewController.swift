@@ -163,14 +163,14 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         
         // edit keyAssignTable
         let row = keyAssignTableView.selectedRow
-        let idx = keyAssignTable.index(where: { $0.position == row+1 } )
+        let idx = keyAssignTable.firstIndex(where: { $0.position == row+1 } )
         if idx == nil { return }
         keyAssignTable[idx!].keyLabel = event.characters!
         keyAssignTable[idx!].keycode = event.keyCode
         isTableDirty = true
         
         // change the values in tableview, column char
-        let idx2 = textFielsInTable.index(where: { $0.posInTable.0 == row && $0.posInTable.1 == 1 })
+        let idx2 = textFielsInTable.firstIndex(where: { $0.posInTable.0 == row && $0.posInTable.1 == 1 })
         let cell = textFielsInTable[idx2!]
         
         // some keycode doesn't have corresponding single char representation, clear for instance
@@ -207,7 +207,7 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         }
         
         // change the value in tableview, column keycode
-        let idx3 = textFielsInTable.index(where: { $0.posInTable.0 == row && $0.posInTable.1 == 2 } )
+        let idx3 = textFielsInTable.firstIndex(where: { $0.posInTable.0 == row && $0.posInTable.1 == 2 } )
         
         let cell2 = textFielsInTable[idx3!]
         cell2.stringValue = String.init(format:"%d", keyAssignTable[idx!].keycode)
@@ -433,7 +433,7 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         var r: CGRect
 
         if from >= 0 && from < keyAssignTableView.numberOfRows {
-            guard let ind = textFielsInTable.index(where: {$0.posInTable.0 == from}) else {
+            guard let ind = textFielsInTable.firstIndex(where: {$0.posInTable.0 == from}) else {
                 print("doSelectionChange pos1; index for textFieldInTable out of range")
                 return
             }
@@ -449,7 +449,7 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         // Draw rect on newly selected row
         
         if editShortcutKeyButton.state == NSControl.StateValue.on {
-            guard let ind = textFielsInTable.index(where: {$0.posInTable.0 == keyAssignTableView.selectedRow}) else {
+            guard let ind = textFielsInTable.firstIndex(where: {$0.posInTable.0 == keyAssignTableView.selectedRow}) else {
                 print("doSelectionChange pos2; index for textFieldInTable out of range")
                 return
             }

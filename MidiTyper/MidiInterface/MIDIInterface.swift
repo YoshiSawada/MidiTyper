@@ -257,7 +257,7 @@ class MidiInterface: NSObject {
     
     func setDestination(byMidiRefNum refnum:MIDIEndpointRef) {
         if refnum <= 0 { return }
-        let index = endPoints.index(where: { $0.refNum["EndPoint"] == refnum} )
+        let index = endPoints.firstIndex(where: { $0.refNum["EndPoint"] == refnum} )
         if index == nil { return }
         
         self.setDestination(numInArray: index!)

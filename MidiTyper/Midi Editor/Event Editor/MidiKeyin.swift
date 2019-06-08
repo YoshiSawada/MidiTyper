@@ -134,8 +134,8 @@ class MidiKeyin: NSObject {
         }
         
         // See if it's enter key
-        let enterKey1 = keyAssignTable.index(where: { $0.action == "enter" } )
-        let enterKey2 = keyAssignTable.index(where: { $0.action == "enter2" } )
+        let enterKey1 = keyAssignTable.firstIndex(where: { $0.action == "enter" } )
+        let enterKey2 = keyAssignTable.firstIndex(where: { $0.action == "enter2" } )
         if enterKey1 == nil || enterKey2 == nil {
             // enter key is not defined
             typedData.midiEvent.eventStatus = 0
