@@ -603,10 +603,19 @@ class Track: NSObject, NSCoding {
             offset += 1
         }
         
+        var noteonTick: UInt32
+        
+        // debug
+        var cntBarLoop = 0
+        
         for bar in bars! {
             let barBeginTick: UInt32 = UInt32(bar.startTick)
             for ev in bar.events {
-                let noteonTick = barBeginTick + UInt32(ev.eventTick)
+                
+                // debug
+                cntBarLoop += 1
+                
+                noteonTick = barBeginTick + UInt32(ev.eventTick)
                 
                 // see if any note off should come before the note on
                 for i in 0..<noteOffArray.count {
@@ -676,23 +685,44 @@ class Track: NSObject, NSCoding {
 
             } // end of events loop
             // add note off if there's any
-            for noff in noteOffArray {
-                let delta = noff.tick - prevTick
-                let (deltastream, c) = del.makeDelta(tick: delta)
-                verifyMemorySize(del: del, need: c+3)
-                for i in 0...c-1 {
-                    serializedTrack.storeBytes(of: deltastream[i], toByteOffset: offset, as: UInt8.self)
+            noteOffInBar: for j in 0..<noteOffArray.count {
+                let noff = noteOffArray[j]
+                if noff.tick < bar.nextBarTick {
+                    let delta = noff.tick - prevTick
+                    let (deltastream, c) = del.makeDelta(tick: delta)
+                    verifyMemorySize(del: del, need: c+3)
+                    for i in 0...c-1 {
+                        serializedTrack.storeBytes(of: deltastream[i], toByteOffset: offset, as: UInt8.self)
+                        offset += 1
+                    }
+                    prevTick = noff.tick
+                    // add note off event in serialezed memory
+                    serializedTrack.storeBytes(of: noff.channel | 0x80, toByteOffset: offset, as: UInt8.self)
                     offset += 1
+                    serializedTrack.storeBytes(of: noff.note, toByteOffset: offset, as: UInt8.self)
+                    offset += 1
+                    serializedTrack.storeBytes(of: 0, toByteOffset: offset, as: UInt8.self)
+                    offset += 1
+                    // mark it that it be used
+                    noteOffArray[j].used = true
                 }
-                prevTick = noff.tick
-                // add note off event in serialezed memory
-                serializedTrack.storeBytes(of: noff.channel | 0x80, toByteOffset: offset, as: UInt8.self)
-                offset += 1
-                serializedTrack.storeBytes(of: noff.note, toByteOffset: offset, as: UInt8.self)
-                offset += 1
-                serializedTrack.storeBytes(of: 0, toByteOffset: offset, as: UInt8.self)
-                offset += 1
-            }   // end of for to add the rest of note offs if any
+                else {
+                    break noteOffInBar
+                }
+
+            }   // end of loop to add the rest of note offs if any
+
+            // delete used noteoff in stack
+            let noteOffArrayCount = noteOffArray.count
+            // we cannot write for k in 0..<noteOffArray.count
+            // as we remove items in the array in the loop
+            for k in 0..<noteOffArrayCount {
+                let subsc = noteOffArrayCount - k - 1
+                if noteOffArray[subsc].used == true {
+                    noteOffArray.remove(at: subsc)
+                }
+            } // end of loop to delete used note off
+            
         } // end of loop for bar
         
         // write end of track meta event
@@ -940,6 +970,7 @@ class MidiData: NSDocument {
         }
     }
     
+    
     func prepare() -> Bool {
         if commonTrackSeq?.count == 0 {
             return false
@@ -987,6 +1018,16 @@ class MidiData: NSDocument {
     override func data(ofType typeName: String) throws -> Data {
         // Insert code here to write your document to data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning nil.
         // You can also choose to override fileWrapperOfType:error:, writeToURL:ofType:error:, or writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
+
+        if typeName == "com.ysawada.MidiTyper" {
+            if numOfTracks ?? 0 > 0 {
+                entrySerializedToSmf()
+                let aData = Data.init(bytes: smfWholeChunk.bufPointer, count: smfWholeChunk.endPoint)
+                return aData
+            }
+        }
+
+        
         throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
     }
 
@@ -1043,12 +1084,28 @@ class MidiData: NSDocument {
             return
         }
         
+        // clean up the memory if necessary
+        if smfWholeChunk.endPoint != 0 {
+            smfWholeChunk.deinitialize()
+            smfWholeChunk = SMFBuffer.init()
+        }
+        
+        for tr in tracks! {
+            if tr.serializedTrackSize != 0 {
+                tr.serializedTrack.deallocate()
+                tr.serializedTrack = UnsafeMutableRawPointer.allocate(byteCount: tr.defaultSerialzedTrackSize, alignment: 1)
+            }
+        }
+        
         // Make the main header
         smfWholeChunk.append(array: MThd)
         // header size
         smfWholeChunk.swapAndWrite4ByteInt(at: 4, data: UInt32(6))
         // SMF format type 1
-        smfWholeChunk.swapAndWrite4ByteInt(at: 8, data: UInt32(1))
+        smfWholeChunk.swapAndWrite2ByteInt(at: 8, data: UInt16(1))
+        // number of tracks
+        let ntrks = (numOfTracks ?? 0) + 1
+        smfWholeChunk.swapAndWrite2ByteInt(at: 10, data: UInt16(ntrks))
         // ticksPerQuarter
         smfWholeChunk.swapAndWrite2ByteInt(at: 12, data: ticksPerQuarter ?? UInt16(480))
         _ = smfWholeChunk.seek(pos: 14)
@@ -1058,13 +1115,21 @@ class MidiData: NSDocument {
         smfWholeChunk.append(chunk: metaTrack)
         
         // append midi event tracks here
+        // cnt is added to debug
+        var cnt: Int = 0
+        
         for tr in tracks! {
             // smfWholeChunk.appen(tr.serializedTrack)
             tr.makeTrackChunk(del: del!)
             smfWholeChunk.append(buffer: tr.serializedTrack, size: tr.serializedTrackSize)
+            
+            // debug
+            cnt += 1
         }
         
     }
+    
+    // MARK: playing functions
     
     func start(_ sender: Any)  {
         if monitor == nil { return }

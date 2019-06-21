@@ -9,14 +9,14 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MidiTyper/AppDelegate.swift"
-            timestampString = "581651427.8614711"
+            filePath = "MidiTyper/Data model/MidiData.swift"
+            timestampString = "582561300.148948"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "388"
-            endingLineNumber = "388"
-            landmarkName = "saveDocumentAs(_:)"
-            landmarkType = "7">
+            startingLineNumber = "745"
+            endingLineNumber = "745"
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

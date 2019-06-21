@@ -377,11 +377,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         al.runModal()
     }
     
-    func saveDocAs(sender: Any) {
-        // debug creating SMF
-        //(docCon?.currentDocument as! MidiData).tracks![0].makeTrackChunk(del: self)
-        print("save as is called")
-    }
+
     // MARK: Menu commands
     @IBAction func saveDocumentAs(_ sender: Any) {
         // debug creating SMF
@@ -390,7 +386,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         // (docCon!.currentDocument as! MidiData).tracks![0].makeTrackChunk(del: self)
-        (docCon!.currentDocument as! MidiData).entrySerializedToSmf()
+        //(docCon!.currentDocument as! MidiData).entrySerializedToSmf()
+        (docCon!.currentDocument as! MidiData).saveAs(sender)
         print("save as is called")
     }
     
