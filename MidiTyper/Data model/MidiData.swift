@@ -1188,24 +1188,33 @@ class MidiData: NSDocument {
     // Call this function in zero based values
     func advance(by: Int, meas: Int, beat: Int, tick: Int) -> SongLocation? {
         var newLoc = SongLocation.init()
+        let bar: Bar?
         
+        // get the template bar of current location
         let ix = barSeqTemplate.index(forMeas: meas)
         if ix == nil {
+            bar = barTemplate(forZerobaseMeas: meas)
+        } else {
+            bar = barSeqTemplate.bars![ix!]
+        }
+        if bar == nil {
             return nil
         }
         
-        // get the template bar of current location
-        let bar = barSeqTemplate.bars![ix!]
-        let tickPerBeat = bar.barLen / bar.timeSig["num"]!
-        let relTick = tickPerBeat * beat + tick + by
+        let tickPerBeat = bar!.barLen / bar!.timeSig["num"]!
+        let relTick = tickPerBeat * beat + tick + by    // tick of new location
         
-        if relTick < bar.barLen {  // new location is in the current bar
+        if relTick < bar!.barLen {  // new location is in the current bar
             newLoc.meas = meas
-            (newLoc.beat, newLoc.relTick) = bar.beatAndTick(fromRelTick: relTick) as! (Int, Int)
-            newLoc.absTick = bar.startTick + relTick
+            var bt, tk: Int
+            
+            (bt, tk) = bar!.beatAndTick(fromRelTick: relTick) as! (Int, Int)
+            newLoc.beat = bt
+            newLoc.tick = tk
+            newLoc.absTick = bar!.startTick + relTick
             newLoc.relTick = relTick
         } else { // new location goes beyond the current bar
-            let absTick = bar.startTick + relTick
+            let absTick = bar!.startTick + relTick
             let newIndex = barSeqTemplate.findBar(tick: absTick, Expandable: true)
             if newIndex == nil { return nil }
             let newBarTemp = barSeqTemplate.bars![newIndex!]
@@ -1361,6 +1370,31 @@ class MidiData: NSDocument {
         }
         return (ret:true, reachedMeas:curMeas) // place holder
     }
+    
+    // Return a copy of bar template for meas(zero base).
+    // It will create bar template if necessary
+    func barTemplate(forZerobaseMeas meas: Int) -> Bar? {
+        let x = barSeqTemplate.index(forMeas: meas)
+        if x != nil { // bar template exists. Return the copy of it
+            return barSeqTemplate.bars![x!].copy() as? Bar
+        }
+        // based on the time sig of the last bar, extend the length
+        // of the song and make bar template.
+        let lastBar = barSeqTemplate.bars?.last
+        let lastMeas = lastBar?.measNum
+        if lastMeas == nil { return nil }
+        // make new bars from last Meas to the specified meas
+        var startTick4Bar = lastBar!.nextBarTick
+        for i in lastMeas! + 1...meas {
+            let bar = Bar.init(measNum: i, startTick: startTick4Bar, numerator: lastBar!.timeSig["num"]!, denominator: lastBar!.timeSig["denom"]!, ticksPerQuarter: Int(ticksPerQuarter!))
+            barSeqTemplate.bars!.append(bar.copy() as! Bar)
+            startTick4Bar = bar.nextBarTick
+        }
+        
+        return barSeqTemplate.bars!.last!.copy() as? Bar
+        // Before playback the song. I have to update TrackTable in play.swift
+    }
+
 
 } // end of MidiData class
 

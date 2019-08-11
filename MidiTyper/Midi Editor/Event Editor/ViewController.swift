@@ -358,7 +358,23 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         if typed.isEnterKey {
             
             typed.isEnterKey = false    // reset the flag
-            
+
+            // See if the event is rest or note
+            //
+            if midiKeyIn.isRest == true {
+                // proceed the location
+                let (m, b, t) = currentLocation()
+                let loc = midi!.advance(by: midiKeyIn.stepTime, meas: m, beat: b, tick: t)
+                if loc == nil {
+                    NSSound.beep()
+                    return
+                }
+                setLocation(meas: loc!.meas, beat: loc!.beat, tick: loc!.tick)
+                return
+            }
+
+            // If replace mode, delete the event and insert the one
+            // to replace it.
             if insButton.state == NSControl.StateValue.off {
                 // replace mode
                 if midiKeyIn.setMidiEvent(fromTextField: noteText.stringValue, vel: velocityText.stringValue, gt: gatetimeText.stringValue) {
@@ -383,23 +399,32 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             editorTableView.reloadData()
             
             // debug; 2018/9/30 omit return here as I want to update typedNote information in text fields
-            // return
+            // I put it back in again as I noticed the note should have been put
+            // before the entry of enter key
+            return
         } // end of enter key process
 
         if isNoteTyping == true {
             // Below is code to get note from typing
             
-            let note = typed.typedString["Note"]!
-            let vel = typed.typedString["Vel"]!
-            let gt = typed.typedString["GateTime"]!
-            let st = typed.typedString["StepTime"]!
-            
-            setEventLine(note: note, vel: vel, gate: gt, step: st)
+            switch midiKeyIn.category {
+            case .note, .oct:
+                noteText.stringValue = typed.typedString["Note"]!
+            case .vel:
+                velocityText.stringValue = typed.typedString["Vel"]!
+            case .step:
+                gatetimeText.stringValue = typed.typedString["GateTime"]!
+                steptimeText.stringValue = typed.typedString["StepTime"]!
+            default:
+                print("key note categorized \(event.keyCode)")
+            }
         }
 
         return
     }
     
+    // this function may not be used as I've changed the process to update
+    // those field in keyDownHook function.
     func setEventLine(note: String, vel: String, gate: String, step: String) -> Void {
         noteText.stringValue = note
         velocityText.stringValue = vel
@@ -455,7 +480,23 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         undoTrack = midi?.tracks?[trackIndexInFocus!].copy() as? Track
     }
     
+    func currentLocation() -> (meas: Int, beat: Int, tick: Int) {
+        let meas = barText.integerValue - 1 < 0 ? 0 : barText.integerValue - 1
+        let beat = beatText.integerValue - 1 < 0 ? 0 : beatText.integerValue - 1
+        let tick = tickText.integerValue
+        
+        return (meas, beat, tick)
+    }
+    
+    func setLocation(meas: Int, beat: Int, tick: Int) -> Void {
+        barText.stringValue = String(meas+1)
+        beatText.stringValue = String(beat+1)
+        tickText.stringValue = String(tick)
+    }
+    
+    
     // MARK: tableView data source and delegate
+    //
     func numberOfRows(in tableView: NSTableView) -> Int {
         if midi == nil {
             return 0
@@ -691,7 +732,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     
     func insertTypedEventToTrack() throws -> Void {
 
-        var er = ysError.init(source: "insertTypedEventToTrack in ViewController", line: 618, type: ysError.errorID.typedinEvent)
+        var er = ysError.init(source: "insertTypedEventToTrack in ViewController", line: 694, type: ysError.errorID.typedinEvent)
 
         
         let measnum = barText.integerValue < 1 ? nil : barText.integerValue - 1
@@ -699,21 +740,44 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         let tick = tickText.integerValue
         let stepTime = steptimeText.integerValue
         let gateTime = gatetimeText.integerValue == 0 ? 108 : gatetimeText.integerValue
-        let vel = velocityText.integerValue == 0 ? 1 : velocityText.integerValue
+        let vel = velocityText.integerValue == 0 ? 64 : velocityText.integerValue
+ 
+        if midi?.tracks?[trackIndexInFocus!] == nil {
+            er.line = 705
+            throw(er)
+        }
         
         if measnum == nil || beat == nil {
-            er.line = 692
+            er.line = 710
             throw(er)
         }
         
         if barInFocus == nil {
-            er.line = 698
-            throw(er)
-        }
-        
-        if midi?.tracks?[trackIndexInFocus!] == nil {
-            er.line = 702
-            throw(er)
+            let tr = midi?.tracks?[trackIndexInFocus!]
+            if tr == nil {
+                er.line = 717
+                throw(er)
+            }
+            if tr!.bars == nil {
+                er.line = 721
+                throw(er)
+            }
+            for bar in tr!.bars! {
+                if bar.measNum == measnum! {
+                    barInFocus = bar
+                }
+            }
+            // if barInfocus is still nil, then create the bar
+            if barInFocus == nil {
+                let bar = midi!.barTemplate(forZerobaseMeas: measnum!)
+                if bar == nil {
+                    er.line = 733
+                    throw(er)
+                }
+                tr!.bars!.append(bar!)
+                tr!.sort()
+                barInFocus = bar
+            }
         }
         
         measToSelect = measnum
@@ -726,7 +790,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             // label A-open
             let tickInBar = barInFocus?.relTick(fromBeat: beat!, andTick: tick)
             if tickInBar == nil {
-                er.line = 649
+                er.line = 752
                 throw(er)
             }
             
@@ -741,26 +805,16 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             let ix = midi!.tracks![trackIndexInFocus!].index(forMeas: measnum!)
             if ix == nil {  // bar doesn't exist. I have to create a new one
                 // label: B-open
-                var barTemp: Bar?
-                
-                let ix = midi!.barSeqTemplate.index(forMeas: measnum!)
-                if ix == nil {
-                    // meas doesn't even exist in barseq template. Extend the length
-                    // of the song.
-                    barTemp = newBarInBarSeqTemplate(meas: measnum!)
-                } else {
-                    // duplicate the bar from the template
-                    barTemp = midi!.barSeqTemplate.bars![ix!].copy() as? Bar
-                }
+                let barTemp = midi!.barTemplate(forZerobaseMeas: measnum!)
                 
                 if barTemp == nil {
-                    er.line = 744
+                    er.line = 770
                     throw(er)
                 }
                 
-                let tickInBar = barTemp?.relTick(fromBeat: beat!, andTick: tick)
+                let tickInBar = barTemp!.relTick(fromBeat: beat!, andTick: tick)
                 if tickInBar == nil {
-                    er.line = 750
+                    er.line = 776
                     throw(er)
                 }
                 
@@ -784,7 +838,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 // to the real data
                 let ticksInBar = bar.relTick(fromBeat: beat!, andTick: tick)
                 if ticksInBar == nil {
-                    er.line = 699
+                    er.line = 800
                     throw(er)
                 }
                 
@@ -804,35 +858,35 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         
         barText.integerValue = newLoc!.meas + 1
         beatText.integerValue = newLoc!.beat + 1
-        tickText.integerValue = newLoc!.relTick
+        tickText.integerValue = newLoc!.tick
 
     } // close funcion
     
     // Will be used when creating a bar beyond the end of the song
     // This function returns a copy of bar template so it won't create
     //
-    func newBarInBarSeqTemplate(meas: Int) -> Bar? {
-        if midi == nil { return nil }
-        let x = midi!.barSeqTemplate.index(forMeas: meas)
-        if x != nil { // bar template exists. Return the copy of it
-            return midi!.barSeqTemplate.bars![x!].copy() as? Bar
-        }
-        // based on the time sig of the last bar, extend the length
-        // of the song and make bar template.
-        let lastBar = midi!.barSeqTemplate.bars?.last
-        let lastMeas = lastBar?.measNum
-        if lastMeas == nil { return nil }
-        // make new bars from last Meas to the specified meas
-        var startTick4Bar = lastBar!.nextBarTick
-        for i in lastMeas! + 1...meas {
-            let bar = Bar.init(measNum: i, startTick: startTick4Bar, numerator: lastBar!.timeSig["num"]!, denominator: lastBar!.timeSig["denom"]!, ticksPerQuarter: Int(midi!.ticksPerQuarter!))
-            midi!.barSeqTemplate.bars!.append(bar.copy() as! Bar)
-            startTick4Bar = bar.nextBarTick
-        }
-        
-        return midi!.barSeqTemplate.bars!.last!.copy() as? Bar
-        // Before playback the song. I have to update TrackTable in play.swift
-    }
+//    func barTemplate(forZerobaseMeas meas: Int) -> Bar? {
+//        if midi == nil { return nil }
+//        let x = midi!.barSeqTemplate.index(forMeas: meas)
+//        if x != nil { // bar template exists. Return the copy of it
+//            return midi!.barSeqTemplate.bars![x!].copy() as? Bar
+//        }
+//        // based on the time sig of the last bar, extend the length
+//        // of the song and make bar template.
+//        let lastBar = midi!.barSeqTemplate.bars?.last
+//        let lastMeas = lastBar?.measNum
+//        if lastMeas == nil { return nil }
+//        // make new bars from last Meas to the specified meas
+//        var startTick4Bar = lastBar!.nextBarTick
+//        for i in lastMeas! + 1...meas {
+//            let bar = Bar.init(measNum: i, startTick: startTick4Bar, numerator: lastBar!.timeSig["num"]!, denominator: lastBar!.timeSig["denom"]!, ticksPerQuarter: Int(midi!.ticksPerQuarter!))
+//            midi!.barSeqTemplate.bars!.append(bar.copy() as! Bar)
+//            startTick4Bar = bar.nextBarTick
+//        }
+//
+//        return midi!.barSeqTemplate.bars!.last!.copy() as? Bar
+//        // Before playback the song. I have to update TrackTable in play.swift
+//    }
 
     // MARK: Control actions
     //
@@ -878,6 +932,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @IBAction func insModeAction(_ sender: Any) {
         if insButton.state == NSControl.StateValue.on {
             del?.insMenuItem.state = NSControl.StateValue.on
+            velocityText.stringValue = "64"
             // get into insert mode
         } else {
             del?.insMenuItem.state = NSControl.StateValue.off

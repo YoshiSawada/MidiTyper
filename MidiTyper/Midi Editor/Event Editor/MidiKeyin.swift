@@ -10,14 +10,12 @@ import Cocoa
 
 class MIDITypedInObject: NSObject {
     var isEnterKey: Bool
-    var isRest: Bool
     var isNoteType: Bool
     var typedString: [String:String]
     var midiEvent: MidiEvent
     
     override init() {
         isEnterKey = false
-        isRest = true
         isNoteType = false
         typedString = Dictionary(dictionaryLiteral: ("Note", ""), ("Vel", ""), ("GateTime", ""), ("StepTime", ""))
         midiEvent = MidiEvent.init()
@@ -34,6 +32,8 @@ class MidiKeyin: NSObject {
     var velocity: Int
     var lastNoteName: String
     var lastStepName: String
+    var isChord: Bool
+    var isRest: Bool
     var curNote: Int
     var curStep: Int
     var lastStep: Int   // used for dot process
@@ -42,6 +42,9 @@ class MidiKeyin: NSObject {
     let gateTimeRatioMultipleOf10 = 9
     var keyAssignTable: [keyAssign]
     var typedData: MIDITypedInObject
+    var category: typedCat
+    var del: AppDelegate?
+    var isTableDirty: Bool
     var nc: NotificationCenter?
 
     let defaultKeyAssignTable:[keyAssign] = [
@@ -57,27 +60,49 @@ class MidiKeyin: NSObject {
         keyAssign(position: 10, action: "A", keyLabel: "clear", code: 71),
         keyAssign(position: 11, action: "A#", keyLabel: "=", code: 81),
         keyAssign(position: 12, action: "B", keyLabel: "/", code: 75),
-        keyAssign(position: 13, action: "32th", keyLabel: "F15", code: 113),
-        keyAssign(position: 14, action: "16th", keyLabel: "0", code: 82),
-        keyAssign(position: 15, action: "8th", keyLabel: ".", code: 65),
-        keyAssign(position: 16, action: "Quarter", keyLabel: "pagedown", code: 121),
-        keyAssign(position: 17, action: "half", keyLabel: "pageup", code: 116),
-        keyAssign(position: 18, action: "whole", keyLabel: "del->", code: 117),
-        keyAssign(position: 19, action: "chord", keyLabel: "F16", code: 106),
-        keyAssign(position: 20, action: "triplet", keyLabel: "F17", code: 64),
-        keyAssign(position: 21, action: "dot", keyLabel: "F18", code: 79),
-        keyAssign(position: 22, action: "slur", keyLabel: "F19", code: 80),
-        keyAssign(position: 23, action: "+", keyLabel: "+", code: 69),
-        keyAssign(position: 24, action: "-", keyLabel: "-", code: 78),
-        keyAssign(position: 25, action: "enter", keyLabel: "enter", code: 76),
-        keyAssign(position: 26, action: "enter2", keyLabel: "enter2", code: 36)
+        keyAssign(position: 13, action: "Rest", keyLabel: "->", code: 124),
+        keyAssign(position: 14, action: "32th", keyLabel: "F15", code: 113),
+        keyAssign(position: 15, action: "16th", keyLabel: "0", code: 82),
+        keyAssign(position: 16, action: "8th", keyLabel: ".", code: 65),
+        keyAssign(position: 17, action: "Quarter", keyLabel: "pagedown", code: 121),
+        keyAssign(position: 18, action: "half", keyLabel: "pageup", code: 116),
+        keyAssign(position: 19, action: "whole", keyLabel: "del->", code: 117),
+        keyAssign(position: 20, action: "chord", keyLabel: "*", code: 67),
+        keyAssign(position: 21, action: "trip-1st", keyLabel: "F16", code: 106),
+        keyAssign(position: 22, action: "trip-2nd", keyLabel: "F17", code: 64),
+        keyAssign(position: 23, action: "dot", keyLabel: "F18", code: 79),
+        keyAssign(position: 24, action: "slur", keyLabel: "F19", code: 80),
+        keyAssign(position: 25, action: "+", keyLabel: "+", code: 69),
+        keyAssign(position: 26, action: "-", keyLabel: "-", code: 78),
+        keyAssign(position: 27, action: "enter", keyLabel: "enter", code: 76),
+        keyAssign(position: 28, action: "enter2", keyLabel: "enter2", code: 36),
+        keyAssign(position: 29, action: "vel 1", keyLabel: "vel 1", code: 18),
+        keyAssign(position: 30, action: "vel 2", keyLabel: "vel 2", code: 19),
+        keyAssign(position: 31, action: "vel 3", keyLabel: "vel 3", code: 20),
+        keyAssign(position: 32, action: "vel 4", keyLabel: "vel 4", code: 21),
+        keyAssign(position: 33, action: "vel 5", keyLabel: "vel 5", code: 23),
+        keyAssign(position: 34, action: "vel 6", keyLabel: "vel 6", code: 22),
+        keyAssign(position: 35, action: "vel 7", keyLabel: "vel 7", code: 26),
+        keyAssign(position: 36, action: "vel 8", keyLabel: "vel 8", code: 28),
+        keyAssign(position: 37, action: "vel 9", keyLabel: "vel 9", code: 25),
+        keyAssign(position: 38, action: "vel 10", keyLabel: "vel 10", code: 29)
     ]
     
     let notenames: [String] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-    let noteKeyRange = Range<Int>(1...12)
-    let stepKeyRange = Range<Int>(13...22)
-    let octavKeyRange = Range<Int>(23...24)
-    let enterKeyRange = Range<Int>(25...26)
+    let noteKeyRange = Range<Int>(1...13)
+    let stepKeyRange = Range<Int>(14...24)
+    let octavKeyRange = Range<Int>(25...26)
+    let enterKeyRange = Range<Int>(27...28)
+    let velocityKeyRange = Range<Int>(29...38)
+    
+    enum typedCat {
+        case note
+        case step
+        case oct
+        case vel
+        case enter
+        case none
+    }
     
     // MARK: Functions
 
@@ -88,13 +113,18 @@ class MidiKeyin: NSObject {
         velocity = 80
         lastNoteName = "Rest"
         lastStepName = ""
+        isChord = false
+        isRest = true
         curStep = 120
         lastStep = 120
         curNote = 0
         slurFlag = false
         keyAssignTable = defaultKeyAssignTable
         typedData = MIDITypedInObject()
+        category = .none
         nc = NotificationCenter.default
+        del = NSApp.delegate as? AppDelegate
+        isTableDirty = false
         super.init()
     }
     
@@ -105,13 +135,22 @@ class MidiKeyin: NSObject {
         keyAssignTable = kat
         velocity = 80
         lastNoteName = "Rest"
+        isRest = true
+        isChord = false
         lastStepName = ""
         curStep = 0
         curNote = 0
         lastStep = 0
         slurFlag = false
         typedData = MIDITypedInObject()
+        category = .none
+        del = NSApp.delegate as? AppDelegate
+        isTableDirty = false
         super.init()
+    }
+    
+    func setTable(tbl: [keyAssign]) -> Void {
+        keyAssignTable = tbl
     }
     
     func set(MidiEvent mev: MidiEvent) {
@@ -123,26 +162,131 @@ class MidiKeyin: NSObject {
         stepTime = 0
         
         // set string value for mev
-        stringValue()
+        setStringValueFromTextField()
+    }
+    
+    func makeKeyAssignTable(from table:[keyAssign]) {
+        
+        if keyAssignTable.count > 0 {
+            keyAssignTable.removeAll()
+        }
+        
+        for item in table {
+            let el = keyAssign.init(position: item.position, action: item.action, keyLabel: item.keyLabel, code: item.keycode)
+            keyAssignTable.append(el)
+        }
+        // make sure the order in Array is identical to the order in position
+        keyAssignTable = keyAssignTable.sorted(by: { $0.position < $1.position} )
+    }
+    
+    func saveKeyAssign () {
+        // make plist path
+        var plistPath:String?
+        var data:Data?
+        let plistFileName = "keyAssign.plist"
+        let fileMgr = FileManager.default
+        var ret:Bool
+        
+        plistPath = Bundle.main.path(forResource: "KeyAssignTable", ofType: "plist")
+        if plistPath == nil { // if budle.main is not accessile then
+            let directorys : [String]? = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.applicationSupportDirectory,FileManager.SearchPathDomainMask.allDomainsMask, true)
+            if directorys != nil {
+                for str in directorys! {
+                    if str.prefix(7) == "/Users/" {
+                        plistPath = str
+                        plistPath = plistPath?.appending("/MidiTyper/" + plistFileName)
+                        if plistPath == nil {
+                            del?.displayAlert("plistPath is nil")
+                            return
+                        }
+                        ret = fileMgr.fileExists(atPath: plistPath!)
+                        if ret == false {
+                            do {
+                                try fileMgr.createDirectory(atPath: str.appending("/MidiTyper"), withIntermediateDirectories: false, attributes: nil)
+                            } catch {
+                                print(error)
+                                return
+                            }
+                        }
+                        print(plistPath!)
+                        data = NSKeyedArchiver.archivedData(withRootObject: keyAssignTable)
+                        if data != nil {
+                            let b = fileMgr.createFile(atPath: plistPath!, contents: data!, attributes: nil)
+                            if b == false {
+                                del?.displayAlert("Cannot save keyassign table")
+                                return
+                            }
+                            // succeed
+                        } else {
+                            // must not happen
+                            del?.displayAlert("failed to create key assign table data")
+                            return
+                        }
+                        // save the path for key assign table to preference
+                        let defaults = UserDefaults.standard
+                        defaults.setValue(plistPath!, forKey: "KeyAssignTablePath")
+                        isTableDirty = false
+                        
+                        break
+                    } // close of if str.prefix(9)
+                }
+            } // close of directorys != nil
+            
+        } else {  // close of if plistPath == nil and else clause follows
+            return   // place holder, debug
+        }
+    }   // close of saveKeyAssign
+    
+    func loadKeyAssign() {
+        let defaults = UserDefaults.standard
+        let fileMgr = FileManager.default
+        var ret:Bool
+        
+        //let path:String? = defaults.dictionary(forKey: "KeyAssignTablePath") as? String
+        let path = defaults.value(forKey: "KeyAssignTablePath")
+        var table: [keyAssign]?
+        
+        // debug -- store default values
+        // when debug saveKeyAssign, let the line below; if path != nil, otherwise if path == nil
+        if path == nil {    // path to preference doesn't exist
+            table = defaultKeyAssignTable
+            makeKeyAssignTable(from: table!)
+            saveKeyAssign() // if this is the first time to launch
+            // save the default key table in file
+            return
+        }
+        
+        ret = fileMgr.fileExists(atPath: path as! String)
+        if ret == false {   // path string exists but the file doesn't. It is considered the first launch
+            table = defaultKeyAssignTable
+            makeKeyAssignTable(from: table!)
+            saveKeyAssign() // if this is the first time to launch
+            // save the default key table in file
+            return
+        }
+        
+        table = (NSKeyedUnarchiver.unarchiveObject(withFile: path! as! String) as? [keyAssign])
+        if table == nil { // file exists but no data there
+            table = defaultKeyAssignTable
+            table = table?.sorted(by: { $0.position < $1.position})
+            makeKeyAssignTable(from: table!)
+            saveKeyAssign()
+        } else {
+            table = table?.sorted(by: { $0.position < $1.position})
+            makeKeyAssignTable(from: table!)
+        }
     }
     
     func keyIn(event: NSEvent) -> MIDITypedInObject {
 
+        // debug; showing key code
+        print("key code in dec: \(event.keyCode)")
+        let hex = String(event.keyCode, radix: 16)
+        print("key code in hex: " + hex + ", dec: " + String(event.keyCode))
+        
         // If this instance is not in note typing mode, then simply return
         if typedData.isNoteType == true {
             typingNote(event: event)
-        }
-        
-        // See if it's enter key
-        let enterKey1 = keyAssignTable.firstIndex(where: { $0.action == "enter" } )
-        let enterKey2 = keyAssignTable.firstIndex(where: { $0.action == "enter2" } )
-        if enterKey1 == nil || enterKey2 == nil {
-            // enter key is not defined
-            typedData.midiEvent.eventStatus = 0
-            return typedData
-        }
-        if event.keyCode == keyAssignTable[enterKey1!].keycode || event.keyCode == keyAssignTable[enterKey2!].keycode {
-            typedData.isEnterKey = true
         }
 
         return typedData
@@ -156,7 +300,7 @@ class MidiKeyin: NSObject {
         curNote = 0
         lastNoteName = ""
         lastNoteName = "Rest"
-        typedData.isRest = true
+        isRest = true
     }
     
     func setMidiEvent(fromTextField note:String, vel:String, gt: String) -> Bool {
@@ -254,13 +398,13 @@ class MidiKeyin: NSObject {
         
         typedData.midiEvent.vel = UInt8(velvalue!)
         typedData.midiEvent.gateTime = Int32(gtvalue!)
-        typedData.isRest = false
+        // isRest = false
         typedData.isNoteType = true
         
         return true
     }
     
-    func stringValue() -> Void { // create String in dictionary
+    func setStringValueFromTextField() -> Void { // create String in dictionary
         let aNote = curNote % 12
         let aOctav = curNote / 12 - 2
         
@@ -271,7 +415,7 @@ class MidiKeyin: NSObject {
         }
         
         var noteStr = notenames[aNote]
-        noteStr = typedData.isRest ? "Rest" : noteStr + String(aOctav)
+        noteStr = isRest ? "Rest" : noteStr + String(aOctav)
         
         // make step time string
         var stepstr: String
@@ -324,8 +468,13 @@ class MidiKeyin: NSObject {
                 case octavKeyRange:
                     subOctav(keyLabel: ks.action)
                     typedData.isEnterKey = false
+                case velocityKeyRange:
+                    subVelocity(keyLabel: ks.action)
+                case enterKeyRange:
+                    typedData.isEnterKey = true
                 default:
-                    print("non note is typed")
+                    let hex = String(format: "key code is %x not captured", ks.keycode)
+                    print(hex)
                     return
                 } // closure of switch
 
@@ -346,6 +495,11 @@ class MidiKeyin: NSObject {
         
         lastStepName = ""   // this is necessary to make my input method work.
         
+        if note == "Rest" {
+            subRest()
+            return
+        }
+
         // The same key is pressed in a row
         if note == lastNoteName {
             // update Int value and String value
@@ -360,56 +514,54 @@ class MidiKeyin: NSObject {
                 }
             }
             aOctav  = curNote / 12 - 2
+
             lastNoteName = note
             
-            // post MidiNoteKeyIn notification so I can send Midi note for monitor
-            note4monitor = MidiEvent.init(tick: 0, midiStatus: UInt8(0x90), note: UInt8(curNote), vel: UInt8(velocity), gateTime: Int32(gateTime))
-            nc?.post(name: ntMidiNoteKeyIn, object: note4monitor)
+        } else {
             
-            typedData.typedString["Note"] = note + String(aOctav)
-        }
-        
-        // not the same note
-        
-        if shift == true {
-            if octav > -2 {
-                aOctav = octav - 1
+            // not the same note
+            //
+            if shift == true {
+                if octav > -2 {
+                    aOctav = octav - 1
+                } else {
+                    aOctav = octav
+                }
             } else {
                 aOctav = octav
             }
-        } else {
-            aOctav = octav
-        }
-        
-        switch note {
-        case "C":
-            curNote = 24 + aOctav * 12
-        case "C#":
-            curNote = 25 + aOctav * 12
-        case "D":
-            curNote = 26 + aOctav * 12
-        case "D#":
-            curNote = 27 + aOctav * 12
-        case "E":
-            curNote = 28 + aOctav * 12
-        case "F":
-            curNote = 29 + aOctav * 12
-        case "F#":
-            curNote = 30 + aOctav * 12
-        case "G":
-            curNote = 31 + aOctav * 12
-        case "G#":
-            curNote = 32 + aOctav * 12
-        case "A":
-            curNote = 33 + aOctav * 12
-        case "A#":
-            curNote = 34 + aOctav * 12
-        case "B":
-            curNote = 35 + aOctav * 12
-        default:
-            // debug
-            print("unexpected note name")
-            return
+            
+            switch note {
+            case "C":
+                curNote = 24 + aOctav * 12
+            case "C#":
+                curNote = 25 + aOctav * 12
+            case "D":
+                curNote = 26 + aOctav * 12
+            case "D#":
+                curNote = 27 + aOctav * 12
+            case "E":
+                curNote = 28 + aOctav * 12
+            case "F":
+                curNote = 29 + aOctav * 12
+            case "F#":
+                curNote = 30 + aOctav * 12
+            case "G":
+                curNote = 31 + aOctav * 12
+            case "G#":
+                curNote = 32 + aOctav * 12
+            case "A":
+                curNote = 33 + aOctav * 12
+            case "A#":
+                curNote = 34 + aOctav * 12
+            case "B":
+                curNote = 35 + aOctav * 12
+            default:
+                // debug
+                print("unexpected note name")
+                category = .none
+                return
+            }
         }
 
         // post MidiNoteKeyIn notification so I can send Midi note for monitor
@@ -418,8 +570,10 @@ class MidiKeyin: NSObject {
         nc?.post(name: ntMidiNoteKeyIn, object: note4monitor)
 
         lastNoteName = note
-        typedData.isRest = false
+        isRest = false
         typedData.typedString["Note"] = note + String(aOctav)
+        
+        category = .note
 
     }
     
@@ -429,6 +583,8 @@ class MidiKeyin: NSObject {
         var st: Int
         
         lastNoteName = ""   // this is necessary to make my input method work
+        
+        category = .step
         
         switch step {
         case "32th":
@@ -449,6 +605,17 @@ class MidiKeyin: NSObject {
         case "slur":
             slurFlag = true
             return
+        case "chord":
+            // toggle chord flag
+            isChord = isChord == true ? false : true
+            if isChord == true {
+                // if chord mode is on, then don't change step time
+                typedData.typedString["StepTime"] = "0"
+                return
+            }
+            // chord turned off
+            st = stepTime
+            
         default:
             // debug
             st = 0
@@ -485,6 +652,44 @@ class MidiKeyin: NSObject {
         } else {    // it must be minus '-'
             octav = octav <= -2 ? -2 : octav - 1
         }
+        
+        category = .oct
+    }
+    
+    private func subVelocity(keyLabel: String) -> Void {
+        switch keyLabel {
+        case "vel 1":
+            velocity = 10
+        case "vel 2":
+            velocity = 15
+        case "vel 3":
+            velocity = 30
+        case "vel 4":
+            velocity = 42
+        case "vel 5":
+            velocity = 64
+        case "vel 6":
+            velocity = 72
+        case "vel 7":
+            velocity = 84
+        case "vel 8":
+            velocity = 96
+        case "vel 9":
+            velocity = 110
+        case "vel 10":
+            velocity = 127
+        default:
+            velocity = 64
+        }
+        typedData.typedString["Vel"] = String(velocity)
+        category = .vel
+    }
+    
+    private func subRest() -> Void {
+        isRest = true
+        typedData.typedString["Note"] = "Rest" // note must be Rest
+        lastNoteName = "Rest"
+        category = .note
     }
     
 }

@@ -71,6 +71,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let storyboard: NSStoryboard?
     var app: NSApplication?
     var curDoc: MidiData?
+    var theKat: MidiKeyin?
 
     var midiInterface: MidiInterface?
 
@@ -169,6 +170,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             insMenuItem.isEnabled = false
             noteTypingMenuItem.isEnabled = false
         }
+        
+        theKat = MidiKeyin()
+        guard theKat != nil else {
+            displayAlert("cannot instantiate MidiKeyIn")
+            exit(1)
+        } // I can use theKat! for the rest of the codes
+        
+        theKat!.loadKeyAssign()
+        if theKat!.keyAssignTable.count < 10 {
+            displayAlert("The item count of keyAssignTable is less than 10. It's got to be more")
+            exit(1)
+        }
+        
         
         // debug makeDelta
         //      2019/4/7 tried enough cases and verified.

@@ -63,21 +63,32 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         keyAssign(position: 10, action: "A", keyLabel: "clear", code: 71),
         keyAssign(position: 11, action: "A#", keyLabel: "=", code: 81),
         keyAssign(position: 12, action: "B", keyLabel: "/", code: 75),
-        keyAssign(position: 13, action: "32th", keyLabel: "F15", code: 113),
-        keyAssign(position: 14, action: "16th", keyLabel: "0", code: 82),
-        keyAssign(position: 15, action: "8th", keyLabel: ".", code: 65),
-        keyAssign(position: 16, action: "4th", keyLabel: "pagedown", code: 121),
-        keyAssign(position: 17, action: "half", keyLabel: "pageup", code: 116),
-        keyAssign(position: 18, action: "whole", keyLabel: "del->", code: 117),
-        keyAssign(position: 19, action: "chord", keyLabel: "F16", code: 106),
-        keyAssign(position: 20, action: "triplet", keyLabel: "F17", code: 64),
-        keyAssign(position: 21, action: "dot", keyLabel: "F18", code: 79),
-        keyAssign(position: 22, action: "slur", keyLabel: "F19", code: 80),
-        keyAssign(position: 23, action: "+", keyLabel: "+", code: 69),
-        keyAssign(position: 24, action: "-", keyLabel: "-", code: 78),
-        keyAssign(position: 25, action: "enter", keyLabel: "enter", code: 76),
-        keyAssign(position: 26, action: "enter2", keyLabel: "enter2", code: 36)
-    ]
+        keyAssign(position: 13, action: "Rest", keyLabel: "->", code: 124),
+        keyAssign(position: 14, action: "32th", keyLabel: "F15", code: 113),
+        keyAssign(position: 15, action: "16th", keyLabel: "0", code: 82),
+        keyAssign(position: 16, action: "8th", keyLabel: ".", code: 65),
+        keyAssign(position: 17, action: "Quarter", keyLabel: "pagedown", code: 121),
+        keyAssign(position: 18, action: "half", keyLabel: "pageup", code: 116),
+        keyAssign(position: 19, action: "whole", keyLabel: "del->", code: 117),
+        keyAssign(position: 20, action: "chord", keyLabel: "*", code: 67),
+        keyAssign(position: 21, action: "trip-1st", keyLabel: "F16", code: 106),
+        keyAssign(position: 22, action: "trip-2nd", keyLabel: "F17", code: 64),
+        keyAssign(position: 23, action: "dot", keyLabel: "F18", code: 79),
+        keyAssign(position: 24, action: "slur", keyLabel: "F19", code: 80),
+        keyAssign(position: 25, action: "+", keyLabel: "+", code: 69),
+        keyAssign(position: 26, action: "-", keyLabel: "-", code: 78),
+        keyAssign(position: 27, action: "enter", keyLabel: "enter", code: 76),
+        keyAssign(position: 28, action: "enter2", keyLabel: "enter2", code: 36),
+        keyAssign(position: 29, action: "vel 1", keyLabel: "vel 1", code: 18),
+        keyAssign(position: 30, action: "vel 2", keyLabel: "vel 2", code: 19),
+        keyAssign(position: 31, action: "vel 3", keyLabel: "vel 3", code: 20),
+        keyAssign(position: 32, action: "vel 4", keyLabel: "vel 4", code: 21),
+        keyAssign(position: 33, action: "vel 5", keyLabel: "vel 5", code: 23),
+        keyAssign(position: 34, action: "vel 6", keyLabel: "vel 6", code: 22),
+        keyAssign(position: 35, action: "vel 7", keyLabel: "vel 7", code: 26),
+        keyAssign(position: 36, action: "vel 8", keyLabel: "vel 8", code: 28),
+        keyAssign(position: 37, action: "vel 9", keyLabel: "vel 9", code: 25),
+        keyAssign(position: 38, action: "vel 10", keyLabel: "vel 10", code: 29)    ]
     
     @IBOutlet weak var keyAssignTableView: NSTableView!
     @IBOutlet weak var restore2defaultButton: NSButton!
@@ -370,15 +381,15 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
     override func validateProposedFirstResponder(_ responder: NSResponder, for event: NSEvent?) -> Bool {
         //if event == nil { return false }
         
-        if event != nil {
-            switch event!.type {
-            case NSEvent.EventType.keyDown:
-                print("I've got keyDown")
-                return false
-            default:
-                print("got into default in validating")
-            }
-        }
+//        if event != nil {
+//            switch event!.type {
+//            case NSEvent.EventType.keyDown:
+//                print("I've got keyDown")
+//                return false
+//            default:
+//                print("got into default in validating")
+//            }
+//        }
 
         return false
     }
