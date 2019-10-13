@@ -54,7 +54,8 @@ class setupWindowController: NSWindowController, NSWindowDelegate {
 //                al.beginSheetModal(for: self.window!, completionHandler:  { (modalresponse) -> Void in
                 switch modalresponse {
                 case NSApplication.ModalResponse.alertFirstButtonReturn:
-                    self.keyAssignVC?.saveKeyAssign()
+                    (NSApp.delegate as? AppDelegate)?.theKat!.saveKeyAssign()
+                    // self.keyAssignVC?.saveKeyAssign()
                 case NSApplication.ModalResponse.alertSecondButtonReturn:
                     res = false
                 default:

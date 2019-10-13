@@ -61,7 +61,7 @@ class OnelineTST: NSObject {
     
 //  How to access this union structure
 //  Assuming aTst is a union variable with the type of TST
-//        if case let .TimeSig(ibar, inum, idenom, bar) = aTst {
+//        if case let .TimeSig(ibar, inum, idenom) = aTst {
 //        // The variable has TimeSig data, do what you want for TimeSig
 //            return
 //        }

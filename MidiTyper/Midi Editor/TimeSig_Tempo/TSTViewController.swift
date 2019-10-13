@@ -455,6 +455,11 @@ class TSTViewController: NSViewController, NSTableViewDataSource, NSTableViewDel
         if rebuildTempoMap() == false {
             del?.displayAlert("failed to rebuild tempoMap")
         }
+        
+        midi!.isRemapNeed = true
+        
+        // Every time either TimeSig or Tempo changes, remap the data
+        midi!.willEndEditing()
     }
     
     // When rebuild Time signature and tempo,

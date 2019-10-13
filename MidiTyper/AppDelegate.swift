@@ -48,6 +48,8 @@ struct ysError: Error {
         case timeoutForSemaphor
         case typedinEvent
         case failedToLoadSong
+        case RebuildingCommonTrackSeq
+        case RebuildingTrackMap
     }
     var source: String  // source file name
     var line: Int   // line of code
@@ -91,6 +93,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     override init() {
         docCon = nil
         storyboard = NSStoryboard(name: "Main", bundle: nil)
+        
+        // load key assign table
+        theKat = MidiKeyin()
+        theKat!.loadKeyAssign()
+        
         super.init()
     }
     
@@ -98,6 +105,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Insert code here to initialize your application
         
         app = aNotification.object as? NSApplication
+        
+        // check if key assign table is loaded
+        guard theKat != nil else {
+            self.displayAlert("cannot instantiate MidiKeyIn")
+            exit(1)
+        } // I can use theKat! for the rest of the codes
+        if theKat!.keyAssignTable.count < 10 {
+            self.displayAlert("The item count of keyAssignTable is less than 10. It's got to be more")
+            exit(1)
+        }
+
+
         
         docCon = NSDocumentController.shared
         if docCon == nil {
@@ -169,18 +188,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             changeMenuItem.isEnabled = false
             insMenuItem.isEnabled = false
             noteTypingMenuItem.isEnabled = false
-        }
-        
-        theKat = MidiKeyin()
-        guard theKat != nil else {
-            displayAlert("cannot instantiate MidiKeyIn")
-            exit(1)
-        } // I can use theKat! for the rest of the codes
-        
-        theKat!.loadKeyAssign()
-        if theKat!.keyAssignTable.count < 10 {
-            displayAlert("The item count of keyAssignTable is less than 10. It's got to be more")
-            exit(1)
         }
         
         
@@ -285,9 +292,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func keyDown(with event: NSEvent) {
-        // debug
-//        print("keyDown in AppDelegate: \(event.keyCode)")
-//        if (event.modifierFlags.rawValue & NSEvent.ModifierFlags.shift.rawValue) != 0 { print("shift is pressed down") }
         
         let whichWin = frontWindow()
         

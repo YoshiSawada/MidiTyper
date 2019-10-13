@@ -20,7 +20,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @IBOutlet weak var editorTableView: NSTableView!
     @IBOutlet weak var editButton: NSButton!
     @IBOutlet weak var insButton: NSButton!
-    @IBOutlet var midiKeyIn: MidiKeyin!
     @IBOutlet weak var noteText: NSTextField!
     @IBOutlet weak var velocityText: NSTextField!
     @IBOutlet weak var gatetimeText: NSTextField!
@@ -32,6 +31,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @IBOutlet weak var noteTypingButton: NSButton!
     
     var docCon: NSDocumentController?
+    var midiKeyIn: MidiKeyin?
     var midi:MidiData?
     var trackIndexInFocus: Int?
     var lines: [OnelineMidi] = Array<OnelineMidi>()
@@ -108,6 +108,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     let lineReserveCapacity = 1024
     var undoTrack: Track?
     let del = NSApplication.shared.delegate as? AppDelegate
+    let nc = NotificationCenter.default
     
     // variables to show the newly edit event
     var lineToSelect: Int?
@@ -138,6 +139,12 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 //            return aEvent
 //        }
         
+        midiKeyIn = del?.theKat
+        guard midiKeyIn != nil else {
+            del?.displayAlert("midiKeyIn is nil in ViewController")
+            exit(1)
+        }
+        
         self.inEdit = false
         editButton.isEnabled = false
         insButton.isEnabled = false
@@ -150,11 +157,23 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         beatText.stringValue = "1"
         tickText.stringValue = "0"
     }
+    
+    override func viewWillAppear() {
+        // del?.docCon?.currentDocument = midi
+    }
 
     override var representedObject: Any? {
         didSet {
         // Update the view, if already loaded.
         }
+    }
+    
+    override func viewWillDisappear() {
+        if makeTrackTable(MidiData: midi!) == false {
+            let er = ysError.init(source: "ViewController.swift", line: 168, type: ysError.errorID.RebuildingTrackMap)
+            del!.errorHandle(err: er)
+        }
+        midi?.willEndEditing()
     }
     
     func editViewObserver(notf: Notification) -> Void {
@@ -197,12 +216,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             //
             if midi == nil { return }
             if del?.changeMenuItem.state == NSControl.StateValue.on {
-                inEdit = true
                 editButton.state = NSControl.StateValue.on
             } else {
-                inEdit = false
                 editButton.state = NSControl.StateValue.off
             }
+            editButtonAction(self)
         case ntInsEventMenuIssued:
             if midi == nil { return }
             if del?.insMenuItem.state == NSControl.StateValue.on {
@@ -216,11 +234,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             if del?.noteTypingMenuItem.state == NSControl.StateValue.on {
                 isNoteTyping = true
                 noteTypingButton.state = NSControl.StateValue.on
-                midiKeyIn.typedData.isNoteType = true
+                midiKeyIn!.typedData.isNoteType = true
             } else {
                 isNoteTyping = false
                 noteTypingButton.state = NSControl.StateValue.off
-                midiKeyIn.typedData.isNoteType = false
+                midiKeyIn!.typedData.isNoteType = false
             }
         default:
             print("The observer in midi edit view received a notification")
@@ -351,7 +369,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             return
         }
 
-        let typed = midiKeyIn.keyIn(event: event)
+        let typed = midiKeyIn!.keyIn(event: event)
 
         // if enter is pressed, process it depending on either change or insert mode.
         
@@ -361,10 +379,10 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
             // See if the event is rest or note
             //
-            if midiKeyIn.isRest == true {
+            if midiKeyIn!.isRest == true {
                 // proceed the location
                 let (m, b, t) = currentLocation()
-                let loc = midi!.advance(by: midiKeyIn.stepTime, meas: m, beat: b, tick: t)
+                let loc = midi!.advance(by: midiKeyIn!.stepTime, meas: m, beat: b, tick: t)
                 if loc == nil {
                     NSSound.beep()
                     return
@@ -377,7 +395,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             // to replace it.
             if insButton.state == NSControl.StateValue.off {
                 // replace mode
-                if midiKeyIn.setMidiEvent(fromTextField: noteText.stringValue, vel: velocityText.stringValue, gt: gatetimeText.stringValue) {
+                if midiKeyIn!.setMidiEvent(fromTextField: noteText.stringValue, vel: velocityText.stringValue, gt: gatetimeText.stringValue) {
                     // replace it with the edited event
                     barInFocus?.events.remove(at: eventIndexInFocus)
                     // insert is going to be done later
@@ -407,7 +425,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         if isNoteTyping == true {
             // Below is code to get note from typing
             
-            switch midiKeyIn.category {
+            switch midiKeyIn!.category {
             case .note, .oct:
                 noteText.stringValue = typed.typedString["Note"]!
             case .vel:
@@ -419,6 +437,10 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 print("key note categorized \(event.keyCode)")
             }
         }
+        
+        // I wanted to mute the system beep when a function key is pressed.
+        // But it did't work. Don't know how I can mute it.
+        // parent?.flushBufferedKeyEvents()
 
         return
     }
@@ -660,7 +682,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             setEventLine(note: oneline!.0, vel: oneline!.1, gate: oneline!.2, step: stStr)
             setTimeFields(forBar: barInFocus!, ix: residual-1)
 
-            midiKeyIn.set(MidiEvent: eventInFocus!)
+            midiKeyIn!.set(MidiEvent: eventInFocus!)
         }
     }
     
@@ -741,6 +763,10 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         let stepTime = steptimeText.integerValue
         let gateTime = gatetimeText.integerValue == 0 ? 108 : gatetimeText.integerValue
         let vel = velocityText.integerValue == 0 ? 64 : velocityText.integerValue
+        
+        // send MIDI note to monitor
+        let note4monitor = MidiEvent.init(tick: 0, midiStatus: UInt8(0x90), note: UInt8(midiKeyIn!.curNote), vel: UInt8(vel), gateTime: Int32(gateTime))
+        nc.post(name: ntMidiNoteKeyIn, object: note4monitor)
  
         if midi?.tracks?[trackIndexInFocus!] == nil {
             er.line = 705
@@ -782,20 +808,20 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         
         measToSelect = measnum
 
-        midiKeyIn.typedData.midiEvent.gateTime = Int32(gateTime)
-        midiKeyIn.typedData.midiEvent.vel = UInt8(vel)
+        midiKeyIn!.typedData.midiEvent.gateTime = Int32(gateTime)
+        midiKeyIn!.typedData.midiEvent.vel = UInt8(vel)
         
         if measnum == barInFocus!.measNum {
             // don't have to change the target bar
             // label A-open
             let tickInBar = barInFocus?.relTick(fromBeat: beat!, andTick: tick)
             if tickInBar == nil {
-                er.line = 752
+                er.line = 803
                 throw(er)
             }
             
-            midiKeyIn.typedData.midiEvent.eventTick = Int32(tickInBar!)
-            let ev = midiKeyIn.typedData.midiEvent.copy() as! MidiEvent
+            midiKeyIn!.typedData.midiEvent.eventTick = Int32(tickInBar!)
+            let ev = midiKeyIn!.typedData.midiEvent.copy() as! MidiEvent
             barInFocus!.events.append(ev)
             barInFocus!.sort()
             // label: A-close; no change in bar;
@@ -808,18 +834,18 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 let barTemp = midi!.barTemplate(forZerobaseMeas: measnum!)
                 
                 if barTemp == nil {
-                    er.line = 770
+                    er.line = 821
                     throw(er)
                 }
                 
                 let tickInBar = barTemp!.relTick(fromBeat: beat!, andTick: tick)
                 if tickInBar == nil {
-                    er.line = 776
+                    er.line = 827
                     throw(er)
                 }
                 
-                midiKeyIn.typedData.midiEvent.eventTick = Int32(tickInBar!)
-                let anEv = midiKeyIn.typedData.midiEvent.copy() as! MidiEvent
+                midiKeyIn!.typedData.midiEvent.eventTick = Int32(tickInBar!)
+                let anEv = midiKeyIn!.typedData.midiEvent.copy() as! MidiEvent
                 
                 let bar = barTemp!.copy() as! Bar
                 bar.events.append(anEv)
@@ -838,12 +864,12 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 // to the real data
                 let ticksInBar = bar.relTick(fromBeat: beat!, andTick: tick)
                 if ticksInBar == nil {
-                    er.line = 800
+                    er.line = 851
                     throw(er)
                 }
                 
-                midiKeyIn.typedData.midiEvent.eventTick = Int32(ticksInBar!)
-                let ev = midiKeyIn.typedData.midiEvent.copy() as! MidiEvent
+                midiKeyIn!.typedData.midiEvent.eventTick = Int32(ticksInBar!)
+                let ev = midiKeyIn!.typedData.midiEvent.copy() as! MidiEvent
                 bar.events.append(ev)
                 bar.sort()
                 barInFocus = bar
@@ -851,7 +877,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         } // label; A-close
         
         midi!.tracks![trackIndexInFocus!].dirty = true
-        midiEventToSelect = midiKeyIn.typedData.midiEvent.copy() as? MidiEvent
+        midiEventToSelect = midiKeyIn!.typedData.midiEvent.copy() as? MidiEvent
         
         // set new point of bar, beat and tick
         let newLoc = midi!.advance(by: stepTime, meas: measnum!, beat: beat!, tick: tick)
@@ -902,6 +928,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             del?.changeMenuItem.state = NSControl.StateValue.on
         } else {
             inEdit = false
+            if makeTrackTable(MidiData: midi!) == false {
+                let er = ysError.init(source: "ViewController.swift", line: 920, type: ysError.errorID.RebuildingTrackMap)
+                del!.errorHandle(err: er)
+            }
+            midi?.willEndEditing()
             del?.changeMenuItem.state = NSControl.StateValue.off
         }
     }
@@ -921,11 +952,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         if noteTypingButton.state == NSControl.StateValue.on {
             del?.noteTypingMenuItem.state = NSControl.StateValue.on
             isNoteTyping = true
-            midiKeyIn.typedData.isNoteType = true
+            midiKeyIn!.typedData.isNoteType = true
         } else {
             del?.noteTypingMenuItem.state = NSControl.StateValue.off
             isNoteTyping = false
-            midiKeyIn.typedData.isNoteType = false
+            midiKeyIn!.typedData.isNoteType = false
         }
     }
     

@@ -8,87 +8,9 @@
 
 import Cocoa
 
-class keyAssign: NSObject, NSCoding {
-
-    
-    let position: Int
-    let action: String
-    var keyLabel: String
-    var keycode: UInt16
-
-    init(position:Int, action:String, keyLabel:String, code:UInt16) {
-        self.position = position
-        self.action = action
-        self.keyLabel = keyLabel
-        self.keycode = code
-    }
-    
-    func encode(with aCoder: NSCoder) {
-        aCoder.encode(position, forKey: "position")
-        aCoder.encode(action, forKey: "action")
-        aCoder.encode(keyLabel, forKey: "keyLabel")
-        aCoder.encode(Int(keycode), forKey: "keycode")
-    }
-    
-    required convenience init?(coder aDecoder: NSCoder) {
-
-        let pos = aDecoder.decodeInteger(forKey: "position")
-        
-        let ac = aDecoder.decodeObject(forKey: "action")
-        if ac == nil { return nil }
-
-        let keylbl = aDecoder.decodeObject(forKey: "keyLabel")
-        if keylbl == nil { return nil}
-        
-        let i = aDecoder.decodeInteger(forKey: "keycode")
-        let kc = UInt16(i)
-
-        self.init(position: pos , action: ac as! String, keyLabel: keylbl as! String, code: kc)
-    }
-}
 
 class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate, NSWindowDelegate {
-    
-    // in case property list is broken, I need to create the key assinment file from this scratch
-    let defaultKeyAssignTable:[keyAssign] = [
-        keyAssign(position: 1, action: "C", keyLabel: "1", code: 83),
-        keyAssign(position: 2, action: "C#", keyLabel: "2", code: 84),
-        keyAssign(position: 3, action: "D", keyLabel: "3", code: 85),
-        keyAssign(position: 4, action: "D#", keyLabel: "4", code: 86),
-        keyAssign(position: 5, action: "E", keyLabel: "5", code: 87),
-        keyAssign(position: 6, action: "F", keyLabel: "6", code: 88),
-        keyAssign(position: 7, action: "F#", keyLabel: "7", code: 89),
-        keyAssign(position: 8, action: "G", keyLabel: "8", code: 91),
-        keyAssign(position: 9, action: "G#", keyLabel: "9", code: 92),
-        keyAssign(position: 10, action: "A", keyLabel: "clear", code: 71),
-        keyAssign(position: 11, action: "A#", keyLabel: "=", code: 81),
-        keyAssign(position: 12, action: "B", keyLabel: "/", code: 75),
-        keyAssign(position: 13, action: "Rest", keyLabel: "->", code: 124),
-        keyAssign(position: 14, action: "32th", keyLabel: "F15", code: 113),
-        keyAssign(position: 15, action: "16th", keyLabel: "0", code: 82),
-        keyAssign(position: 16, action: "8th", keyLabel: ".", code: 65),
-        keyAssign(position: 17, action: "Quarter", keyLabel: "pagedown", code: 121),
-        keyAssign(position: 18, action: "half", keyLabel: "pageup", code: 116),
-        keyAssign(position: 19, action: "whole", keyLabel: "del->", code: 117),
-        keyAssign(position: 20, action: "chord", keyLabel: "*", code: 67),
-        keyAssign(position: 21, action: "trip-1st", keyLabel: "F16", code: 106),
-        keyAssign(position: 22, action: "trip-2nd", keyLabel: "F17", code: 64),
-        keyAssign(position: 23, action: "dot", keyLabel: "F18", code: 79),
-        keyAssign(position: 24, action: "slur", keyLabel: "F19", code: 80),
-        keyAssign(position: 25, action: "+", keyLabel: "+", code: 69),
-        keyAssign(position: 26, action: "-", keyLabel: "-", code: 78),
-        keyAssign(position: 27, action: "enter", keyLabel: "enter", code: 76),
-        keyAssign(position: 28, action: "enter2", keyLabel: "enter2", code: 36),
-        keyAssign(position: 29, action: "vel 1", keyLabel: "vel 1", code: 18),
-        keyAssign(position: 30, action: "vel 2", keyLabel: "vel 2", code: 19),
-        keyAssign(position: 31, action: "vel 3", keyLabel: "vel 3", code: 20),
-        keyAssign(position: 32, action: "vel 4", keyLabel: "vel 4", code: 21),
-        keyAssign(position: 33, action: "vel 5", keyLabel: "vel 5", code: 23),
-        keyAssign(position: 34, action: "vel 6", keyLabel: "vel 6", code: 22),
-        keyAssign(position: 35, action: "vel 7", keyLabel: "vel 7", code: 26),
-        keyAssign(position: 36, action: "vel 8", keyLabel: "vel 8", code: 28),
-        keyAssign(position: 37, action: "vel 9", keyLabel: "vel 9", code: 25),
-        keyAssign(position: 38, action: "vel 10", keyLabel: "vel 10", code: 29)    ]
+
     
     @IBOutlet weak var keyAssignTableView: NSTableView!
     @IBOutlet weak var restore2defaultButton: NSButton!
@@ -96,7 +18,6 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
     @IBOutlet weak var compareButton: NSButton!
     
     var del:AppDelegate?
-    var keyAssignTable = Array<keyAssign>()
     var compareKeyAssignBuffer = [keyAssign]()
     let nc = NotificationCenter.default
     var textFielsInTable = [KeyAssignTextField]()
@@ -109,9 +30,11 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
     override func viewDidLoad() {
         super.viewDidLoad()
         del = NSApp.delegate as? AppDelegate
-        
-        loadKeyAssign()
-        
+        guard del != nil else {
+            print("AppDelegate cannot be loaded in KeyAssignViewController")
+            exit(1)
+        } // I can use del! for the rest of the codes
+
         for i in 0 ..< keyAssignTableView.numberOfRows {
             let rview = keyAssignTableView.rowView(atRow:i, makeIfNecessary:true)
             rview?.resignFirstResponder()
@@ -174,10 +97,11 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         
         // edit keyAssignTable
         let row = keyAssignTableView.selectedRow
-        let idx = keyAssignTable.firstIndex(where: { $0.position == row+1 } )
+        let idx = del!.theKat?.keyAssignTable.firstIndex(where: { $0.position == row+1 } )
         if idx == nil { return }
-        keyAssignTable[idx!].keyLabel = event.characters!
-        keyAssignTable[idx!].keycode = event.keyCode
+        del!.theKat!.keyAssignTable[idx!].keyLabel = event.characters!
+        del!.theKat!.keyAssignTable[idx!].keycode = event.keyCode
+        del!.theKat!.isTableDirty = true
         isTableDirty = true
         
         // change the values in tableview, column char
@@ -186,7 +110,7 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         
         // some keycode doesn't have corresponding single char representation, clear for instance
         // In that case, force it to have more human readable string
-        switch keyAssignTable[idx!].keycode {
+        switch del!.theKat!.keyAssignTable[idx!].keycode {
         case 71:
             cell.stringValue = "clear"
         case 117:
@@ -214,14 +138,14 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         case 76:
             cell.stringValue = "enter"
         default:
-            cell.stringValue = keyAssignTable[idx!].keyLabel
+            cell.stringValue = del!.theKat!.keyAssignTable[idx!].keyLabel
         }
         
         // change the value in tableview, column keycode
         let idx3 = textFielsInTable.firstIndex(where: { $0.posInTable.0 == row && $0.posInTable.1 == 2 } )
         
         let cell2 = textFielsInTable[idx3!]
-        cell2.stringValue = String.init(format:"%d", keyAssignTable[idx!].keycode)
+        cell2.stringValue = String.init(format:"%d", del!.theKat!.keyAssignTable[idx!].keycode)
         
         var fr = cell.frame
         cell.draw(fr)
@@ -239,109 +163,13 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
     override func resignFirstResponder() -> Bool {
         return true
     }
-    
-    func saveKeyAssign () {
-        // make plist path
-        var plistPath:String?
-        var data:Data?
-        let plistFileName = "keyAssign.plist"
-        let fileMgr = FileManager.default
-        var ret:Bool
-        
-        plistPath = Bundle.main.path(forResource: "KeyAssignTable", ofType: "plist")
-        if plistPath == nil { // if budle.main is not accessile then
-            let directorys : [String]? = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.applicationSupportDirectory,FileManager.SearchPathDomainMask.allDomainsMask, true)
-            if directorys != nil {
-                for str in directorys! {
-                    if str.prefix(7) == "/Users/" {
-                        plistPath = str
-                        plistPath = plistPath?.appending("/MidiTyper/" + plistFileName)
-                        if plistPath == nil {
-                            del?.displayAlert("plistPath is nil")
-                            return
-                        }
-                        ret = fileMgr.fileExists(atPath: plistPath!)
-                        if ret == false {
-                            do {
-                                try fileMgr.createDirectory(atPath: str.appending("/MidiTyper"), withIntermediateDirectories: false, attributes: nil)
-                            } catch {
-                                print(error)
-                                return
-                            }
-                        }
-                        print(plistPath!)
-                        data = NSKeyedArchiver.archivedData(withRootObject: keyAssignTable)
-                        if data != nil {
-                            let b = fileMgr.createFile(atPath: plistPath!, contents: data!, attributes: nil)
-                            if b == false {
-                                del?.displayAlert("Cannot save keyassign table")
-                                return
-                            }
-                            // succeed
-                        } else {
-                            // must not happen
-                            del?.displayAlert("failed to create key assign table data")
-                            return
-                        }
-                        // save the path for key assign table to preference
-                        let defaults = UserDefaults.standard
-                        defaults.setValue(plistPath!, forKey: "KeyAssignTablePath")
-                        isTableDirty = false
 
-                        break
-                    } // close of if str.prefix(9)
-                }
-            } // close of directorys != nil
-
-        } else {  // close of if plistPath == nil and else clause follows
-           return   // place holder, debug
-        }
-    }   // close of saveKeyAssign
-    
-    func loadKeyAssign() {
-        let defaults = UserDefaults.standard
-        let fileMgr = FileManager.default
-        var ret:Bool
-
-        //let path:String? = defaults.dictionary(forKey: "KeyAssignTablePath") as? String
-        let path = defaults.value(forKey: "KeyAssignTablePath")
-        var table: [keyAssign]?
-        
-        // debug -- store default values
-        // when debug saveKeyAssign, let the line below; if path != nil, otherwise if path == nil
-        if path == nil {    // path to preference doesn't exist
-            table = defaultKeyAssignTable
-            makeKeyAssignTable(from: table!)
-            saveKeyAssign() // if this is the first time to launch
-                // save the default key table in file
-            return
-        }
-        
-        ret = fileMgr.fileExists(atPath: path as! String)
-        if ret == false {   // path string exists but the file doesn't. It is considered the first launch
-            table = defaultKeyAssignTable
-            makeKeyAssignTable(from: table!)
-            saveKeyAssign() // if this is the first time to launch
-            // save the default key table in file
-            return
-        }
-
-        table = (NSKeyedUnarchiver.unarchiveObject(withFile: path! as! String) as? [keyAssign])
-        if table == nil { // file exists but no data there
-            table = defaultKeyAssignTable
-            table = table?.sorted(by: { $0.position < $1.position})
-            makeKeyAssignTable(from: table!)
-            saveKeyAssign()
-        } else {
-            table = table?.sorted(by: { $0.position < $1.position})
-            makeKeyAssignTable(from: table!)
-        }
-    }
     
     // MARK: - tableView coding
     //
     func numberOfRows(in tableView: NSTableView) -> Int {
-        return keyAssignTable.count
+        let count = del!.theKat?.keyAssignTable.count
+        return count ?? 0
     }
     
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
@@ -350,14 +178,14 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         
         switch (tableColumn?.identifier)!.rawValue {
         case "ActionCell":
-            cell?.textField?.stringValue = keyAssignTable[row].action
+            cell?.textField?.stringValue = del!.theKat!.keyAssignTable[row].action
         case "KeyCell":
             let texf: KeyAssignTextField? = cell?.textField as? KeyAssignTextField
-            texf?.stringValue = keyAssignTable[row].keyLabel
+            texf?.stringValue = del!.theKat!.keyAssignTable[row].keyLabel
             texf?.posInTable = (row, 1)
         case "CodeCell":
             let texf: KeyAssignTextField? = cell?.textField as? KeyAssignTextField
-            let st = String.init(format:"%d",keyAssignTable[row].keycode)
+            let st = String.init(format:"%d",del!.theKat!.keyAssignTable[row].keycode)
             texf?.stringValue = st
             texf?.posInTable = (row, 2)
         default:
@@ -394,21 +222,6 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
         return false
     }
     
-    // MARK: Private functions
-    //
-    private func makeKeyAssignTable(from table:[keyAssign]) {
-        
-        if keyAssignTable.count > 0 {
-            keyAssignTable.removeAll()
-        }
-        
-        for item in table {
-            let el = keyAssign.init(position: item.position, action: item.action, keyLabel: item.keyLabel, code: item.keycode)
-            keyAssignTable.append(el)
-        }
-        // make sure the order in Array is identical to the order in position
-        keyAssignTable = keyAssignTable.sorted(by: { $0.position < $1.position} )
-    }
     
     // MARK: - Field edit
     //
@@ -479,12 +292,12 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
     @IBAction func compareWithDefault(_ sender: Any) {
         if compareButton.state == NSControl.StateValue.on {
             // temporary make the key assign table back to the default
-            compareKeyAssignBuffer = keyAssignTable
-            makeKeyAssignTable(from: defaultKeyAssignTable)
+            compareKeyAssignBuffer = del!.theKat!.keyAssignTable
+            del!.theKat!.makeKeyAssignTable(from: del!.theKat!.defaultKeyAssignTable)
             keyAssignTableView.reloadData()
         } else {
             if compareKeyAssignBuffer.count > 0 {
-                makeKeyAssignTable(from: compareKeyAssignBuffer)
+                del!.theKat!.makeKeyAssignTable(from: compareKeyAssignBuffer)
                 keyAssignTableView.reloadData()
             }
         }
@@ -502,11 +315,13 @@ class KeyAssignViewController: NSViewController, NSTableViewDataSource, NSTableV
             if modalresponse == NSApplication.ModalResponse.alertFirstButtonReturn {
                 return
             }
-            if self.keyAssignTable.count > 0 {
-                self.keyAssignTable.removeAll()
+            if self.del!.theKat!.keyAssignTable.count > 0 {
+                self.del!.theKat!.keyAssignTable.removeAll()
             }
-            self.makeKeyAssignTable(from: self.defaultKeyAssignTable)
-            self.saveKeyAssign()
+            self.del!.theKat!.makeKeyAssignTable(from: self.del!.theKat!.defaultKeyAssignTable)
+            // self.makeKeyAssignTable(from: self.defaultKeyAssignTable)
+            self.del!.theKat?.saveKeyAssign()
+            // self.saveKeyAssign()
             self.keyAssignTableView.reloadData()
         })
     }

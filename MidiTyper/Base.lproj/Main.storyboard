@@ -1695,7 +1695,6 @@ IA
                         <outlet property="gatetimeText" destination="qYf-E8-lS8" id="JBy-bj-T8S"/>
                         <outlet property="insButton" destination="sJX-qP-uv3" id="T2x-ri-vss"/>
                         <outlet property="midiChannelPopUP" destination="4D8-ns-0Bs" id="cBm-eZ-vGb"/>
-                        <outlet property="midiKeyIn" destination="uGQ-k0-gr3" id="Ihg-aG-Yxl"/>
                         <outlet property="noteText" destination="zzn-Fi-g3u" id="HlX-o8-jtD"/>
                         <outlet property="noteTypingButton" destination="SSq-34-kVh" id="L7N-tN-ray"/>
                         <outlet property="steptimeText" destination="aAG-lB-ikt" id="gNB-Ax-fvB"/>
@@ -1707,7 +1706,6 @@ IA
                     </connections>
                 </viewController>
                 <customObject id="2Tp-Fl-jBw" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <customObject id="uGQ-k0-gr3" customClass="MidiKeyin" customModule="MidiTyper" customModuleProvider="target"/>
             </objects>
             <point key="canvasLocation" x="74.5" y="1000"/>
         </scene>

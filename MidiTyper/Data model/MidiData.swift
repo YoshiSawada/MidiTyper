@@ -366,6 +366,13 @@ class Bar: NSObject, NSCoding {
         return relTick
     }
     
+    func timeSigIn2Int() -> (num: Int, denom: Int) {
+        if timeSig["num"] == nil || timeSig["denom"] == nil {
+            return (4, 2)
+        }
+        return (timeSig["num"]!, timeSig["denom"]!)
+    }
+    
     func sort() {
         if events.count <= 1 { return }
         
@@ -849,6 +856,7 @@ class MidiData: NSDocument {
     var commonTrackSeq: Array<MetaEvent>? = []
     var tracks: Array<Track>?
     var isNew: Bool
+    var isRemapNeed: Bool
     
     // intermediate data
     var eventSeqs: Array<intermedSeqWithChannel> = [] // array of track of event seq
@@ -933,10 +941,11 @@ class MidiData: NSDocument {
         }
         
         smfWholeChunk = SMFBuffer.init(memSize: 1024, incSize: 1024)
+        isRemapNeed = false
         
         super.init()
         // Add your subclass-specific initialization here.
-        let ret = prepare()
+        let ret = buildTempoMap()
         if ret == false {
             Swift.print("MidiData cannot initialize the tempomap")
         }
@@ -971,11 +980,15 @@ class MidiData: NSDocument {
     }
     
     
-    func prepare() -> Bool {
+    func buildTempoMap() -> Bool {
         if commonTrackSeq?.count == 0 {
             return false
         }
+        
         var nanoPerTick: __uint64_t
+        
+        monitor!.resetTempoMap()
+        
         for meta in commonTrackSeq! {
             switch meta.metaTag {
             case tagTempo:
@@ -1261,12 +1274,7 @@ class MidiData: NSDocument {
             err.line = 754
             throw err
         }
-        
-        if monitor!.isTimeSigInitialized == false {
-            err.line = 759
-            throw err
-        }
-        
+                
         var meta: MetaEvent?
         var it = commonTrackSeq!.makeIterator()
         var done: Bool = false
@@ -1391,8 +1399,145 @@ class MidiData: NSDocument {
             startTick4Bar = bar.nextBarTick
         }
         
+        isRemapNeed = true
+        
         return barSeqTemplate.bars!.last!.copy() as? Bar
         // Before playback the song. I have to update TrackTable in play.swift
+    }
+    
+    func willEndEditing() {
+        // rebuild commonTrackSeq
+        
+        if isRemapNeed == false {
+            _ = monitor!.prepare2Play(barseqtemp: barSeqTemplate, tracks: tracks!)
+            _ = monitor!.isPlayable
+            return
+        }
+
+        var error = ysError.init(source: "MidiData", line: 1400, type: ysError.errorID.RebuildingCommonTrackSeq)
+        
+        // First remove time signature and tempo currently in existing commonTrackSeq
+        if commonTrackSeq == nil {
+            error.line = 1404
+            del!.errorHandle(err: error)
+            return
+        }
+
+        // rebuild commonTrackSeq. First I will create a temp array
+        // Then I'll replace commonTrackSeq with the temp one.
+        // and sort them
+        
+        var tmpCommonSeq = Array<MetaEvent>()
+        
+        for meta in commonTrackSeq! {
+            if meta.metaTag == tagTempo {
+                continue
+            }
+            if meta.metaTag == tagTimeSignature {
+                continue
+            }
+            tmpCommonSeq.append(meta.copy() as! MetaEvent)
+        }
+        
+        if monitor == nil {
+            error.line = 1430
+            del!.errorHandle(err: error)
+            return
+        }
+        if barSeqTemplate.bars == nil {
+            error.line = 1435
+            del!.errorHandle(err: error)
+            return
+        }
+        // Midi data has to have initial tempo and time signature in the first
+        // two event.
+        // Unless we have those, we can not convert time domain from
+        // bar, beat, clock to elapsed tick
+        
+        // We must read through Time Signature first and then tempo
+        var latchedTS = (0, 0)
+        var data:[UInt8] = [4, 2, 24, 8]
+        
+        for bar in barSeqTemplate.bars! {
+            if bar.measNum == 0 {
+                latchedTS = bar.timeSigIn2Int()
+                // add time sig meta event to commonTrackSeq
+                data[0] = UInt8(latchedTS.0)
+                data[1] = UInt8(latchedTS.1)
+                let ts = MetaEvent.init(metaTag: tagTimeSignature, eventTick: 0, len: 4, data: data)
+                tmpCommonSeq.append(ts)
+                continue
+            }
+            if bar.timeSigIn2Int() != latchedTS {
+                let (n, d) = bar.timeSigIn2Int()
+                data[0] = UInt8(n)
+                data[1] = UInt8(d)
+                let ts = MetaEvent.init(metaTag: tagTimeSignature, eventTick: bar.startTick, len: 4, data: data)
+                tmpCommonSeq.append(ts)
+                latchedTS = bar.timeSigIn2Int()
+            }
+        }
+        
+        // read through tempo
+        
+        for t in monitor!.tempoMapSeq {
+            let npt: __uint64_t = t.nanoPerTick
+            let npq = npt * UInt64(ticksPerQuarter!)
+            let microsecPerQuarter = npq / 1000
+            
+            // convert UInt64 to UInt32 and then to array of UInt8
+            var i32_1: UInt32 = UInt32(microsecPerQuarter)
+
+            i32_1 = i32_1 & 0x00ffffff
+            var i32_2 = i32_1 >> 16
+            
+            data[0] = UInt8(i32_2)
+            
+            i32_2 = i32_1 >> 8
+            i32_2 = i32_2 & 0x000000ff
+            data[1] = UInt8(i32_2)
+            
+            i32_2 = i32_1 & 0x000000ff
+            data[2] = UInt8(i32_2)
+            
+            // put it into meta event
+            let meta = MetaEvent.init(metaTag: tagTempo, eventTick: t.beginTick, len: 3, data: data)
+            tmpCommonSeq.append(meta.copy() as! MetaEvent)
+            
+        }
+        // start writing here
+        // sort meta event seq
+            // not sure if this will work out...
+        commonTrackSeq = tmpCommonSeq.sorted(by: {
+            if $0.eventTick <= $1.eventTick {
+                return true
+            } else {
+                return false
+            }
+         } )
+        
+        // it is not necessary to call buildTempoMap because
+        // TSTViewController rebuild tempomap every time the user changes
+        // tempo
+//        if buildTempoMap() == false {
+//            error.line = 1519
+//            del!.errorHandle(err: error)
+//            return
+//        }
+        
+        if makeTrackTable(MidiData: self) == false {
+            error.line = 1532
+            del!.errorHandle(err: error)
+            return
+        }
+        
+        isRemapNeed = false
+        if monitor!.prepare2Play(barseqtemp: barSeqTemplate, tracks: tracks!) == false {
+            error.line = 1534
+            del!.errorHandle(err: error)
+            return
+        }
+        _ = monitor!.isPlayable
     }
 
 

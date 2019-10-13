@@ -68,7 +68,6 @@ class MonitorCenter {
             }
         }
     }
-    var isTimeSigInitialized: Bool = false
     var curTimeSig: Dictionary<String, Int> = ["num":4, "denom":2]
     var isOrderOfBarDirty: Bool = false
     let nanoRatio: Double
@@ -88,7 +87,6 @@ class MonitorCenter {
             if tracksForPlay == nil { return false }
             if tempoMapSeq.count == 0 { return false }
             if isTempoInitialized == false { return false }
-            if isTimeSigInitialized == false { return false }
             if objMidi == nil { return false }
             if barSeqTemplate.bars == nil { return false }
             if isBarSeqTemplateInitialized == false { return false }
@@ -172,8 +170,8 @@ class MonitorCenter {
     }
     
     // To play, call functions in the order of, prepare2Play and startEntry()
-    // startEntry calls setAndGo() and then call playingThread.
-    // Then it repeats calling queue2Play.
+    // startEntry calls setAndGo()
+    // Then it in turn repeats calling queue2Play.
     // In calling queue2Play repeatedly, set lhmt to the value of nanoNextTime
     // to make sure no event will be missed to play
     

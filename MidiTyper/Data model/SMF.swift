@@ -116,7 +116,6 @@ func openSMF(owner: MidiData, from url: URL) throws {
         }
     }
 
-    owner.monitor!.isTimeSigInitialized = false
     owner.curElapsedTick = 0
     owner.nextMeasNum = 0
     owner.monitor!.resetTempoMap()
@@ -500,7 +499,6 @@ private func readMetaEvent (MidiData owner:MidiData, offset ofs:Int, eventTick e
         
         owner.monitor!.curTimeSig["num"] = Int(metaEvt.data[0])
         owner.monitor!.curTimeSig["denom"] = Int(metaEvt.data[1])
-        owner.monitor!.isTimeSigInitialized = true
         
         let bar = Bar.init(measNum: owner.nextMeasNum, startTick: owner.curElapsedTick, numerator: owner.monitor!.curTimeSig["num"]!, denominator: owner.monitor!.curTimeSig["denom"]!, ticksPerQuarter: Int(owner.ticksPerQuarter!))
         owner.barSeqTemplate.bars?.append(bar)
