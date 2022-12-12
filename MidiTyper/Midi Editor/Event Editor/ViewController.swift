@@ -10,6 +10,7 @@ import Cocoa
 
 let UpArrow: UInt16 = 126
 let DownArrow: UInt16 = 125
+let DeleteKeyCode: UInt16 = 51
 
 class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
     
@@ -351,22 +352,47 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
 
         // up/down arrow will change the selected row in event list
-        if event.keyCode == UpArrow { // up arrow
+        // these will be done automatically. I commented out the block below
+        // on 2020/3/31
+//        if event.keyCode == UpArrow { // up arrow
+//            let sr = editorTableView.selectedRow
+//            if sr != 0 {
+//                let ixset = IndexSet.init(integer: sr - 1)
+//                editorTableView.selectRowIndexes(ixset, byExtendingSelection: false)
+//            }
+//            return
+//        }
+//        if event.keyCode == DownArrow {
+//            let sr = editorTableView.selectedRow
+//            // add code to check the last line
+//            if sr < numberOfRows(in: editorTableView) - 1 {
+//                let ixset = IndexSet.init(integer: sr + 1)
+//                editorTableView.selectRowIndexes(ixset, byExtendingSelection: false)
+//            }
+//            return
+//        }
+        
+        // Delete an event
+        //
+        if event.keyCode == DeleteKeyCode {
+            // delete the event in focus
             let sr = editorTableView.selectedRow
-            if sr != 0 {
-                let ixset = IndexSet.init(integer: sr - 1)
-                editorTableView.selectRowIndexes(ixset, byExtendingSelection: false)
+            if sr != -1 { // valid row is selected
+                let theLine = lines[sr]
+                if theLine.event == "Bar"{
+                    // want to delete bar? Use menu command instead.
+                    del?.displayAlert("Use menu command to delete bar(s)")
+                    return
+                }
+                // delete the event in focus
+                    // error check
+                if eventIndexInFocus < 0 || eventIndexInFocus > barInFocus?.events.count ?? -1 {
+                    NSSound.beep()
+                    del?.displayAlert(String(format:"eventIndexInFocus is out of range: %0d", eventIndexInFocus))
+                }
+                barInFocus?.events.remove(at: eventIndexInFocus)
+                loadTrack()
             }
-            return
-        }
-        if event.keyCode == DownArrow {
-            let sr = editorTableView.selectedRow
-            // add code to check the last line
-            if sr < numberOfRows(in: editorTableView) - 1 {
-                let ixset = IndexSet.init(integer: sr + 1)
-                editorTableView.selectRowIndexes(ixset, byExtendingSelection: false)
-            }
-            return
         }
 
         let typed = midiKeyIn!.keyIn(event: event)
@@ -441,6 +467,10 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         // I wanted to mute the system beep when a function key is pressed.
         // But it did't work. Don't know how I can mute it.
         // parent?.flushBufferedKeyEvents()
+        
+        // start wrinting code here to implement
+        // delete and other functions.
+        
 
         return
     }
@@ -593,38 +623,92 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     func selectedRowChanged(notif: Notification) -> Void {
         selectedRow = editorTableView.selectedRow
         // if no row is selected, then the result will be -1
+        var lineOfBar: Int = -1
+        var residual: Int = 0
+        var barIndex: Int? = -1
+
+        // revised process on 2019/10/20
+        //  first, see if the selected row object is bar
+
+        var error = ysError.init(source: "ViewController", line: 600, type: ysError.errorID.eventListEditor)
+        
         if selectedRow == -1 {
             eventInFocus = nil
             return
         }
         
+        if lines[selectedRow].barObj == nil {
+            error.line = 615
+            del?.errorHandle(err: error)
+        }
+        
+        barInFocus = lines[selectedRow].barObj!
+        if trackIndexInFocus ?? -1 < 0 {
+            error.line = 621
+            del?.errorHandle(err: error)
+        }
+        
+        barIndex = midi!.tracks![trackIndexInFocus!].bars!.firstIndex(of: barInFocus!)
+        
         // Finding an item in which bar object is selected in the tableview
-        var i: Int = -1
-        var residual: Int = 0
-        var barIndex: Int = -1
+                
+        if lines[selectedRow].event == "Bar" {
+            lineOfBar = selectedRow
+            residual = 0
+        } else {
+            // selected row has an event
+            // find out what bar does the row belong to
+            if selectedRow <= 0 {
+                // this should not happen
+                error.line = 661
+                del?.errorHandle(err: error)
+            }
+            
+            for j in 1...selectedRow {
+                // search for bar in reverse order
+                if lines[selectedRow-j].event == "Bar" {
+                    // this is a bar
+                    // store the line of bar in lineOfBar
+                    lineOfBar = selectedRow - j
+                    residual = selectedRow - lineOfBar
+                    break
+                }
+            }
+            if lineOfBar == -1 {
+                // no bar in the event editor
+                // this must not happen
+                error.line = 678
+                del?.errorHandle(err: error)
+            }
+        }
+        
+        if barIndex == nil {
+            error.line = 652
+            del?.errorHandle(err: error)
+        }
 
-        pos1: for j in 0..<barIndexInTable.count {
-            if barIndexInTable[j] == selectedRow {
-                barInFocus = midi!.tracks![trackIndexInFocus!].bars?[j]
-                barIndex = j
-                i = j
-                residual = 0
-                break pos1
-            }
-            if barIndexInTable[j] > selectedRow {
-                i = j > 0 ? j - 1 : 0
-                barInFocus = midi!.tracks![trackIndexInFocus!].bars![i]
-                barIndex = i
-                residual = selectedRow - barIndexInTable[i]
-                break pos1
-            }
-        }
-        if i == -1 { // selectedRow should point to an event in the last bar
-            i = midi!.tracks![trackIndexInFocus!].bars!.count
-            barInFocus = midi!.tracks![trackIndexInFocus!].bars![i-1]
-            barIndex = i - 1
-            residual = selectedRow - barIndexInTable[i-1]
-        }
+//        pos1: for j in 0..<barIndexInTable.count {
+//            if barIndexInTable[j] == selectedRow {
+//                barInFocus = midi!.tracks![trackIndexInFocus!].bars?[j]
+//                barIndex = j
+//                lineOfBar = j
+//                residual = 0
+//                break pos1
+//            }
+//            if barIndexInTable[j] > selectedRow {
+//                lineOfBar = j > 0 ? j - 1 : 0
+//                barInFocus = midi!.tracks![trackIndexInFocus!].bars![lineOfBar]
+//                barIndex = lineOfBar
+//                residual = selectedRow - barIndexInTable[lineOfBar]
+//                break pos1
+//            }
+//        }
+//        if lineOfBar == -1 { // selectedRow should point to an event in the last bar
+//            lineOfBar = midi!.tracks![trackIndexInFocus!].bars!.count
+//            barInFocus = midi!.tracks![trackIndexInFocus!].bars![lineOfBar-1]
+//            barIndex = lineOfBar - 1
+//            residual = selectedRow - barIndexInTable[lineOfBar-1]
+//        }
         
         if residual == 0 { // selected row is on bar
             setEventLine(note: "***", vel: "***", gate: "***", step: "***")
@@ -655,13 +739,13 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             } else {
                 // next event is in the next bar or this is the last event in the track
                     // See if we have more bar
-                if midi!.tracks![trackIndexInFocus!].bars!.count > barIndex + 1 {
+                if midi!.tracks![trackIndexInFocus!].bars!.count > barIndex! + 1 {
                     // I have more bar(s)
                     let curTick = barInFocus!.startTick + Int(mev.eventTick)
                     // See if the next bar has any event
-                    if midi!.tracks![trackIndexInFocus!].bars![barIndex+1].events.count > 0 {
+                    if midi!.tracks![trackIndexInFocus!].bars![barIndex!+1].events.count > 0 {
                         // the next bar has an event
-                        let nextEventTick = Int(midi!.tracks![trackIndexInFocus!].bars![barIndex+1].events[0].eventTick) + midi!.tracks![trackIndexInFocus!].bars![barIndex+1].startTick
+                        let nextEventTick = Int(midi!.tracks![trackIndexInFocus!].bars![barIndex!+1].events[0].eventTick) + midi!.tracks![trackIndexInFocus!].bars![barIndex!+1].startTick
                         stepTime = nextEventTick - curTick
                     } else {
                         // the next bar doesn't have an event

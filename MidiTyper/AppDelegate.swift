@@ -50,6 +50,7 @@ struct ysError: Error {
         case failedToLoadSong
         case RebuildingCommonTrackSeq
         case RebuildingTrackMap
+        case eventListEditor
     }
     var source: String  // source file name
     var line: Int   // line of code
@@ -518,8 +519,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // MARK: Error handling
     func errorHandle(err: ysError) {
+        let al = NSAlert.init()
+        
+        al.messageText = "error handle"
+        al.informativeText = "see debug string"
+        al.addButton(withTitle: "OK")
+        
+        al.runModal()
+
         let message = String(format: "error in %s, line %d, type \(err.type)", err.source, err.line)
         print(message)
+        
+        exit(0)
     }
 }
 

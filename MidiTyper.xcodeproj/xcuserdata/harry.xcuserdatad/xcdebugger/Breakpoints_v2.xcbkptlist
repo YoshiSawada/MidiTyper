@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Bucket
+   uuid = "6A72E87F-4FFD-4850-8125-93244A51F583"
    type = "1"
    version = "2.0">
-   <Breakpoints>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MidiTyper/AppDelegate.swift"
-            timestampString = "590208497.022647"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "402"
-            endingLineNumber = "402"
-            landmarkName = "saveDocumentAs(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-   </Breakpoints>
 </Bucket>

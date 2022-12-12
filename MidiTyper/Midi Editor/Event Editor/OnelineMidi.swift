@@ -77,6 +77,7 @@ class OnelineMidi: NSObject {
     
     convenience init(bar:Bar) {
         self.init()
+        barObj = bar
         meas = String(bar.measNum + 1)
     }
     
